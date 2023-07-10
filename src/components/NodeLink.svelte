@@ -23,8 +23,7 @@
 	export let width = 500;
 	export let height = 500;
 
-	let svg;
-
+	let graphSVG: SVGElement;
 	let d3nodes: { name: string }[] = graph.mapNodes((node: string) => ({ name: node }));
 	let d3links: { source: string; target: string }[] = graph.mapEdges(
 		(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
@@ -32,28 +31,29 @@
 			target: target
 		})
 	);
-	console.log(d3nodes);
 
 	let simulation;
 	let transform = d3.zoomIdentity;
 
-	simulation = d3
-		.forceSimulation(d3nodes)
-		.force(
-			'link',
-			d3.forceLink(d3links).id((d) => d.name)
-		)
-		.force('charge', d3.forceManyBody())
-		.force('center', d3.forceCenter(width / 2, height / 2))
-		.on('tick', updateSvg);
-
 	onMount(() => {
-		d3.select(svg)
+		// start simulation
+		simulation = d3
+			.forceSimulation(d3nodes)
+			.force(
+				'link',
+				d3.forceLink(d3links).id((d) => d.name)
+			)
+			.force('charge', d3.forceManyBody())
+			.force('center', d3.forceCenter(width / 2, height / 2))
+			.on('tick', updateSvg);
+
+		// drag and zoom
+		d3.select(graphSVG)
 			.call(
 				d3
 					.drag()
-					.container(svg)
-					.subject(dragSubject)
+					.container(graphSVG)
+					.subject(getDragD3Node)
 					.on('start', dragStarted)
 					.on('drag', dragged)
 					.on('end', dragEnded)
@@ -77,9 +77,8 @@
 		d3links = d3links;
 	}
 
-	const clickRadius = 5;
-	function dragSubject(currentEvent) {
-		console.log('dragSubject, ', currentEvent);
+	const clickRadius = 5; // TODO refactor elsewhere, change on mobile
+	function getDragD3Node(currentEvent) {
 		const node = simulation.find(
 			transform.invertX(currentEvent.x),
 			transform.invertY(currentEvent.y),
@@ -89,37 +88,36 @@
 			node.x = transform.applyX(node.x);
 			node.y = transform.applyY(node.y);
 		}
-		console.log('returning: ', node);
 		return node;
 	}
 
+	// if fx/fy is defined on a simulation node, no forces are applied on tick
+	// if they're null, forces are applied again
+	// alpha - simulation temperature (activeness), converges to currently set alphaTarget, if 0, simulation stops
+
 	function dragStarted(currentEvent) {
-		console.log('dragstart');
 		if (!currentEvent.active) simulation.alphaTarget(0.3).restart();
-		currentEvent.subject.fx = transform.invertX(currentEvent.subject.x);
-		currentEvent.subject.fy = transform.invertY(currentEvent.subject.y);
+		let draggedNode = currentEvent.subject;
+
+		draggedNode.fx = transform.invertX(draggedNode.x);
+		draggedNode.fy = transform.invertY(draggedNode.y);
 	}
 
 	function dragged(currentEvent) {
-		console.log('dragged');
-		currentEvent.subject.fx = transform.invertX(currentEvent.x);
-		currentEvent.subject.fy = transform.invertY(currentEvent.y);
+		let draggedNode = currentEvent.subject;
+		draggedNode.fx = transform.invertX(currentEvent.x);
+		draggedNode.fy = transform.invertY(currentEvent.y);
 	}
 
 	function dragEnded(currentEvent) {
-		console.log('dragend');
 		if (!currentEvent.active) simulation.alphaTarget(0);
-		currentEvent.subject.fx = null;
-		currentEvent.subject.fy = null;
+		let draggedNode = currentEvent.subject;
+		draggedNode.fx = null;
+		draggedNode.fy = null;
 	}
-
-	// function getDraggedNode(dragEvent: Event) {
-	// 	console.log(event);
-	// 	return d3nodes.find((node) => node.name === dragEvent.target.getAttribute('id'));
-	// }
 </script>
 
-<svg bind:this={svg} {width} {height}>
+<svg bind:this={graphSVG} {width} {height}>
 	{#each d3links as link}
 		<g stroke="#999" stroke-opacity="0.6">
 			<line
