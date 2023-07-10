@@ -8,7 +8,16 @@ dependencies:
   d3:
     specifier: ^7.8.5
     version: 7.8.5
+  d3-drag:
+    specifier: ^3.0.0
+    version: 3.0.0
   d3-force:
+    specifier: ^3.0.0
+    version: 3.0.0
+  d3-selection:
+    specifier: ^3.0.0
+    version: 3.0.0
+  d3-zoom:
     specifier: ^3.0.0
     version: 3.0.0
   graphology:
