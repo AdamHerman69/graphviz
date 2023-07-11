@@ -1,14 +1,16 @@
 <script lang="ts">
 	import Graph from 'graphology';
 	import type { VizParams } from '../modules/VizParams';
+	import { GraphStore } from '../stores/stores';
 	import { forceSimulation, forceLink, forceManyBody, forceCenter } from 'd3-force';
+	// import { SimulationNodeDatum, SimulationLinkDatum } from '@types/d3-force';
 	// Failed to resolve entry for package "@types/d3-force", not sure why
 	// TODO look into it later maybe
-	// import { SimulationNodeDatum, SimulationLinkDatum } from '@types/d3-force';
 	import { drag } from 'd3-drag';
 	import { select } from 'd3-selection';
 	import { zoom, zoomIdentity } from 'd3-zoom';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
+	import type { Writable } from 'svelte/store';
 
 	const d3 = {
 		forceSimulation,
@@ -21,25 +23,30 @@
 		zoomIdentity
 	};
 
-	export let graph: Graph;
 	export let vizParams: VizParams = undefined;
-	export let width = 500;
-	export let height = 500;
+	let width: number;
+	let height: number;
 
 	let graphSVG: SVGElement;
-	let d3nodes: { name: string } = graph.mapNodes((node: string) => ({ name: node }));
-	let d3links: { source: string; target: string }[] = graph.mapEdges(
-		(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
-			source: source,
-			target: target
-		})
-	);
+	let d3nodes: { name: string };
+	let d3links: { source: string; target: string }[];
 
-	let simulation;
-	let transform: Transform = d3.zoomIdentity;
+	$: {
+		restartSimulation($GraphStore);
+		console.log(width, height);
+	}
 
-	onMount(() => {
-		// start simulation
+	function restartSimulation(graphStore: Writable<Graph>): void {
+		// update graph nodes
+		d3nodes = $GraphStore.mapNodes((node: string) => ({ name: node }));
+		d3links = $GraphStore.mapEdges(
+			(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
+				source: source,
+				target: target
+			})
+		);
+
+		// start d3-force
 		simulation = d3
 			.forceSimulation(d3nodes)
 			.force(
@@ -67,7 +74,12 @@
 					.scaleExtent([1 / 10, 8])
 					.on('zoom', zoomed)
 			);
-	});
+	}
+
+	onMount(() => restartSimulation($GraphStore));
+
+	let simulation;
+	let transform: Transform = d3.zoomIdentity;
 
 	function zoomed(zoomEvent: ZoomEvent) {
 		transform = zoomEvent.transform;
@@ -120,35 +132,37 @@
 	}
 </script>
 
-<svg bind:this={graphSVG} {width} {height}>
-	{#each d3links as link}
-		<g stroke="#999" stroke-opacity="0.6">
-			<line
-				x1={link.source.x}
-				y1={link.source.y}
-				x2={link.target.x}
-				y2={link.target.y}
+<div class="flex-1" bind:clientWidth={width} bind:clientHeight={height}>
+	<svg bind:this={graphSVG} {width} {height}>
+		{#each d3links as link}
+			<g stroke="#999" stroke-opacity="0.6">
+				<line
+					x1={link.source.x}
+					y1={link.source.y}
+					x2={link.target.x}
+					y2={link.target.y}
+					transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
+				>
+					<title>{link.source.id}</title>
+				</line>
+			</g>
+		{/each}
+
+		{#each d3nodes as node}
+			<circle
+				id={node.name}
+				class="node"
+				r="5"
+				fill="pink"
+				cx={node.x}
+				cy={node.y}
 				transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
 			>
-				<title>{link.source.id}</title>
-			</line>
-		</g>
-	{/each}
-
-	{#each d3nodes as node}
-		<circle
-			id={node.name}
-			class="node"
-			r="5"
-			fill="pink"
-			cx={node.x}
-			cy={node.y}
-			transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
-		>
-			<title>{node.name}</title>
-		</circle>
-	{/each}
-</svg>
+				<title>{node.name}</title>
+			</circle>
+		{/each}
+	</svg>
+</div>
 
 <style>
 </style>

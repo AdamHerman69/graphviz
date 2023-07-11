@@ -2,6 +2,7 @@
 	import GraphImport from '../components/GraphImport.svelte';
 	import NodeLink from '../components/NodeLink.svelte';
 	import Graph from 'graphology';
+	import { GraphStore } from '../stores/stores';
 
 	// example graph init
 	const graph = new Graph();
@@ -30,28 +31,20 @@
 	graph.addEdge('j', 'c');
 	graph.addEdge('h', 'i');
 	graph.addEdge('j', 'i');
+
+	GraphStore.set(graph);
 </script>
 
 <!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
 
 <div class="container h-full mx-auto flex justify-center items-center">
-	<div class="space-y-5">
-		<h1 class="h1">Let's get cracking bones!</h1>
-		<p>Start by exploring:</p>
-		<ul>
-			<li>
-				<code class="code">/src/routes/+layout.svelte</code> - barebones layout, the CSS import order
-				is critical!
-			</li>
-			<li>
-				<code class="code">/src/app.postcss</code> - minimal css to make the page full screen, may not
-				be relevant for your project
-			</li>
-			<li>
-				<code class="code">/src/routes/+page.svelte</code> - this page, you can replace the contents
-			</li>
-		</ul>
-		<NodeLink {graph} />
-		<GraphImport />
+	<div class="h-full flex flex-col">
+		<h1 class="h1 flex-none m-10">node-link vizualization demo</h1>
+		<div class="grow flex">
+			<NodeLink />
+		</div>
+		<div class="flex-none m-10">
+			<GraphImport />
+		</div>
 	</div>
 </div>

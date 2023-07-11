@@ -2,7 +2,7 @@
 	import Graph from 'graphology';
 	import { parse } from 'graphology-graphml';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
-	//import { FileReader } from 'file-api';
+	import { GraphStore } from '../stores/stores';
 
 	let files: FileList;
 	let graphmlString: string;
@@ -12,12 +12,12 @@
 	let graph: Graph;
 
 	async function onChangeHandler(e: Event): void {
-		const file = e.target.files[0];
+		const file: File = e.target.files[0];
 		const graphmlString = await file.text();
 
 		graph = parse(Graph, graphmlString);
-		console.log(graph);
+		GraphStore.set(graph);
 	}
 </script>
 
-<FileDropzone name="fileInput" bind:files on:change={onChangeHandler} />
+<FileDropzone name="fileInput" bind:files on:change={onChangeHandler} accept=".graphml, .gexf" />
