@@ -1,4 +1,5 @@
 <script>
+	import GraphImport from '../components/GraphImport.svelte';
 	import NodeLink from '../components/NodeLink.svelte';
 	import Graph from 'graphology';
 
@@ -51,5 +52,6 @@
 			</li>
 		</ul>
 		<NodeLink {graph} />
+		<GraphImport />
 	</div>
 </div>

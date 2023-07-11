@@ -16,6 +16,7 @@
 		"@skeletonlabs/skeleton": "^1.9.0",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.5.0",
+		"@types/d3-force": "^3.0.4",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"autoprefixer": "^10.4.14",
@@ -39,6 +40,8 @@
 		"d3-force": "^3.0.0",
 		"d3-selection": "^3.0.0",
 		"d3-zoom": "^3.0.0",
-		"graphology": "^0.25.1"
+		"file-api": "^0.10.4",
+		"graphology": "^0.25.1",
+		"graphology-graphml": "^0.5.2"
 	}
 }

@@ -2,6 +2,9 @@
 	import Graph from 'graphology';
 	import type { VizParams } from '../modules/VizParams';
 	import { forceSimulation, forceLink, forceManyBody, forceCenter } from 'd3-force';
+	// Failed to resolve entry for package "@types/d3-force", not sure why
+	// TODO look into it later maybe
+	// import { SimulationNodeDatum, SimulationLinkDatum } from '@types/d3-force';
 	import { drag } from 'd3-drag';
 	import { select } from 'd3-selection';
 	import { zoom, zoomIdentity } from 'd3-zoom';
@@ -24,7 +27,7 @@
 	export let height = 500;
 
 	let graphSVG: SVGElement;
-	let d3nodes: { name: string }[] = graph.mapNodes((node: string) => ({ name: node }));
+	let d3nodes: { name: string } = graph.mapNodes((node: string) => ({ name: node }));
 	let d3links: { source: string; target: string }[] = graph.mapEdges(
 		(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
 			source: source,
@@ -33,7 +36,7 @@
 	);
 
 	let simulation;
-	let transform = d3.zoomIdentity;
+	let transform: Transform = d3.zoomIdentity;
 
 	onMount(() => {
 		// start simulation
@@ -66,8 +69,8 @@
 			);
 	});
 
-	function zoomed(currentEvent) {
-		transform = currentEvent.transform;
+	function zoomed(zoomEvent: ZoomEvent) {
+		transform = zoomEvent.transform;
 		updateSvg();
 	}
 
@@ -78,10 +81,10 @@
 	}
 
 	const clickRadius = 5; // TODO refactor elsewhere, change on mobile
-	function getDragD3Node(currentEvent) {
+	function getDragD3Node(dragEvent: DragEvent) {
 		const node = simulation.find(
-			transform.invertX(currentEvent.x),
-			transform.invertY(currentEvent.y),
+			transform.invertX(dragEvent.x),
+			transform.invertY(dragEvent.y),
 			clickRadius
 		);
 		if (node) {
@@ -95,23 +98,23 @@
 	// if they're null, forces are applied again
 	// alpha - simulation temperature (activeness), converges to currently set alphaTarget, if 0, simulation stops
 
-	function dragStarted(currentEvent) {
-		if (!currentEvent.active) simulation.alphaTarget(0.3).restart();
-		let draggedNode = currentEvent.subject;
+	function dragStarted(dragEvent: DragEvent) {
+		if (!dragEvent.active) simulation.alphaTarget(0.3).restart();
+		let draggedNode = dragEvent.subject;
 
 		draggedNode.fx = transform.invertX(draggedNode.x);
 		draggedNode.fy = transform.invertY(draggedNode.y);
 	}
 
-	function dragged(currentEvent) {
-		let draggedNode = currentEvent.subject;
-		draggedNode.fx = transform.invertX(currentEvent.x);
-		draggedNode.fy = transform.invertY(currentEvent.y);
+	function dragged(dragEvent: DragEvent) {
+		let draggedNode = dragEvent.subject;
+		draggedNode.fx = transform.invertX(dragEvent.x);
+		draggedNode.fy = transform.invertY(dragEvent.y);
 	}
 
-	function dragEnded(currentEvent) {
-		if (!currentEvent.active) simulation.alphaTarget(0);
-		let draggedNode = currentEvent.subject;
+	function dragEnded(dragEvent: DragEvent) {
+		if (!dragEvent.active) simulation.alphaTarget(0);
+		let draggedNode = dragEvent.subject;
 		draggedNode.fx = null;
 		draggedNode.fy = null;
 	}
