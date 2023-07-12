@@ -11,6 +11,7 @@
 	// const graph = parse(Graph, graphmlString);
 	let graph: Graph;
 
+	// TODO: fix flow and error handeling
 	async function onChangeHandler(e: Event): void {
 		const file: File = e.target.files[0];
 		const graphmlString = await file.text();

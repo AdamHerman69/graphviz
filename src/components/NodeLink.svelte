@@ -9,7 +9,7 @@
 	import { drag } from 'd3-drag';
 	import { select } from 'd3-selection';
 	import { zoom, zoomIdentity } from 'd3-zoom';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { Writable } from 'svelte/store';
 
 	const d3 = {
@@ -132,7 +132,7 @@
 	}
 </script>
 
-<div class="flex-1" bind:clientWidth={width} bind:clientHeight={height}>
+<div class="h-full" bind:clientWidth={width} bind:clientHeight={height}>
 	<svg bind:this={graphSVG} {width} {height}>
 		{#each d3links as link}
 			<g stroke="#999" stroke-opacity="0.6">
