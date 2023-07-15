@@ -1,8 +1,14 @@
-<script>
+<script lang="ts">
 	import GraphImport from '../components/GraphImport.svelte';
 	import NodeLink from '../components/NodeLink.svelte';
 	import Graph from 'graphology';
-	import { GraphStore } from '../stores/stores';
+	import {
+		GraphStore,
+		NodeSettings,
+		type NodeSettings,
+		EdgeSettings,
+		type EdgeSettings
+	} from '../stores/stores';
 	import Matrix from '../components/Matrix.svelte';
 
 	// example graph init
@@ -34,6 +40,27 @@
 	graph.addEdge('j', 'i');
 
 	GraphStore.set(graph);
+
+	const nodeSettings: NodeSettings = {
+		attribute: null,
+		size: 5,
+		fill: 'blue',
+		fillOpacity: 1,
+		strokeColor: 'red',
+		strokeThickness: 3
+	};
+
+	NodeSettings.set(nodeSettings);
+
+	const edgeSettings: EdgeSettings = {
+		attribute: null,
+		style: 'default',
+		color: 'white',
+		opacity: 1,
+		thickness: 3
+	};
+
+	EdgeSettings.set(edgeSettings);
 </script>
 
 <!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->

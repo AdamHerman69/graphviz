@@ -1,9 +1,7 @@
 <script lang="ts">
 	import Graph from 'graphology';
-	import type { VizParams } from '../modules/VizParams';
 	import { GraphStore } from '../stores/stores';
 
-	export let vizParams: VizParams = undefined;
 	let width: number;
 	let height: number;
 	let rectSize: number;
@@ -11,7 +9,6 @@
 
 	$: matrixSize = Math.min(width, height);
 	$: rectSize = matrixSize / $GraphStore.order;
-	console.log($GraphStore);
 </script>
 
 <div class="h-full" bind:clientWidth={width} bind:clientHeight={height}>

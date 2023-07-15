@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Graph from 'graphology';
-	import type { VizParams } from '../modules/VizParams';
 	import { GraphStore } from '../stores/stores';
 	import { forceSimulation, forceLink, forceManyBody, forceCenter } from 'd3-force';
 	// import { SimulationNodeDatum, SimulationLinkDatum } from '@types/d3-force';
@@ -11,6 +10,8 @@
 	import { zoom, zoomIdentity } from 'd3-zoom';
 	import { onMount } from 'svelte';
 	import type { Writable } from 'svelte/store';
+	import Node from './Node.svelte';
+	import Edge from './Edge.svelte';
 
 	const d3 = {
 		forceSimulation,
@@ -23,17 +24,18 @@
 		zoomIdentity
 	};
 
-	export let vizParams: VizParams = undefined;
 	let width: number;
 	let height: number;
 
 	let graphSVG: SVGElement;
+
+	// TODO refactor these objects into arguments of graphology, so the state is all in one place
+	// No, shouldn't be in graphology state - this is component specific for force-graph, clickable events should still work
 	let d3nodes: { name: string };
 	let d3links: { source: string; target: string }[];
 
 	$: {
 		restartSimulation($GraphStore);
-		console.log(width, height);
 	}
 
 	function restartSimulation(graphStore: Writable<Graph>): void {
@@ -63,7 +65,7 @@
 				d3
 					.drag()
 					.container(graphSVG)
-					.subject(getDragD3Node)
+					.subject(getD3Node)
 					.on('start', dragStarted)
 					.on('drag', dragged)
 					.on('end', dragEnded)
@@ -93,10 +95,10 @@
 	}
 
 	const clickRadius = 5; // TODO refactor elsewhere, change on mobile
-	function getDragD3Node(dragEvent: DragEvent) {
+	function getD3Node(mouseEvent: MouseEvent) {
 		const node = simulation.find(
-			transform.invertX(dragEvent.x),
-			transform.invertY(dragEvent.y),
+			transform.invertX(mouseEvent.x),
+			transform.invertY(mouseEvent.y),
 			clickRadius
 		);
 		if (node) {
@@ -130,36 +132,33 @@
 		draggedNode.fx = null;
 		draggedNode.fy = null;
 	}
+
+	// TODO refactor highlight into graphology state
+	// function onNodeMouseEnter(mouseEvent: MouseEvent) {
+	// 	const nodeCircle: SVGCircleElement = mouseEvent.target;
+	// 	nodeCircle.setAttribute('stroke', 'purple');
+	// }
+
+	// function onNodeMouseOut(mouseEvent: MouseEvent) {
+	// 	let nodeCircle: SVGCircleElement = mouseEvent.target;
+	// 	nodeCircle.removeAttribute('stroke');
+	// }
 </script>
 
 <div class="h-full" bind:clientWidth={width} bind:clientHeight={height}>
 	<svg bind:this={graphSVG} {width} {height}>
 		{#each d3links as link}
-			<g stroke="#999" stroke-opacity="0.6">
-				<line
-					x1={link.source.x}
-					y1={link.source.y}
-					x2={link.target.x}
-					y2={link.target.y}
-					transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
-				>
-					<title>{link.source.id}</title>
-				</line>
-			</g>
+			<Edge
+				sourceX={link.source.x}
+				sourceY={link.source.y}
+				targetX={link.target.x}
+				targetY={link.target.y}
+				{transform}
+			/>
 		{/each}
 
 		{#each d3nodes as node}
-			<circle
-				id={node.name}
-				class="node"
-				r="5"
-				fill="pink"
-				cx={node.x}
-				cy={node.y}
-				transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
-			>
-				<title>{node.name}</title>
-			</circle>
+			<Node x={node.x} y={node.y} {transform} />
 		{/each}
 	</svg>
 </div>
