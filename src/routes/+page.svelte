@@ -43,9 +43,9 @@
 
 	const nodeSettings: NodeSettingsType = {
 		size: { value: 5, min: 1, max: 10 },
-		fill: 'blue',
+		fill: 'pink',
 		fillOpacity: { value: 1, min: 0, max: 1, increment: 0.1 },
-		strokeColor: 'red',
+		strokeColor: 'mediumorchid',
 		strokeThickness: { value: 1, min: 0, max: 5 }
 	};
 
@@ -54,8 +54,8 @@
 	const edgeSettings: EdgeSettingsType = {
 		style: 'default',
 		color: 'white',
-		opacity: { value: 1, min: 0, max: 1 },
-		thickness: { value: 1, min: 0, max: 5 }
+		opacity: { value: 1, min: 0, max: 1, increment: 0.1 },
+		thickness: { value: 1, min: 0, max: 5, increment: 0.5 }
 	};
 
 	EdgeSettings.set(edgeSettings);
