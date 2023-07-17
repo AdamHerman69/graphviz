@@ -10,8 +10,8 @@
 
 <g
 	stroke={$EdgeSettings.color}
-	stroke-width={$EdgeSettings.thickness}
-	stroke-opacity={$EdgeSettings.opacity}
+	stroke-width={$EdgeSettings.thickness.value}
+	stroke-opacity={$EdgeSettings.opacity.value}
 >
 	<line
 		x1={sourceX}
