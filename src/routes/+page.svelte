@@ -8,11 +8,9 @@
 		GraphStore,
 		nodeSize,
 		nodeFill,
-		nodeOpacity,
 		nodeStrokeThickness,
 		nodeStrokeColor,
 		edgeThickness,
-		edgeOpacity,
 		edgeColor
 	} from '../stores/stores';
 
@@ -47,14 +45,12 @@
 	GraphStore.set(graph);
 
 	nodeSize.set({ value: 5, min: 1, max: 10 });
-	nodeFill.set('pink');
-	nodeOpacity.set({ value: 1, min: 0, max: 1, increment: 0.1 });
-	nodeStrokeColor.set('mediumorchid');
+	nodeFill.set({ r: 195, g: 118, b: 199, a: 1 });
+	nodeStrokeColor.set({ r: 68, g: 50, b: 156, a: 1 });
 	nodeStrokeThickness.set({ value: 1, min: 0, max: 5 });
 
 	edgeThickness.set({ value: 1, min: 0, max: 5, increment: 0.5 });
-	edgeOpacity.set({ value: 1, min: 0, max: 1, increment: 0.1 });
-	edgeColor.set('white');
+	edgeColor.set({ r: 255, g: 255, b: 255, a: 0.65 });
 </script>
 
 <!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
