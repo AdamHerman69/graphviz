@@ -1,27 +1,11 @@
 <script lang="ts">
-	//import Graph from 'graphology';
-	import type { Graph, Attributes } from 'graphology';
+	import type Graph from 'graphology';
 	import { GraphStore } from '../stores/stores';
-	//import { forceSimulation, forceLink, forceManyBody, forceCenter } from 'd3-force';
-	// import { SimulationNodeDatum, SimulationLinkDatum } from '@types/d3-force';
-	// Failed to resolve entry for package "@types/d3-force", not sure why
-	// TODO look into it later maybe
 	import * as d3 from 'd3';
 
 	import { onMount } from 'svelte';
 	import Node from './Node.svelte';
 	import Edge from './Edge.svelte';
-
-	// const d3 = {
-	// 	forceSimulation,
-	// 	forceLink,
-	// 	forceManyBody,
-	// 	forceCenter,
-	// 	drag,
-	// 	select,
-	// 	zoom,
-	// 	zoomIdentity
-	// };
 
 	let width: number;
 	let height: number;
