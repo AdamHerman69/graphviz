@@ -4,20 +4,30 @@
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 	import { GraphStore } from '../stores/stores';
 
+	import { toastStore } from '@skeletonlabs/skeleton';
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+
 	let files: FileList;
-	let graphmlString: string;
 
 	//let fileReader = new FileReader();
 	// const graph = parse(Graph, graphmlString);
 	let graph: Graph;
 
 	// TODO: fix flow and error handeling
-	async function onChangeHandler(e: Event): void {
-		const file: File = e.target.files[0];
-		const graphmlString = await file.text();
-
-		graph = parse(Graph, graphmlString);
-		GraphStore.set(graph);
+	async function onChangeHandler(e: Event) {
+		const file: File = (e.target! as HTMLInputElement).files![0];
+		if (!file) {
+			// TODO handle file upload fail
+			return;
+		}
+		try {
+			const graphString = await file.text();
+			graph = parse(Graph, graphString);
+			GraphStore.set(graph);
+		} catch (error) {
+			toastStore.trigger({ message: 'Graph upload failed. Please check the file format.' });
+			console.log(error);
+		}
 	}
 </script>
 

@@ -1,18 +1,26 @@
 <script lang="ts">
-	import { NodeSettings } from '../stores/stores';
+	import {
+		nodeSize,
+		nodeFill,
+		nodeOpacity,
+		nodeStrokeThickness,
+		nodeStrokeColor
+	} from '../stores/stores';
+
+	import type { ZoomTransform } from 'd3';
 
 	export let x: number;
 	export let y: number;
-	export let transform;
+	export let transform: ZoomTransform;
 </script>
 
 <circle
 	class="node"
-	r={$NodeSettings.size.value}
-	fill={$NodeSettings.fill}
-	opacity={$NodeSettings.fillOpacity.value}
-	stroke={$NodeSettings.strokeColor}
-	stroke-width={$NodeSettings.strokeThickness?.value}
+	r={$nodeSize.value}
+	fill={$nodeFill}
+	opacity={$nodeOpacity.value}
+	stroke={$nodeStrokeColor}
+	stroke-width={$nodeStrokeThickness.value}
 	cx={x}
 	cy={y}
 	transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"

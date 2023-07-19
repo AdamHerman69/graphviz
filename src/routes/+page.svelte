@@ -1,14 +1,19 @@
 <script lang="ts">
+	import { Toast } from '@skeletonlabs/skeleton';
 	import GraphImport from '../components/GraphImport.svelte';
 	import NodeLink from '../components/NodeLink.svelte';
 	import SettingsPanel from '../components/SettingsPanel.svelte';
 	import Graph from 'graphology';
 	import {
 		GraphStore,
-		NodeSettings,
-		type NodeSettingsType,
-		EdgeSettings,
-		type EdgeSettingsType
+		nodeSize,
+		nodeFill,
+		nodeOpacity,
+		nodeStrokeThickness,
+		nodeStrokeColor,
+		edgeThickness,
+		edgeOpacity,
+		edgeColor
 	} from '../stores/stores';
 
 	// example graph init
@@ -41,24 +46,15 @@
 
 	GraphStore.set(graph);
 
-	const nodeSettings: NodeSettingsType = {
-		size: { value: 5, min: 1, max: 10 },
-		fill: 'pink',
-		fillOpacity: { value: 1, min: 0, max: 1, increment: 0.1 },
-		strokeColor: 'mediumorchid',
-		strokeThickness: { value: 1, min: 0, max: 5 }
-	};
+	nodeSize.set({ value: 5, min: 1, max: 10 });
+	nodeFill.set('pink');
+	nodeOpacity.set({ value: 1, min: 0, max: 1, increment: 0.1 });
+	nodeStrokeColor.set('mediumorchid');
+	nodeStrokeThickness.set({ value: 1, min: 0, max: 5 });
 
-	NodeSettings.set(nodeSettings);
-
-	const edgeSettings: EdgeSettingsType = {
-		style: 'default',
-		color: 'white',
-		opacity: { value: 1, min: 0, max: 1, increment: 0.1 },
-		thickness: { value: 1, min: 0, max: 5, increment: 0.5 }
-	};
-
-	EdgeSettings.set(edgeSettings);
+	edgeThickness.set({ value: 1, min: 0, max: 5, increment: 0.5 });
+	edgeOpacity.set({ value: 1, min: 0, max: 1, increment: 0.1 });
+	edgeColor.set('white');
 </script>
 
 <!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
@@ -75,3 +71,4 @@
 		</div>
 	</div>
 </div>
+<Toast />

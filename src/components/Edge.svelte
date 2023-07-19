@@ -1,18 +1,14 @@
 <script lang="ts">
-	import { EdgeSettings } from '../stores/stores';
-
+	import { edgeThickness, edgeOpacity, edgeColor } from '../stores/stores';
+	import type { ZoomTransform } from 'd3';
 	export let sourceX: number;
 	export let sourceY: number;
 	export let targetX: number;
 	export let targetY: number;
-	export let transform;
+	export let transform: ZoomTransform;
 </script>
 
-<g
-	stroke={$EdgeSettings.color}
-	stroke-width={$EdgeSettings.thickness.value}
-	stroke-opacity={$EdgeSettings.opacity.value}
->
+<g stroke={$edgeColor} stroke-width={$edgeThickness.value} stroke-opacity={$edgeOpacity.value}>
 	<line
 		x1={sourceX}
 		y1={sourceY}

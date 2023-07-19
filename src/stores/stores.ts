@@ -2,8 +2,6 @@ import { writable, type Writable } from 'svelte/store';
 import type Graph from 'graphology';
 
 export const GraphStore: Writable<Graph> = writable();
-export const NodeSettings: Writable<NodeSettingsType> = writable();
-export const EdgeSettings: Writable<EdgeSettingsType> = writable();
 
 export type NumericalSetting = {
 	value: number;
@@ -12,24 +10,20 @@ export type NumericalSetting = {
 	increment?: number;
 };
 
-export type NodeSettingsType = {
-	attribute?: {
-		name: string;
-		// TODO bind map range of attribute to viz range
-	};
-	size: NumericalSetting; // TODO describe values
-	fill: string; // todo gradient
-	fillOpacity: NumericalSetting;
-	strokeColor?: string;
-	strokeThickness?: NumericalSetting;
-};
+export type Color = string; // TODO check for valid colors
 
-export type EdgeSettingsType = {
-	attribute?: {
-		name: string;
-	};
-	style: string;
-	color: string;
-	opacity: NumericalSetting;
-	thickness: NumericalSetting;
-};
+// TODO bind graph attributes, gradient fills, fill styles..
+
+// node settings stores
+export const nodeSize: Writable<NumericalSetting> = writable();
+export const nodeFill: Writable<Color> = writable();
+export const nodeOpacity: Writable<NumericalSetting> = writable();
+export const nodeStrokeThickness: Writable<NumericalSetting> = writable();
+export const nodeStrokeColor: Writable<Color> = writable();
+
+// TOOD edge styles
+
+// edge settings stores
+export const edgeThickness: Writable<NumericalSetting> = writable();
+export const edgeOpacity: Writable<NumericalSetting> = writable();
+export const edgeColor: Writable<Color> = writable();
