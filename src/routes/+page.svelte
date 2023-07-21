@@ -4,6 +4,7 @@
 	import NodeLink from '../components/NodeLink.svelte';
 	import SettingsPanel from '../components/SettingsPanel.svelte';
 	import Graph from 'graphology';
+	import { hasCycle } from 'graphology-dag';
 	import {
 		GraphStore,
 		nodeSize,
@@ -63,6 +64,9 @@
 			<div class="w-1/4"><SettingsPanel /></div>
 		</div>
 		<div class="flex-none m-10">
+			{#if !hasCycle($GraphStore)}
+				<h3 class="text-center">Graph is a Tree!</h3>
+			{/if}
 			<GraphImport />
 		</div>
 	</div>
