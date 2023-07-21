@@ -40,6 +40,7 @@
 		"d3-force": "^3.0.0",
 		"d3-selection": "^3.0.0",
 		"d3-zoom": "^3.0.0",
+		"force-graph": "^1.43.2",
 		"graphology": "^0.25.1",
 		"graphology-dag": "^0.3.0",
 		"graphology-graphml": "^0.5.2",

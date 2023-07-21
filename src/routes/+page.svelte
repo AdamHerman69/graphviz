@@ -14,6 +14,7 @@
 		edgeThickness,
 		edgeColor
 	} from '../stores/stores';
+	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 
 	// example graph init
 	const graph = new Graph();
@@ -60,7 +61,7 @@
 	<div class="h-full w-full flex flex-col mx-8">
 		<h1 class="h1 flex-none m-10 text-center">node-link vizualization demo</h1>
 		<div class="grow flex">
-			<div class="w-3/4"><NodeLink /></div>
+			<div class="w-3/4"><NodeLinkCanvas /></div>
 			<div class="w-1/4"><SettingsPanel /></div>
 		</div>
 		<div class="flex-none m-10">
