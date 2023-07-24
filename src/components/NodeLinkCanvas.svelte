@@ -95,16 +95,16 @@
 			.on('tick', updatePaper);
 
 		// add paper objects
-		d3nodes.forEach((node) => {
-			d3links.forEach((link) => {
-				link.line = new Paper.Path.Line({
-					from: [link.source.x, link.source.y],
-					to: [link.target.x, link.target.y],
-					strokeColor: new Paper.Color(
-						`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
-					)
-				});
+		d3links.forEach((link) => {
+			link.line = new Paper.Path.Line({
+				from: [link.source.x, link.source.y],
+				to: [link.target.x, link.target.y],
+				strokeColor: new Paper.Color(
+					`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
+				)
 			});
+		});
+		d3nodes.forEach((node) => {
 			node.circle = new Paper.Shape.Circle({
 				center: [node.x, node.y],
 				radius: $nodeSize.value,
@@ -201,11 +201,36 @@
 		restartSimulation($GraphStore);
 	});
 
-	function exportSVG() {
-		console.log(Paper.project.exportSVG({ asString: true }));
+	async function exportSVG() {
+		console.log('starting');
+		const svgString = Paper.project.exportSVG({ asString: true });
+		console.log('string obtained');
+		downloadSvgFile(svgString as string, 'graph.svg');
+	}
+
+	function downloadSvgFile(svgString: string, fileName: string) {
+		const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+
+		// Create an anchor element to initiate the download
+		const anchorElement = document.createElement('a');
+		anchorElement.href = URL.createObjectURL(svgBlob);
+		anchorElement.download = fileName;
+
+		// Append the anchor element to the document and simulate a click event
+		document.body.appendChild(anchorElement);
+		anchorElement.click();
+
+		// Remove the anchor element from the document
+		document.body.removeChild(anchorElement);
+
+		// Revoke the object URL to free up resources
+		URL.revokeObjectURL(anchorElement.href);
 	}
 </script>
 
+<button type="button" on:click={exportSVG} class="btn variant-filled absolute top-5"
+	>export SVG</button
+>
 <canvas
 	class="h-full w-full border-solid border-2 border-orange-200"
 	resize
@@ -213,4 +238,3 @@
 	bind:clientWidth={width}
 	bind:clientHeight={height}
 />
-<button on:click={exportSVG} class="fixed top-0 left-0 right-0">Log SVG</button>

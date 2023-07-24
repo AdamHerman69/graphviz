@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { nodeSize, nodeFill, nodeStrokeThickness, nodeStrokeColor } from '../stores/stores';
-
 	import type { ZoomTransform } from 'd3';
 
 	export let x: number;
