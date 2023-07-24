@@ -95,10 +95,18 @@
 			.on('tick', updatePaper);
 
 		// add paper objects
+		const nodeRadius = $nodeSize.value;
+		const nodeStrokeWidth = $nodeStrokeThickness.value;
 		d3links.forEach((link) => {
+			let [sourceAdjusted, targetAdjusted] = adjustLinePointsToNodeSize(
+				new Paper.Point(link.source.x, link.source.y),
+				new Paper.Point(link.target.x, link.target.y),
+				nodeRadius,
+				nodeStrokeWidth
+			);
 			link.line = new Paper.Path.Line({
-				from: [link.source.x, link.source.y],
-				to: [link.target.x, link.target.y],
+				from: sourceAdjusted,
+				to: targetAdjusted,
 				strokeColor: new Paper.Color(
 					`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
 				)
@@ -150,6 +158,23 @@
 		return node;
 	}
 
+	function adjustLinePointsToNodeSize(
+		source: paper.Point,
+		target: paper.Point,
+		nodeRadius: number,
+		nodeStrokeWidth: number
+	) {
+		// Calculate the normalized vector from the source to the target
+		let direction = target.subtract(source).normalize();
+
+		// Shorten the source and target points to be just outside the circles
+		let newSource = source.add(direction.multiply(nodeRadius + nodeStrokeWidth / 2));
+		let newTarget = target.subtract(direction.multiply(nodeRadius + nodeStrokeWidth / 2));
+
+		// Return the shortened points as an array
+		return [newSource, newTarget];
+	}
+
 	function zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>) {
 		transform = zoomEvent.transform as any;
 		const { x, y, k } = transform;
@@ -182,10 +207,18 @@
 	}
 
 	function updatePaper() {
+		const nodeRadius = $nodeSize.value;
+		const nodeStrokeWidth = $nodeStrokeThickness.value;
 		d3links.forEach((link) => {
 			if (link.line) {
-				link.line.firstSegment.point = new Paper.Point(link.source.circle.position);
-				link.line.lastSegment.point = new Paper.Point(link.target.circle.position);
+				let [sourceAdjusted, targetAdjusted] = adjustLinePointsToNodeSize(
+					link.source.circle.position,
+					link.target.circle.position,
+					nodeRadius,
+					nodeStrokeWidth
+				);
+				link.line.firstSegment.point = sourceAdjusted;
+				link.line.lastSegment.point = targetAdjusted;
 			}
 		});
 		d3nodes.forEach((node) => {
