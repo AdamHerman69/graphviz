@@ -202,9 +202,8 @@
 	});
 
 	async function exportSVG() {
-		console.log('starting');
+		// TODO add loading screen
 		const svgString = Paper.project.exportSVG({ asString: true });
-		console.log('string obtained');
 		downloadSvgFile(svgString as string, 'graph.svg');
 	}
 
