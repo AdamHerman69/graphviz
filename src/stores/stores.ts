@@ -24,7 +24,7 @@ export const nodeFill: Writable<RgbaColor> = writable({ r: 195, g: 118, b: 199, 
 export const nodeStrokeThickness: Writable<NumericalSetting> = writable({
 	value: 1,
 	min: 0,
-	max: 5
+	max: 10
 });
 export const nodeStrokeColor: Writable<RgbaColor> = writable({ r: 68, g: 50, b: 156, a: 1 });
 

@@ -45,14 +45,6 @@
 	graph.addEdge('j', 'i');
 
 	GraphStore.set(graph);
-
-	nodeSize.set({ value: 5, min: 1, max: 10 });
-	nodeFill.set({ r: 195, g: 118, b: 199, a: 1 });
-	nodeStrokeColor.set({ r: 68, g: 50, b: 156, a: 1 });
-	nodeStrokeThickness.set({ value: 1, min: 0, max: 5 });
-
-	edgeThickness.set({ value: 1, min: 0, max: 5, increment: 0.5 });
-	edgeColor.set({ r: 255, g: 255, b: 255, a: 0.65 });
 </script>
 
 <!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
