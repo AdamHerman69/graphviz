@@ -1,16 +1,11 @@
 import * as Paper from 'paper';
 import type { IPNode } from './Node';
 import type { EdgeStyle } from '../stores/stores';
-
-type EdgeDecorator = {
-	shape: paper.Path;
-	positions: number[]; // 0-1, 0 = edge start, 1 = edge end
-};
+import { type Decorator } from './Triangle';
 
 export interface IPEdge {
 	source: IPNode;
 	target: IPNode;
-	decorators: EdgeDecorator[];
 	line: paper.Path;
 
 	updatePosition(): void;
@@ -20,20 +15,25 @@ export interface IPEdge {
 export class PEdge {
 	source: IPNode;
 	target: IPNode;
-	decorators: EdgeDecorator[];
+	decorators: [Decorator, number][]; // number is a relative position on edge 0 - start, 1 - end
 	line: paper.Path;
 	partialStart: number;
 	partialEnd: number;
 
-	constructor(source: IPNode, target: IPNode, decorators?: EdgeDecorator[]) {
+	constructor(source: IPNode, target: IPNode, decorators?: [Decorator, number][]) {
 		this.source = source;
 		this.target = target;
 		// line
+		// vvvvv doesn't work but doesn't really matter
 		const [sourceConnection, targetConnection] = this.getConnectionPoints();
 		this.line = new Paper.Path.Line(sourceConnection, targetConnection);
+
 		this.decorators = decorators ?? [];
 		this.partialStart = 0;
 		this.partialEnd = 1;
+
+		// doesn't work too, the points are NaN
+		this.updateDecorators(sourceConnection, targetConnection);
 	}
 
 	getConnectionPoints() {
@@ -46,20 +46,35 @@ export class PEdge {
 		);
 
 		// partial edge
-		[sourceConnectionPoint, targetConnectionPoint] = getPartialPoints(
+		const sourcePartial = getRelativeEdgePoint(
 			sourceConnectionPoint,
 			targetConnectionPoint,
-			this.partialStart,
+			this.partialStart
+		);
+		const targetPartial = getRelativeEdgePoint(
+			sourceConnectionPoint,
+			targetConnectionPoint,
 			this.partialEnd
 		);
 
-		return [sourceConnectionPoint, targetConnectionPoint];
+		return [sourcePartial, targetPartial];
 	}
 
 	updatePosition() {
 		const [sourceConnection, targetConnection] = this.getConnectionPoints();
 		this.line.firstSegment.point = sourceConnection;
 		this.line.lastSegment.point = targetConnection;
+
+		this.updateDecorators(sourceConnection, targetConnection);
+	}
+
+	updateDecorators(sourceConnection: paper.Point, targetConnection: paper.Point) {
+		this.decorators?.forEach((decTuple) => {
+			decTuple[0].update(
+				getRelativeEdgePoint(sourceConnection, targetConnection, decTuple[1]),
+				this.getDirection()
+			);
+		});
 	}
 
 	updateStyle(style: EdgeStyle) {
@@ -75,12 +90,12 @@ export class PEdge {
 			this.updatePosition();
 		}
 	}
+
+	getDirection() {
+		return this.target.position.subtract(this.source.position);
+	}
 }
 
-// takes two points and computes new points that are
-function getPartialPoints(a: paper.Point, b: paper.Point, startOffset: number, endOffset: number) {
-	let partialStart = a.multiply(1 - startOffset).add(b.multiply(startOffset));
-	let partialEnd = b.multiply(endOffset).add(a.multiply(1 - endOffset));
-
-	return [partialStart, partialEnd];
+function getRelativeEdgePoint(start: paper.Point, end: paper.Point, relativePosition: number) {
+	return start.multiply(1 - relativePosition).add(end.multiply(relativePosition));
 }

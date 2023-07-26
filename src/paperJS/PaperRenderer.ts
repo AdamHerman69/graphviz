@@ -5,6 +5,7 @@ import type { IPEdge } from './Edge';
 import * as d3 from 'd3';
 import * as Paper from 'paper';
 import type { NodeStyle, EdgeStyle } from '../stores/stores';
+import { type Decorator, TriangleDecorator } from './Triangle';
 
 export type NodePositionDatum = {
 	id: string;
@@ -52,6 +53,7 @@ export class PaperRenderer implements Renderer {
 			this.nodes.get(pos.id)?.updatePosition(pos.x, pos.y);
 		});
 		this.edges.forEach((edge) => edge.updatePosition());
+		console.log(this.paperScope.project);
 	}
 
 	updateNodeStyle(style: NodeStyle) {
@@ -90,7 +92,13 @@ export class PaperRenderer implements Renderer {
 			const target = this.nodes.get(edge.target);
 
 			if (source && target) {
-				const paperEdge = new PEdge(source, target);
+				// temporarly here create arrow decorator
+				const decorators: [Decorator, number][] = [
+					//[new TriangleDecorator(5, 3), 0.5],
+					[new TriangleDecorator(3, 3), 1]
+				];
+
+				const paperEdge = new PEdge(source, target, decorators);
 				this.edges.set(edge.id, paperEdge);
 			}
 		});
