@@ -13,8 +13,9 @@ export class PNode implements IPNode {
 	shape: paper.Shape;
 
 	constructor(x: number, y: number, radius: number = 4, strokeWith: number = 1) {
-		this.position = new paper.Point(x, y);
-		this.shape = new paper.Shape.Circle(this.position, radius);
+		this.position = new Paper.Point(x, y);
+		this.shape = new Paper.Shape.Circle(this.position, radius);
+		this.shape.strokeColor = new Paper.Color('white');
 	}
 
 	getFinalRadius(): number {
@@ -25,6 +26,7 @@ export class PNode implements IPNode {
 	updatePosition(newX: number, newY: number) {
 		this.position.x = newX;
 		this.position.y = newY;
+		this.shape.position = this.position;
 	}
 
 	updateStyle() {}

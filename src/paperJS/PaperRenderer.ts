@@ -1,37 +1,69 @@
-import { PNode } from './node';
-import type { IPNode } from './node';
-import { PEdge } from './edge';
-import type { IPEdge } from './edge';
+import { PNode } from './Node';
+import type { IPNode } from './Node';
+import { PEdge } from './Edge';
+import type { IPEdge } from './Edge';
+import * as d3 from 'd3';
+import * as Paper from 'paper';
 
-type NodePositionDatum = {
+export type NodePositionDatum = {
 	id: string;
 	x: number;
 	y: number;
 };
 
-type EdgeDatum = {
+export type EdgeDatum = {
 	id: string;
 	source: string;
 	target: string;
 };
 
-interface Renderer {
+export interface Renderer {
 	updatePositions(positions: NodePositionDatum[]): void;
 	updateNodeStyle(): void;
 	updateEdgeStyle(): void;
+	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void;
+	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): void;
+	exportSVG(): string;
 }
 
-class PaperRenderer implements Renderer {
+export class PaperRenderer implements Renderer {
 	nodes: Map<string, IPNode>;
 	edges: Map<string, IPEdge>;
 	paperScope: paper.PaperScope;
+	transform: d3.ZoomTransform;
 
 	constructor(canvas: HTMLCanvasElement, inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
-		this.paperScope = new paper.PaperScope();
+		this.paperScope = new Paper.PaperScope();
 		this.paperScope.setup(canvas);
 		this.nodes = new Map<string, IPNode>();
 		this.edges = new Map<string, PEdge>();
+		this.transform = d3.zoomIdentity;
 
+		this.initGraph(inputNodes, inputEdges);
+
+		// todo call update styles methods
+	}
+
+	updatePositions(positions: NodePositionDatum[]) {
+		positions.forEach((pos) => {
+			this.nodes.get(pos.id)?.updatePosition(pos.x, pos.y);
+		});
+		this.edges.forEach((edge) => edge.updatePosition());
+
+		this.paperScope.view.update();
+		console.log(this.paperScope);
+	}
+
+	updateNodeStyle() {}
+
+	updateEdgeStyle() {}
+
+	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
+		this.paperScope.project.clear();
+		this.initGraph(inputNodes, inputEdges);
+	}
+
+	initGraph(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void {
 		inputNodes.forEach((node) => {
 			const paperNode = new PNode(node.x, node.y);
 			this.nodes.set(node.id, paperNode);
@@ -46,18 +78,22 @@ class PaperRenderer implements Renderer {
 				this.edges.set(edge.id, paperEdge);
 			}
 		});
-
-		// todo call update styles methods
 	}
 
-	updatePositions(positions: NodePositionDatum[]) {
-		positions.forEach((pos) => {
-			this.nodes.get(pos.id)?.updatePosition(pos.x, pos.y);
-		});
-		this.edges.forEach((edge) => edge.updatePosition());
+	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>) {
+		let transform = zoomEvent.transform as any;
+		const { x, y, k } = transform;
+
+		const canvasCenter = new Paper.Point(
+			this.paperScope.view.bounds.width / 2,
+			this.paperScope.view.bounds.height / 2
+		);
+		const newCenter = new Paper.Point(canvasCenter.x - x / k, canvasCenter.y - y / k);
+		this.paperScope.view.center = newCenter;
+		this.paperScope.view.zoom = k;
 	}
 
-	updateNodeStyle() {}
-
-	updateEdgeStyle() {}
+	exportSVG() {
+		return this.paperScope.project.exportSVG({ asString: true }) as string;
+	}
 }

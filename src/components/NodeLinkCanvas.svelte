@@ -2,7 +2,6 @@
 	import type Graph from 'graphology';
 	import { GraphStore } from '../stores/stores';
 	import { onMount } from 'svelte';
-	import * as Paper from 'paper';
 	import * as d3 from 'd3';
 	import {
 		nodeSize,
@@ -12,6 +11,12 @@
 		edgeColor,
 		edgeThickness
 	} from '../stores/stores';
+	import {
+		type Renderer,
+		type NodePositionDatum,
+		type EdgeDatum,
+		PaperRenderer
+	} from '../paperJS/PaperRenderer';
 
 	let canvas: HTMLCanvasElement;
 
@@ -19,111 +24,79 @@
 	let height: number;
 
 	type D3Node = d3.SimulationNodeDatum & {
-		name: string;
-		circle?: paper.Shape.Circle;
+		id: string;
 	};
 
 	let d3nodes: D3Node[];
-	let d3links: (d3.SimulationLinkDatum<D3Node> & {
-		line?: paper.Path.Line;
-	})[];
+	let d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
 	let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
+	let paperRenderer: Renderer;
 	let transform: d3.ZoomTransform = d3.zoomIdentity;
 
-	let mounted = false;
-
-	$: {
-		if (mounted) restartSimulation($GraphStore);
-	}
+	// $: {
+	// 	restartSimulation($GraphStore);
+	// }
 
 	// node settings
 	$: {
-		if (mounted) {
-			let nodeStyle = new Paper.Style({
-				fillColor: new Paper.Color(
-					`rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`
-				),
-				strokeColor: new Paper.Color(
-					`rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`
-				),
-				strokeWidth: $nodeStrokeThickness.value
-			});
-
-			d3nodes.forEach((node) => {
-				node.circle!.style = nodeStyle;
-				node.circle!.radius = $nodeSize.value;
-			});
-		}
+		// if (mounted) {
+		// 	let nodeStyle = new Paper.Style({
+		// 		fillColor: new Paper.Color(
+		// 			`rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`
+		// 		),
+		// 		strokeColor: new Paper.Color(
+		// 			`rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`
+		// 		),
+		// 		strokeWidth: $nodeStrokeThickness.value
+		// 	});
+		// 	d3nodes.forEach((node) => {
+		// 		node.circle!.style = nodeStyle;
+		// 		node.circle!.radius = $nodeSize.value;
+		// 	});
+		// }
 	}
 
 	// edge settings
 	$: {
-		if (mounted) {
-			let edgeStyle = new Paper.Style({
-				strokeColor: new Paper.Color(
-					`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
-				),
-				strokeWidth: $edgeThickness.value
-			});
-			d3links.forEach((link) => {
-				link.line!.style = edgeStyle;
-			});
-		}
+		// if (mounted) {
+		// 	let edgeStyle = new Paper.Style({
+		// 		strokeColor: new Paper.Color(
+		// 			`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
+		// 		),
+		// 		strokeWidth: $edgeThickness.value
+		// 	});
+		// 	d3links.forEach((link) => {
+		// 		link.line!.style = edgeStyle;
+		// 	});
+		// }
 	}
 
 	function restartSimulation(graph: Graph): void {
-		Paper.project.clear();
-
 		// update graph nodes
-		d3nodes = graph.mapNodes((node: string) => ({ name: node }));
+		d3nodes = graph.mapNodes((node: string) => ({ id: node }));
 		d3links = graph.mapEdges(
 			(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
+				id: edgeKey,
 				source: source,
 				target: target
 			})
 		);
+
+		// add paper objects - has to be before the simulation inicialization because that changes the d3links objects
+		paperRenderer.restart(d3nodes as NodePositionDatum[], d3links as EdgeDatum[]);
 
 		// start d3-force
 		simulation = d3
 			.forceSimulation(d3nodes)
 			.force(
 				'link',
-				d3.forceLink(d3links).id((d3node) => (d3node as D3Node).name)
+				d3.forceLink(d3links).id((d3node) => (d3node as D3Node).id)
 			)
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(width / 2, height / 2))
-			.on('tick', updatePaper);
+			.on('tick', () => paperRenderer.updatePositions(d3nodes as NodePositionDatum[]));
 
-		// add paper objects
-		const nodeRadius = $nodeSize.value;
-		const nodeStrokeWidth = $nodeStrokeThickness.value;
-		d3links.forEach((link) => {
-			let [sourceAdjusted, targetAdjusted] = adjustLinePointsToNodeSize(
-				new Paper.Point(link.source.x, link.source.y),
-				new Paper.Point(link.target.x, link.target.y),
-				nodeRadius,
-				nodeStrokeWidth
-			);
-			link.line = new Paper.Path.Line({
-				from: sourceAdjusted,
-				to: targetAdjusted,
-				strokeColor: new Paper.Color(
-					`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
-				)
-			});
-		});
-		d3nodes.forEach((node) => {
-			node.circle = new Paper.Shape.Circle({
-				center: [node.x, node.y],
-				radius: $nodeSize.value,
-				strokeColor: new Paper.Color(
-					`rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`
-				),
-				fillColor: new Paper.Color(
-					`rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`
-				)
-			});
-		});
+		// styles should persist
 
 		// drag and zoom
 		d3.select(canvas)
@@ -140,7 +113,7 @@
 				d3
 					.zoom<HTMLCanvasElement, unknown>()
 					.scaleExtent([1 / 10, 8])
-					.on('zoom', zoomed)
+					.on('zoom', (zoomEvent) => paperRenderer.zoomed(zoomEvent))
 			);
 	}
 
@@ -156,33 +129,6 @@
 			node.y = transform.applyY(node.y);
 		}
 		return node;
-	}
-
-	function adjustLinePointsToNodeSize(
-		source: paper.Point,
-		target: paper.Point,
-		nodeRadius: number,
-		nodeStrokeWidth: number
-	) {
-		// Calculate the normalized vector from the source to the target
-		let direction = target.subtract(source).normalize();
-
-		// Shorten the source and target points to be just outside the circles
-		let newSource = source.add(direction.multiply(nodeRadius + nodeStrokeWidth / 2));
-		let newTarget = target.subtract(direction.multiply(nodeRadius + nodeStrokeWidth / 2));
-
-		// Return the shortened points as an array
-		return [newSource, newTarget];
-	}
-
-	function zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>) {
-		transform = zoomEvent.transform as any;
-		const { x, y, k } = transform;
-
-		const canvasCenter = new Paper.Point(Paper.view.bounds.width / 2, Paper.view.bounds.height / 2);
-		const newCenter = new Paper.Point(canvasCenter.x - x / k, canvasCenter.y - y / k);
-		Paper.view.center = newCenter;
-		Paper.view.zoom = k;
 	}
 
 	function dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
@@ -206,37 +152,38 @@
 		draggedNode.fy = null;
 	}
 
-	function updatePaper() {
-		const nodeRadius = $nodeSize.value;
-		const nodeStrokeWidth = $nodeStrokeThickness.value;
-		d3links.forEach((link) => {
-			if (link.line) {
-				let [sourceAdjusted, targetAdjusted] = adjustLinePointsToNodeSize(
-					link.source.circle.position,
-					link.target.circle.position,
-					nodeRadius,
-					nodeStrokeWidth
-				);
-				link.line.firstSegment.point = sourceAdjusted;
-				link.line.lastSegment.point = targetAdjusted;
-			}
-		});
-		d3nodes.forEach((node) => {
-			if (node.circle) {
-				node.circle.position = new Paper.Point(node.x!, node.y!);
-			}
-		});
-	}
+	// function updateArrow(arrow: paper.Group, newSource: paper.Point, newTarget: paper.Point) {
+	// 	// Update the line's source and target points
+	// 	arrow.children[0].firstSegment.point = newSource;
+	// 	arrow.children[0].lastSegment.point = newTarget;
+
+	// 	// Calculate the direction for the arrowhead
+	// 	let direction = newTarget.subtract(newSource).normalize();
+	// 	let angle = newTarget.subtract(newSource).angle;
+
+	// 	// Update the arrowhead's position
+	// 	const arrowSize = 4;
+	// 	let arrowEnd = newTarget.subtract(direction.multiply(arrowSize));
+	// 	arrow.children[1].position = arrowEnd;
+
+	// 	// Update the arrowhead's rotation
+	// 	//arrow.children[1].rotation = angle;
+	// 	console.log(arrow.children[1].rotation);
+
+	// 	// Scale the arrowhead to the desired size
+	// 	let arrowLength = arrow.children[1].bounds.width;
+	// 	let scale = arrowSize / arrowLength;
+	// 	arrow.children[1].scale(scale);
+	// }
 
 	onMount(() => {
-		mounted = true;
-		Paper.setup(canvas);
+		paperRenderer = new PaperRenderer(canvas, [], []);
 		restartSimulation($GraphStore);
 	});
 
 	async function exportSVG() {
 		// TODO add loading screen
-		const svgString = Paper.project.exportSVG({ asString: true });
+		const svgString = paperRenderer.exportSVG();
 		downloadSvgFile(svgString as string, 'graph.svg');
 	}
 

@@ -1,5 +1,5 @@
 import * as Paper from 'paper';
-import type { IPNode } from './node';
+import type { IPNode } from './Node';
 type EdgeDecorator = {
 	shape: paper.Path;
 	positions: number[]; // 0-1, 0 = edge start, 1 = edge end
@@ -45,6 +45,7 @@ export class PEdge {
 		const [sourceConnection, targetConnection] = this.getConnectionPoints();
 		this.line.firstSegment.point = sourceConnection;
 		this.line.lastSegment.point = targetConnection;
+		console.log(this.line);
 	}
 
 	updateStyle() {
