@@ -34,9 +34,9 @@
 	let paperRenderer: Renderer;
 	let transform: d3.ZoomTransform = d3.zoomIdentity;
 
-	// $: {
-	// 	restartSimulation($GraphStore);
-	// }
+	$: {
+		if (paperRenderer) restartSimulation($GraphStore);
+	}
 
 	// node settings
 	$: {

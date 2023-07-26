@@ -32,6 +32,8 @@ export class PaperRenderer implements Renderer {
 	edges: Map<string, IPEdge>;
 	paperScope: paper.PaperScope;
 	transform: d3.ZoomTransform;
+	currentNodeStyle: NodeStyle;
+	currentEdgeStyle: EdgeStyle;
 
 	constructor(canvas: HTMLCanvasElement, inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
 		this.paperScope = new Paper.PaperScope();
@@ -58,16 +60,23 @@ export class PaperRenderer implements Renderer {
 
 		// if node changes size
 		this.edges.forEach((edge) => edge.updatePosition());
+
+		this.currentNodeStyle = style;
 	}
 
 	updateEdgeStyle(style: EdgeStyle) {
 		// todo here we'll handle the different groups in the future
 		this.edges.forEach((edge) => edge.updateStyle(style));
+		this.currentEdgeStyle = style;
 	}
 
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
 		this.paperScope.project.clear();
 		this.initGraph(inputNodes, inputEdges);
+		if (this.currentNodeStyle && this.currentEdgeStyle) {
+			this.updateNodeStyle(this.currentNodeStyle);
+			this.updateEdgeStyle(this.currentEdgeStyle);
+		}
 	}
 
 	initGraph(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void {
