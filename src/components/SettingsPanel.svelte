@@ -9,7 +9,9 @@
 		nodeStrokeColor,
 		edgeThickness,
 		edgeColor,
-		edgeType
+		edgeType,
+		partialEdgeStart,
+		partialEdgeEnd
 	} from '../stores/stores';
 </script>
 
@@ -24,6 +26,9 @@
 	<b>Edge Settings</b>
 	<SettingsSelect name="Edge Type" selectSetting={edgeType} />
 	<SettingsSlider name="Thickness" numericalSetting={edgeThickness} />
+	<SettingsSlider name="Partial edge start" numericalSetting={partialEdgeStart} />
+	<SettingsSlider name="Partial edge end" numericalSetting={partialEdgeEnd} />
+
 	<div class="flex p-2">
 		<SettingsColor color={edgeColor} label="color" />
 	</div>

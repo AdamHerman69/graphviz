@@ -1,6 +1,12 @@
 <script lang="ts">
 	import type Graph from 'graphology';
-	import { GraphStore, type NodeStyle, type EdgeStyle } from '../stores/stores';
+	import {
+		GraphStore,
+		type NodeStyle,
+		type EdgeStyle,
+		partialEdgeStart,
+		partialEdgeEnd
+	} from '../stores/stores';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 	import {
@@ -54,7 +60,9 @@
 		const edgeStyle: EdgeStyle = {
 			type: $edgeType.selected,
 			color: `rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`,
-			thickness: $edgeThickness.value
+			thickness: $edgeThickness.value,
+			partialStart: $partialEdgeStart.value,
+			partialEnd: $partialEdgeEnd.value
 		};
 		paperRenderer?.updateEdgeStyle(edgeStyle);
 	}

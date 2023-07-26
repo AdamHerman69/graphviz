@@ -27,6 +27,8 @@ export type EdgeStyle = {
 	type: EdgeType;
 	thickness: number;
 	color: string;
+	partialStart: number;
+	partialEnd: number;
 };
 
 // TODO bind graph attributes, gradient fills, fill styles..
@@ -60,6 +62,20 @@ export const edgeColor: Writable<RgbaColor> = writable({ r: 255, g: 255, b: 255,
 export const edgeCompleteness: Writable<NumericalSetting> = writable({
 	value: 0.65,
 	min: 0,
+	max: 1,
+	increment: 0.05
+});
+
+export const partialEdgeStart: Writable<NumericalSetting> = writable({
+	value: 0,
+	min: 0,
+	max: 0.5,
+	increment: 0.05
+});
+
+export const partialEdgeEnd: Writable<NumericalSetting> = writable({
+	value: 1,
+	min: 0.5,
 	max: 1,
 	increment: 0.05
 });

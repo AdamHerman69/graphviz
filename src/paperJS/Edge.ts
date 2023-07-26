@@ -22,6 +22,8 @@ export class PEdge {
 	target: IPNode;
 	decorators: EdgeDecorator[];
 	line: paper.Path;
+	partialStart: number;
+	partialEnd: number;
 
 	constructor(source: IPNode, target: IPNode, decorators?: EdgeDecorator[]) {
 		this.source = source;
@@ -30,16 +32,27 @@ export class PEdge {
 		const [sourceConnection, targetConnection] = this.getConnectionPoints();
 		this.line = new Paper.Path.Line(sourceConnection, targetConnection);
 		this.decorators = decorators ?? [];
+		this.partialStart = 0;
+		this.partialEnd = 1;
 	}
 
 	getConnectionPoints() {
 		const direction = this.target.position.subtract(this.source.position).normalize();
-		const sourceConnectionPoint = this.source.position.add(
+		let sourceConnectionPoint = this.source.position.add(
 			direction.multiply(this.source.getFinalRadius())
 		);
-		const targetConnectionPoint = this.target.position.subtract(
+		let targetConnectionPoint = this.target.position.subtract(
 			direction.multiply(this.target.getFinalRadius())
 		);
+
+		// partial edge
+		[sourceConnectionPoint, targetConnectionPoint] = getPartialPoints(
+			sourceConnectionPoint,
+			targetConnectionPoint,
+			this.partialStart,
+			this.partialEnd
+		);
+
 		return [sourceConnectionPoint, targetConnectionPoint];
 	}
 
@@ -54,5 +67,20 @@ export class PEdge {
 			strokeWidth: style.thickness,
 			strokeColor: new Paper.Color(style.color)
 		};
+
+		if (this.partialStart != style.partialStart || this.partialEnd != style.partialEnd) {
+			this.partialStart = style.partialStart;
+			this.partialEnd = style.partialEnd;
+
+			this.updatePosition();
+		}
 	}
+}
+
+// takes two points and computes new points that are
+function getPartialPoints(a: paper.Point, b: paper.Point, startOffset: number, endOffset: number) {
+	let partialStart = a.multiply(1 - startOffset).add(b.multiply(startOffset));
+	let partialEnd = b.multiply(endOffset).add(a.multiply(1 - endOffset));
+
+	return [partialStart, partialEnd];
 }
