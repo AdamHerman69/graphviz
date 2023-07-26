@@ -16,6 +16,19 @@ export type SelectSetting<T> = {
 	selected: T;
 };
 
+export type NodeStyle = {
+	size: number;
+	fill: string;
+	strokeThickness: number;
+	strokeColor: string;
+};
+
+export type EdgeStyle = {
+	type: EdgeType;
+	thickness: number;
+	color: string;
+};
+
 // TODO bind graph attributes, gradient fills, fill styles..
 
 // node settings stores

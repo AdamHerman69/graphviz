@@ -4,6 +4,7 @@ import { PEdge } from './Edge';
 import type { IPEdge } from './Edge';
 import * as d3 from 'd3';
 import * as Paper from 'paper';
+import type { NodeStyle, EdgeStyle } from '../stores/stores';
 
 export type NodePositionDatum = {
 	id: string;
@@ -19,10 +20,10 @@ export type EdgeDatum = {
 
 export interface Renderer {
 	updatePositions(positions: NodePositionDatum[]): void;
-	updateNodeStyle(): void;
-	updateEdgeStyle(): void;
+	updateNodeStyle(style: NodeStyle): void;
+	updateEdgeStyle(style: EdgeStyle): void;
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void;
-	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): void;
+	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
 }
 
@@ -49,14 +50,20 @@ export class PaperRenderer implements Renderer {
 			this.nodes.get(pos.id)?.updatePosition(pos.x, pos.y);
 		});
 		this.edges.forEach((edge) => edge.updatePosition());
-
-		this.paperScope.view.update();
-		console.log(this.paperScope);
 	}
 
-	updateNodeStyle() {}
+	updateNodeStyle(style: NodeStyle) {
+		// todo here we'll handle the different groups in the future
+		this.nodes.forEach((node) => node.updateStyle(style));
 
-	updateEdgeStyle() {}
+		// if node changes size
+		this.edges.forEach((edge) => edge.updatePosition());
+	}
+
+	updateEdgeStyle(style: EdgeStyle) {
+		// todo here we'll handle the different groups in the future
+		this.edges.forEach((edge) => edge.updateStyle(style));
+	}
 
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
 		this.paperScope.project.clear();
@@ -80,7 +87,7 @@ export class PaperRenderer implements Renderer {
 		});
 	}
 
-	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>) {
+	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform {
 		let transform = zoomEvent.transform as any;
 		const { x, y, k } = transform;
 
@@ -91,6 +98,8 @@ export class PaperRenderer implements Renderer {
 		const newCenter = new Paper.Point(canvasCenter.x - x / k, canvasCenter.y - y / k);
 		this.paperScope.view.center = newCenter;
 		this.paperScope.view.zoom = k;
+
+		return transform;
 	}
 
 	exportSVG() {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type Graph from 'graphology';
-	import { GraphStore } from '../stores/stores';
+	import { GraphStore, type NodeStyle, type EdgeStyle } from '../stores/stores';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 	import {
@@ -9,7 +9,8 @@
 		nodeStrokeThickness,
 		nodeStrokeColor,
 		edgeColor,
-		edgeThickness
+		edgeThickness,
+		edgeType
 	} from '../stores/stores';
 	import {
 		type Renderer,
@@ -39,36 +40,23 @@
 
 	// node settings
 	$: {
-		// if (mounted) {
-		// 	let nodeStyle = new Paper.Style({
-		// 		fillColor: new Paper.Color(
-		// 			`rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`
-		// 		),
-		// 		strokeColor: new Paper.Color(
-		// 			`rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`
-		// 		),
-		// 		strokeWidth: $nodeStrokeThickness.value
-		// 	});
-		// 	d3nodes.forEach((node) => {
-		// 		node.circle!.style = nodeStyle;
-		// 		node.circle!.radius = $nodeSize.value;
-		// 	});
-		// }
+		const nodeStyle: NodeStyle = {
+			size: $nodeSize.value,
+			fill: `rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`,
+			strokeColor: `rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`,
+			strokeThickness: $nodeStrokeThickness.value
+		};
+		paperRenderer?.updateNodeStyle(nodeStyle);
 	}
 
 	// edge settings
 	$: {
-		// if (mounted) {
-		// 	let edgeStyle = new Paper.Style({
-		// 		strokeColor: new Paper.Color(
-		// 			`rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`
-		// 		),
-		// 		strokeWidth: $edgeThickness.value
-		// 	});
-		// 	d3links.forEach((link) => {
-		// 		link.line!.style = edgeStyle;
-		// 	});
-		// }
+		const edgeStyle: EdgeStyle = {
+			type: $edgeType.selected,
+			color: `rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`,
+			thickness: $edgeThickness.value
+		};
+		paperRenderer?.updateEdgeStyle(edgeStyle);
 	}
 
 	function restartSimulation(graph: Graph): void {
@@ -113,7 +101,9 @@
 				d3
 					.zoom<HTMLCanvasElement, unknown>()
 					.scaleExtent([1 / 10, 8])
-					.on('zoom', (zoomEvent) => paperRenderer.zoomed(zoomEvent))
+					.on('zoom', (zoomEvent) => {
+						transform = paperRenderer.zoomed(zoomEvent);
+					})
 			);
 	}
 
@@ -151,30 +141,6 @@
 		draggedNode.fx = null;
 		draggedNode.fy = null;
 	}
-
-	// function updateArrow(arrow: paper.Group, newSource: paper.Point, newTarget: paper.Point) {
-	// 	// Update the line's source and target points
-	// 	arrow.children[0].firstSegment.point = newSource;
-	// 	arrow.children[0].lastSegment.point = newTarget;
-
-	// 	// Calculate the direction for the arrowhead
-	// 	let direction = newTarget.subtract(newSource).normalize();
-	// 	let angle = newTarget.subtract(newSource).angle;
-
-	// 	// Update the arrowhead's position
-	// 	const arrowSize = 4;
-	// 	let arrowEnd = newTarget.subtract(direction.multiply(arrowSize));
-	// 	arrow.children[1].position = arrowEnd;
-
-	// 	// Update the arrowhead's rotation
-	// 	//arrow.children[1].rotation = angle;
-	// 	console.log(arrow.children[1].rotation);
-
-	// 	// Scale the arrowhead to the desired size
-	// 	let arrowLength = arrow.children[1].bounds.width;
-	// 	let scale = arrowSize / arrowLength;
-	// 	arrow.children[1].scale(scale);
-	// }
 
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], []);
