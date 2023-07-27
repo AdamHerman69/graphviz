@@ -5,11 +5,7 @@
 		type NodeStyle,
 		type EdgeStyle,
 		partialEdgeStart,
-		partialEdgeEnd
-	} from '../stores/stores';
-	import { onMount } from 'svelte';
-	import * as d3 from 'd3';
-	import {
+		partialEdgeEnd,
 		nodeSize,
 		nodeFill,
 		nodeStrokeThickness,
@@ -18,6 +14,9 @@
 		edgeThickness,
 		edgeType
 	} from '../stores/stores';
+	import { onMount } from 'svelte';
+	import * as d3 from 'd3';
+	import {} from '../stores/stores';
 	import {
 		type Renderer,
 		type NodePositionDatum,
@@ -39,6 +38,12 @@
 	let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
 	let paperRenderer: Renderer;
 	let transform: d3.ZoomTransform = d3.zoomIdentity;
+
+	onMount(() => {
+		paperRenderer = new PaperRenderer(canvas, [], []);
+		console.log('nl: ', paperRenderer);
+		restartSimulation($GraphStore);
+	});
 
 	$: {
 		if (paperRenderer) restartSimulation($GraphStore);
@@ -149,11 +154,6 @@
 		draggedNode.fx = null;
 		draggedNode.fy = null;
 	}
-
-	onMount(() => {
-		paperRenderer = new PaperRenderer(canvas, [], []);
-		restartSimulation($GraphStore);
-	});
 
 	async function exportSVG() {
 		// TODO add loading screen

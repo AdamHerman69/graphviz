@@ -13,6 +13,7 @@
 		partialEdgeStart,
 		partialEdgeEnd
 	} from '../stores/stores';
+	import EdgePreview from './EdgePreview.svelte';
 </script>
 
 <div class="card h-full p-4 variant-ghost">
@@ -24,6 +25,7 @@
 		<SettingsColor color={nodeStrokeColor} label="stroke" />
 	</div>
 	<b>Edge Settings</b>
+	<EdgePreview />
 	<SettingsSelect name="Edge Type" selectSetting={edgeType} />
 	<SettingsSlider name="Thickness" numericalSetting={edgeThickness} />
 	<SettingsSlider name="Partial edge start" numericalSetting={partialEdgeStart} />

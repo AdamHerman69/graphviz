@@ -49,14 +49,15 @@ export class PaperRenderer implements Renderer {
 	}
 
 	updatePositions(positions: NodePositionDatum[]) {
+		this.paperScope.activate();
 		positions.forEach((pos) => {
 			this.nodes.get(pos.id)?.updatePosition(pos.x, pos.y);
 		});
 		this.edges.forEach((edge) => edge.updatePosition());
-		console.log(this.paperScope.project);
 	}
 
 	updateNodeStyle(style: NodeStyle) {
+		this.paperScope.activate();
 		// todo here we'll handle the different groups in the future
 		this.nodes.forEach((node) => node.updateStyle(style));
 
@@ -67,12 +68,14 @@ export class PaperRenderer implements Renderer {
 	}
 
 	updateEdgeStyle(style: EdgeStyle) {
+		this.paperScope.activate();
 		// todo here we'll handle the different groups in the future
 		this.edges.forEach((edge) => edge.updateStyle(style));
 		this.currentEdgeStyle = style;
 	}
 
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
+		this.paperScope.activate();
 		this.paperScope.project.clear();
 		this.initGraph(inputNodes, inputEdges);
 		if (this.currentNodeStyle && this.currentEdgeStyle) {
@@ -82,6 +85,7 @@ export class PaperRenderer implements Renderer {
 	}
 
 	initGraph(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void {
+		this.paperScope.activate();
 		inputNodes.forEach((node) => {
 			const paperNode = new PNode(node.x, node.y);
 			this.nodes.set(node.id, paperNode);
@@ -105,6 +109,7 @@ export class PaperRenderer implements Renderer {
 	}
 
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform {
+		this.paperScope.activate();
 		let transform = zoomEvent.transform as any;
 		const { x, y, k } = transform;
 
@@ -112,7 +117,7 @@ export class PaperRenderer implements Renderer {
 			this.paperScope.view.bounds.width / 2,
 			this.paperScope.view.bounds.height / 2
 		);
-		const newCenter = new Paper.Point(canvasCenter.x - x / k, canvasCenter.y - y / k);
+		const newCenter = new this.paperScope.Point(canvasCenter.x - x / k, canvasCenter.y - y / k);
 		this.paperScope.view.center = newCenter;
 		this.paperScope.view.zoom = k;
 
