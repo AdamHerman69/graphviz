@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@types/dagre':
+    specifier: ^0.7.49
+    version: 0.7.49
   d3:
     specifier: ^7.8.5
     version: 7.8.5
@@ -20,6 +23,9 @@ dependencies:
   d3-zoom:
     specifier: ^3.0.0
     version: 3.0.0
+  dagre:
+    specifier: ^0.8.5
+    version: 0.8.5
   graphology:
     specifier: ^0.25.1
     version: 0.25.1(graphology-types@0.24.7)
@@ -706,6 +712,10 @@ packages:
       '@types/d3-zoom': 3.0.3
     dev: true
 
+  /@types/dagre@0.7.49:
+    resolution: {integrity: sha512-dlqM5cavmHC0FeBlVl1HPKE/12K3TcIsTeBpRwhkS2FYOmuk36ndI7AuGQjPJ/fJQTz8LjeaetSV/+dsJwB6Ow==}
+    dev: false
+
   /@types/estree@1.0.1:
     resolution: {integrity: sha512-LG4opVs2ANWZ1TJoKc937iMmNstM/d0ae1vNbnBvBhqCSezgVUOzcLCqbI5elV8Vy6WKwKjaqR+zO9VKirBBCA==}
     dev: true
@@ -1346,6 +1356,13 @@ packages:
       d3-zoom: 3.0.0
     dev: false
 
+  /dagre@0.8.5:
+    resolution: {integrity: sha512-/aTqmnRta7x7MCCpExk7HQL2O4owCT2h8NT//9I1OQ9vt29Pa0BzSAkR5lwFUcQ7491yVi/3CXU9jQ5o0Mn2Sw==}
+    dependencies:
+      graphlib: 2.1.8
+      lodash: 4.17.21
+    dev: false
+
   /debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
     engines: {node: '>=6.0'}
@@ -1762,6 +1779,12 @@ packages:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: true
 
+  /graphlib@2.1.8:
+    resolution: {integrity: sha512-jcLLfkpoVGmH7/InMC/1hIvOPSUh38oJtGhvrOFGzioE1DZ+0YW16RgmOJhHiuWTvGiJQ9Z1Ik43JvkRPRvE+A==}
+    dependencies:
+      lodash: 4.17.21
+    dev: false
+
   /graphology-dag@0.3.0(graphology-types@0.24.7):
     resolution: {integrity: sha512-dg4JPb+/LDEbDinZIj7ezWzlEXDRokshdpTL8oAuftE9Uy0uTKGOKSmYULY8p3j/vw0HB31Wog9T/kpqprUQpg==}
     peerDependencies:
@@ -1976,6 +1999,10 @@ packages:
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
+
+  /lodash@4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: false
 
   /lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}

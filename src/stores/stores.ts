@@ -48,6 +48,9 @@ export const nodeStrokeColor: Writable<RgbaColor> = writable({ r: 68, g: 50, b: 
 export const edgeTypes = ['straight', 'arrow', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
 
+export const layoutTypes = ['force-graph', 'tree'] as const;
+export type LayoutType = (typeof layoutTypes)[number];
+
 export const edgeType: Writable<SelectSetting<EdgeType>> = writable({
 	values: Array.from(edgeTypes),
 	selected: 'straight'
@@ -78,6 +81,11 @@ export const partialEdgeEnd: Writable<NumericalSetting> = writable({
 	min: 0.5,
 	max: 1,
 	increment: 0.05
+});
+
+export const layout: Writable<SelectSetting<LayoutType>> = writable({
+	values: Array.from(layoutTypes),
+	selected: 'force-graph'
 });
 
 /// TODO Redesign stores to support groups, decorators and edge types

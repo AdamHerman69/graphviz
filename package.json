@@ -35,11 +35,13 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@types/dagre": "^0.7.49",
 		"d3": "^7.8.5",
 		"d3-drag": "^3.0.0",
 		"d3-force": "^3.0.0",
 		"d3-selection": "^3.0.0",
 		"d3-zoom": "^3.0.0",
+		"dagre": "^0.8.5",
 		"graphology": "^0.25.1",
 		"graphology-dag": "^0.3.0",
 		"graphology-graphml": "^0.5.2",

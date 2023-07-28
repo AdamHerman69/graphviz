@@ -12,7 +12,8 @@
 		nodeStrokeThickness,
 		nodeStrokeColor,
 		edgeThickness,
-		edgeColor
+		edgeColor,
+		layout
 	} from '../stores/stores';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 
@@ -45,6 +46,11 @@
 	graph.addEdge('j', 'i');
 
 	GraphStore.set(graph);
+
+	function switchLayout() {
+		if ($layout.selected == 'force-graph') $layout.selected = 'tree';
+		else $layout.selected = 'force-graph';
+	}
 </script>
 
 <!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
@@ -58,7 +64,13 @@
 		</div>
 		<div class="flex-none m-10">
 			{#if !hasCycle($GraphStore)}
-				<h3 class="text-center">Graph is a Tree!</h3>
+				<button
+					type="button"
+					on:click={switchLayout}
+					class="btn variant-filled absolute top-5 right-5"
+				>
+					switch layout</button
+				>
 			{/if}
 			<GraphImport />
 		</div>

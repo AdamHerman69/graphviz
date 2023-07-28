@@ -12,7 +12,8 @@
 		nodeStrokeColor,
 		edgeColor,
 		edgeThickness,
-		edgeType
+		edgeType,
+		layout
 	} from '../stores/stores';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
@@ -23,6 +24,7 @@
 		type EdgeDatum,
 		PaperRenderer
 	} from '../paperJS/PaperRenderer';
+	import * as dagre from 'dagre';
 
 	let canvas: HTMLCanvasElement;
 
@@ -75,14 +77,65 @@
 		paperRenderer?.updateEdgeStyle(edgeStyle);
 	}
 
+	$: {
+		if ($layout.selected == 'tree') {
+			// init tree
+			treeInit($GraphStore);
+		} else {
+			// init force-graph
+			if (paperRenderer) restartSimulation($GraphStore);
+		}
+	}
+
+	function treeInit(graph: Graph) {
+		simulation.stop();
+		let g = buildDagreGraph(graph);
+		dagre.layout(g);
+		console.log(g.graph());
+		let newPositions: NodePositionDatum[] = [];
+		g.nodes().forEach((id) => {
+			newPositions.push({
+				id: id,
+				x: g.node(id).x,
+				y: g.node(id).y
+			});
+		});
+
+		paperRenderer.updatePositions(newPositions);
+	}
+
+	function buildDagreGraph(graph: Graph): dagre.graphlib.Graph {
+		let g = new dagre.graphlib.Graph();
+		g.setGraph({});
+		g.setDefaultEdgeLabel(function () {
+			return {};
+		});
+
+		const size = $nodeSize.value;
+		graph.forEachNode((node) => {
+			g.setNode(node, { label: node, width: size, height: size });
+		});
+
+		graph.forEachEdge((edgeKey, attr, source, target) => {
+			g.setEdge(source, target);
+		});
+		return g;
+	}
+
 	function restartSimulation(graph: Graph): void {
 		// update graph nodes
-		d3nodes = graph.mapNodes((node: string) => ({ id: node }));
+		d3nodes = graph.mapNodes((node: string) => ({
+			id: node,
+			v: node,
+			value: { width: $nodeSize.value, height: $nodeSize.value }
+		}));
 		d3links = graph.mapEdges(
 			(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({
 				id: edgeKey,
 				source: source,
-				target: target
+				target: target,
+				v: source,
+				w: target
 			})
 		);
 
