@@ -12,7 +12,7 @@
 		edgeType,
 		partialEdgeStart,
 		partialEdgeEnd
-	} from '../stores/stores';
+	} from '../../stores/stores';
 	import EdgePreview from './EdgePreview.svelte';
 </script>
 

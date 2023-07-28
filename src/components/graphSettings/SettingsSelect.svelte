@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SelectSetting } from '../stores/stores';
+	import type { SelectSetting } from '../../stores/stores';
 	import type { Writable } from 'svelte/store';
 
 	export let name: String;

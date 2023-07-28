@@ -38,10 +38,11 @@
 	let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
 	let paperRenderer: Renderer;
 	let transform: d3.ZoomTransform = d3.zoomIdentity;
+	let nodeStyle: NodeStyle;
+	let edgeStyle: EdgeStyle;
 
 	onMount(() => {
-		paperRenderer = new PaperRenderer(canvas, [], []);
-		console.log('nl: ', paperRenderer);
+		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyle, edgeStyle);
 		restartSimulation($GraphStore);
 	});
 
@@ -50,25 +51,27 @@
 	}
 
 	// node settings
+	$: nodeStyle = {
+		size: $nodeSize.value,
+		fill: `rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`,
+		strokeColor: `rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`,
+		strokeThickness: $nodeStrokeThickness.value
+	};
+
 	$: {
-		const nodeStyle: NodeStyle = {
-			size: $nodeSize.value,
-			fill: `rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`,
-			strokeColor: `rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`,
-			strokeThickness: $nodeStrokeThickness.value
-		};
 		paperRenderer?.updateNodeStyle(nodeStyle);
 	}
 
 	// edge settings
+	$: edgeStyle = {
+		type: $edgeType.selected,
+		color: `rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`,
+		thickness: $edgeThickness.value,
+		partialStart: $partialEdgeStart.value,
+		partialEnd: $partialEdgeEnd.value
+	};
+
 	$: {
-		const edgeStyle: EdgeStyle = {
-			type: $edgeType.selected,
-			color: `rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`,
-			thickness: $edgeThickness.value,
-			partialStart: $partialEdgeStart.value,
-			partialEnd: $partialEdgeEnd.value
-		};
 		paperRenderer?.updateEdgeStyle(edgeStyle);
 	}
 

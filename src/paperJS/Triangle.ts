@@ -1,12 +1,40 @@
 import * as Paper from 'paper';
 import { Color } from 'paper/dist/paper-core';
 
-function createIsoscelesTriangle(
+export function createIsoscelesTriangleEdge(
+	topPoint: paper.Point,
+	baseCenter: paper.Point,
+	baseLength: number
+) {
+	const direction = topPoint.subtract(baseCenter);
+	const a = baseCenter.add(new Paper.Point(-direction.y, direction.x).normalize(baseLength / 2));
+	const c = baseCenter.subtract(
+		new Paper.Point(-direction.y, direction.x).normalize(baseLength / 2)
+	);
+	const triangle = new Paper.Path([a, topPoint, c]);
+	triangle.closed = true;
+	return triangle;
+}
+
+export function getIsoscelesTrianglePointsEdge(
+	topPoint: paper.Point,
+	baseCenter: paper.Point,
+	baseLength: number
+) {
+	const direction = topPoint.subtract(baseCenter);
+	const a = baseCenter.add(new Paper.Point(-direction.y, direction.x).normalize(baseLength / 2));
+	const c = baseCenter.subtract(
+		new Paper.Point(-direction.y, direction.x).normalize(baseLength / 2)
+	);
+
+	return [a, topPoint, c];
+}
+
+export function createIsoscelesTriangle(
 	topPoint: paper.Point,
 	baseLength: number,
 	height: number,
-	direction: paper.Point,
-	color: paper.Color
+	direction: paper.Point
 ): paper.Path {
 	const baseCenter = topPoint.subtract(direction.normalize(height));
 	const a = baseCenter.add(new Paper.Point(-direction.y, direction.x).normalize(baseLength / 2));
@@ -14,18 +42,12 @@ function createIsoscelesTriangle(
 		new Paper.Point(-direction.y, direction.x).normalize(baseLength / 2)
 	);
 
-	// Create the triangle path
-	const triangle = new Paper.Path();
-	triangle.add(a, topPoint, c);
+	const triangle = new Paper.Path([a, topPoint, c]);
 	triangle.closed = true;
-
-	// Style the triangle
-	triangle.fillColor = color;
-
 	return triangle;
 }
 
-function getIsoscelesTrianglePoints(
+export function getIsoscelesTrianglePoints(
 	topPoint: paper.Point,
 	baseLength: number,
 	height: number,
@@ -53,10 +75,10 @@ export class TriangleDecorator implements Decorator {
 			new Paper.Point(1, 1),
 			width,
 			lenght,
-			new Paper.Point(2, 2),
-			new Paper.Color('white')
-		); // init with ranom place
+			new Paper.Point(2, 2)
+		); // init at random place
 
+		this.triangle.fillColor = new Paper.Color('white');
 		this.width = width;
 		this.length = lenght;
 	}

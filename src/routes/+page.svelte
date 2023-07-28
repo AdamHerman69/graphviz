@@ -2,7 +2,7 @@
 	import { Toast } from '@skeletonlabs/skeleton';
 	import GraphImport from '../components/GraphImport.svelte';
 	import NodeLink from '../components/NodeLink.svelte';
-	import SettingsPanel from '../components/SettingsPanel.svelte';
+	import SettingsPanel from '../components/graphSettings/SettingsPanel.svelte';
 	import Graph from 'graphology';
 	import { hasCycle } from 'graphology-dag';
 	import {

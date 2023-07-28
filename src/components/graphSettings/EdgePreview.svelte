@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Renderer } from '../paperJS/PaperRenderer';
+	import type { Renderer } from '../../paperJS/PaperRenderer';
 	import { onMount } from 'svelte';
-	import { PaperRenderer } from '../paperJS/PaperRenderer';
+	import { PaperRenderer } from '../../paperJS/PaperRenderer';
 	import { axisLeft } from 'd3';
-	import type { NodePositionDatum, EdgeDatum } from '../paperJS/PaperRenderer';
+	import type { NodePositionDatum, EdgeDatum } from '../../paperJS/PaperRenderer';
 	import {
 		type NodeStyle,
 		type EdgeStyle,
@@ -16,12 +16,14 @@
 		edgeColor,
 		edgeThickness,
 		edgeType
-	} from '../stores/stores';
+	} from '../../stores/stores';
 
 	let canvas: HTMLCanvasElement;
 	let paperRenderer: Renderer;
 	let width: number;
 	let height: number;
+	let nodeStyle: NodeStyle;
+	let edgeStyle: EdgeStyle;
 
 	onMount(() => {
 		const nodes: NodePositionDatum[] = [
@@ -31,29 +33,31 @@
 		const edges: EdgeDatum[] = [{ id: 'edge', source: 'left', target: 'right' }];
 
 		// todo figure out two canvases
-		paperRenderer = new PaperRenderer(canvas, nodes, edges);
+		paperRenderer = new PaperRenderer(canvas, nodes, edges, nodeStyle, edgeStyle);
 	});
 
 	// node settings
+	$: nodeStyle = {
+		size: $nodeSize.value,
+		fill: `rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`,
+		strokeColor: `rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`,
+		strokeThickness: $nodeStrokeThickness.value
+	};
+
 	$: {
-		const nodeStyle: NodeStyle = {
-			size: $nodeSize.value,
-			fill: `rgba(${$nodeFill.r}, ${$nodeFill.g}, ${$nodeFill.b}, ${$nodeFill.a})`,
-			strokeColor: `rgba(${$nodeStrokeColor.r}, ${$nodeStrokeColor.g}, ${$nodeStrokeColor.b}, ${$nodeStrokeColor.a})`,
-			strokeThickness: $nodeStrokeThickness.value
-		};
 		paperRenderer?.updateNodeStyle(nodeStyle);
 	}
 
 	// edge settings
+	$: edgeStyle = {
+		type: $edgeType.selected,
+		color: `rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`,
+		thickness: $edgeThickness.value,
+		partialStart: $partialEdgeStart.value,
+		partialEnd: $partialEdgeEnd.value
+	};
+
 	$: {
-		const edgeStyle: EdgeStyle = {
-			type: $edgeType.selected,
-			color: `rgba(${$edgeColor.r}, ${$edgeColor.g}, ${$edgeColor.b}, ${$edgeColor.a})`,
-			thickness: $edgeThickness.value,
-			partialStart: $partialEdgeStart.value,
-			partialEnd: $partialEdgeEnd.value
-		};
 		paperRenderer?.updateEdgeStyle(edgeStyle);
 	}
 </script>

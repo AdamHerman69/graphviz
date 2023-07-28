@@ -36,16 +36,26 @@ export class PaperRenderer implements Renderer {
 	currentNodeStyle: NodeStyle;
 	currentEdgeStyle: EdgeStyle;
 
-	constructor(canvas: HTMLCanvasElement, inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
+	constructor(
+		canvas: HTMLCanvasElement,
+		inputNodes: NodePositionDatum[],
+		inputEdges: EdgeDatum[],
+		nodeStyle: NodeStyle,
+		edgeStyle: EdgeStyle
+	) {
 		this.paperScope = new Paper.PaperScope();
 		this.paperScope.setup(canvas);
 		this.nodes = new Map<string, IPNode>();
 		this.edges = new Map<string, PEdge>();
 		this.transform = d3.zoomIdentity;
 
-		this.initGraph(inputNodes, inputEdges);
+		this.initGraph(inputNodes, inputEdges, nodeStyle, edgeStyle);
 
-		// todo call update styles methods
+		this.currentNodeStyle = nodeStyle;
+		this.updateNodeStyle(nodeStyle);
+
+		this.currentEdgeStyle = edgeStyle;
+		this.updateEdgeStyle(edgeStyle);
 	}
 
 	updatePositions(positions: NodePositionDatum[]) {
@@ -77,17 +87,22 @@ export class PaperRenderer implements Renderer {
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
 		this.paperScope.activate();
 		this.paperScope.project.clear();
-		this.initGraph(inputNodes, inputEdges);
+		this.initGraph(inputNodes, inputEdges, this.currentNodeStyle, this.currentEdgeStyle);
 		if (this.currentNodeStyle && this.currentEdgeStyle) {
 			this.updateNodeStyle(this.currentNodeStyle);
 			this.updateEdgeStyle(this.currentEdgeStyle);
 		}
 	}
 
-	initGraph(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void {
+	initGraph(
+		inputNodes: NodePositionDatum[],
+		inputEdges: EdgeDatum[],
+		nodeStyle: NodeStyle,
+		edgeStyle: EdgeStyle
+	): void {
 		this.paperScope.activate();
 		inputNodes.forEach((node) => {
-			const paperNode = new PNode(node.x, node.y);
+			const paperNode = new PNode(node.id, node.x, node.y, nodeStyle);
 			this.nodes.set(node.id, paperNode);
 		});
 
@@ -102,7 +117,7 @@ export class PaperRenderer implements Renderer {
 					[new TriangleDecorator(3, 3), 1]
 				];
 
-				const paperEdge = new PEdge(source, target, decorators);
+				const paperEdge = new PEdge(source, target, edgeStyle, decorators);
 				this.edges.set(edge.id, paperEdge);
 			}
 		});

@@ -12,11 +12,19 @@ export interface IPNode {
 export class PNode implements IPNode {
 	position: paper.Point;
 	shape: paper.Shape;
+	style: NodeStyle;
+	label: paper.PointText;
 
-	constructor(x: number, y: number, radius: number = 4, strokeWith: number = 1) {
+	constructor(label: string, x: number, y: number, style: NodeStyle) {
+		this.style = style;
 		this.position = new Paper.Point(x, y);
-		this.shape = new Paper.Shape.Circle(this.position, radius);
-		this.shape.strokeColor = new Paper.Color('white');
+		this.shape = new Paper.Shape.Circle(this.position, style.size);
+		this.label = new Paper.PointText({
+			point: this.position,
+			content: label
+		});
+
+		this.updateStyle(style);
 	}
 
 	getFinalRadius(): number {
@@ -27,6 +35,7 @@ export class PNode implements IPNode {
 		this.position.x = newX;
 		this.position.y = newY;
 		this.shape.position = this.position;
+		this.label.point = this.position;
 	}
 
 	// todo support different shapes and stuff

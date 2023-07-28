@@ -45,7 +45,7 @@ export const nodeStrokeColor: Writable<RgbaColor> = writable({ r: 68, g: 50, b: 
 
 // edge settings stores
 
-export const edgeTypes = ['straight', 'partial', 'arrow', 'conical'] as const;
+export const edgeTypes = ['straight', 'arrow', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
 
 export const edgeType: Writable<SelectSetting<EdgeType>> = writable({
@@ -79,3 +79,5 @@ export const partialEdgeEnd: Writable<NumericalSetting> = writable({
 	max: 1,
 	increment: 0.05
 });
+
+/// TODO Redesign stores to support groups, decorators and edge types

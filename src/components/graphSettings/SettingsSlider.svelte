@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { RangeSlider } from '@skeletonlabs/skeleton';
-	import type { NumericalSetting } from '../stores/stores';
+	import type { NumericalSetting } from '../../stores/stores';
 	import type { Writable } from 'svelte/store';
 
 	export let name: string;
