@@ -38,6 +38,7 @@
 	let d3nodes: D3Node[];
 	let d3links: (d3.SimulationLinkDatum<D3Node> & { id: string })[];
 	let simulation: d3.Simulation<D3Node, d3.SimulationLinkDatum<D3Node>>;
+	let simRunning: boolean = false; // the sim initializes with a bunch of tick events dispatched, so we check for this in the tick event, if we switched the layout
 	let paperRenderer: Renderer;
 	let transform: d3.ZoomTransform = d3.zoomIdentity;
 	let nodeStyle: NodeStyle;
@@ -49,7 +50,10 @@
 	});
 
 	$: {
-		if (paperRenderer) restartSimulation($GraphStore);
+		if (paperRenderer) {
+			if ($layout.selected == 'force-graph') restartSimulation($GraphStore);
+			else if ($layout.selected == 'tree') treeInit($GraphStore);
+		}
 	}
 
 	// node settings
@@ -77,27 +81,24 @@
 		paperRenderer?.updateEdgeStyle(edgeStyle);
 	}
 
-	$: {
-		if ($layout.selected == 'tree') {
-			// init tree
-			treeInit($GraphStore);
-		} else {
-			// init force-graph
-			if (paperRenderer) restartSimulation($GraphStore);
-		}
-	}
-
 	function treeInit(graph: Graph) {
 		simulation.stop();
+		simRunning = false;
+		console.log('sim stopped');
 		let g = buildDagreGraph(graph);
 		dagre.layout(g);
 		console.log(g.graph());
+
+		const sclaleWidth = d3.scaleLinear().domain([0, g.graph().width!]).range([0, width]);
+		const scaleHeight = d3.scaleLinear().domain([0, g.graph().height!]).range([0, height]);
+
 		let newPositions: NodePositionDatum[] = [];
+
 		g.nodes().forEach((id) => {
 			newPositions.push({
 				id: id,
-				x: g.node(id).x,
-				y: g.node(id).y
+				x: sclaleWidth(g.node(id).x),
+				y: scaleHeight(g.node(id).y)
 			});
 		});
 
@@ -123,6 +124,7 @@
 	}
 
 	function restartSimulation(graph: Graph): void {
+		simRunning = true;
 		// update graph nodes
 		d3nodes = graph.mapNodes((node: string) => ({
 			id: node,
@@ -151,7 +153,9 @@
 			)
 			.force('charge', d3.forceManyBody())
 			.force('center', d3.forceCenter(width / 2, height / 2))
-			.on('tick', () => paperRenderer.updatePositions(d3nodes as NodePositionDatum[]));
+			.on('tick', () => {
+				if (simRunning) paperRenderer.updatePositions(d3nodes as NodePositionDatum[]);
+			});
 
 		// styles should persist
 
