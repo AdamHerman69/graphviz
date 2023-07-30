@@ -19,31 +19,31 @@
 
 	// example graph init
 	const graph = new Graph();
-	graph.addNode('a');
-	graph.addNode('b');
-	graph.addNode('c');
-	graph.addNode('d');
-	graph.addNode('e');
-	graph.addNode('f');
-	graph.addNode('g');
-	graph.addNode('h');
-	graph.addNode('i');
-	graph.addNode('j');
-	graph.addEdge('a', 'b');
-	graph.addEdge('a', 'c');
-	graph.addEdge('a', 'd');
-	graph.addEdge('a', 'e');
-	graph.addEdge('b', 'c');
-	graph.addEdge('g', 'c');
-	graph.addEdge('f', 'd');
-	graph.addEdge('d', 'c');
-	graph.addEdge('e', 'f');
-	graph.addEdge('e', 'g');
-	graph.addEdge('h', 'c');
-	graph.addEdge('i', 'd');
-	graph.addEdge('j', 'c');
-	graph.addEdge('h', 'i');
-	graph.addEdge('j', 'i');
+	graph.addNode('a', { volume: 40 });
+	graph.addNode('b', { volume: 25 });
+	graph.addNode('c', { volume: 80 });
+	graph.addNode('d', { volume: 35 });
+	graph.addNode('e', { volume: 41 });
+	graph.addNode('f', { volume: 40 });
+	graph.addNode('g', { volume: 27 });
+	graph.addNode('h', { volume: 65 });
+	graph.addNode('i', { volume: 58 });
+	graph.addNode('j'), { volume: 32 };
+	graph.addEdge('a', 'b', { speed: 1010 });
+	graph.addEdge('a', 'c', { speed: 250 });
+	graph.addEdge('a', 'd', { speed: 555 });
+	graph.addEdge('a', 'e', { speed: 666 });
+	graph.addEdge('b', 'c', { speed: 100 });
+	graph.addEdge('g', 'c', { speed: 889 });
+	graph.addEdge('f', 'd', { speed: 1000 });
+	graph.addEdge('d', 'c', { speed: 666 });
+	graph.addEdge('e', 'f', { speed: 370 });
+	graph.addEdge('e', 'g', { speed: 552 });
+	graph.addEdge('h', 'c', { speed: 345 });
+	graph.addEdge('i', 'd', { speed: 958 });
+	graph.addEdge('j', 'c', { speed: 399 });
+	graph.addEdge('h', 'i', { speed: 1005 });
+	graph.addEdge('j', 'i', { speed: 396 });
 
 	GraphStore.set(graph);
 

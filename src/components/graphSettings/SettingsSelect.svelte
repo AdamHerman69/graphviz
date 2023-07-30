@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { SelectSetting } from '../../stores/stores';
 	import type { Writable } from 'svelte/store';
+	import type { SelectSetting } from '../../stores/newStores';
 
 	export let name: String;
-	export let selectSetting: Writable<SelectSetting>;
+	export let selectSetting: SelectSetting;
 </script>
 
 <label class="label">

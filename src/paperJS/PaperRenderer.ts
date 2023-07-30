@@ -21,8 +21,8 @@ export type EdgeDatum = {
 
 export interface Renderer {
 	updatePositions(positions: NodePositionDatum[]): void;
-	updateNodeStyle(style: NodeStyle): void;
-	updateEdgeStyle(style: EdgeStyle): void;
+	updateNodeStyles(styles: Map<string, NodeStyle>): void;
+	updateEdgeStyles(styles: Map<string, EdgeStyle>): void;
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void;
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
@@ -33,15 +33,15 @@ export class PaperRenderer implements Renderer {
 	edges: Map<string, IPEdge>;
 	paperScope: paper.PaperScope;
 	transform: d3.ZoomTransform;
-	currentNodeStyle: NodeStyle;
-	currentEdgeStyle: EdgeStyle;
+	currentNodeStyles: Map<string, NodeStyle>;
+	currentEdgeStyles: Map<string, EdgeStyle>;
 
 	constructor(
 		canvas: HTMLCanvasElement,
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
-		nodeStyle: NodeStyle,
-		edgeStyle: EdgeStyle
+		nodeStyles: Map<string, NodeStyle>,
+		edgeStyles: Map<string, EdgeStyle>
 	) {
 		this.paperScope = new Paper.PaperScope();
 		this.paperScope.setup(canvas);
@@ -49,13 +49,13 @@ export class PaperRenderer implements Renderer {
 		this.edges = new Map<string, PEdge>();
 		this.transform = d3.zoomIdentity;
 
-		this.initGraph(inputNodes, inputEdges, nodeStyle, edgeStyle);
+		this.initGraph(inputNodes, inputEdges, nodeStyles, edgeStyles);
 
-		this.currentNodeStyle = nodeStyle;
-		this.updateNodeStyle(nodeStyle);
+		this.currentNodeStyles = nodeStyles;
+		this.updateNodeStyles(nodeStyles);
 
-		this.currentEdgeStyle = edgeStyle;
-		this.updateEdgeStyle(edgeStyle);
+		this.currentEdgeStyles = edgeStyles;
+		this.updateEdgeStyles(edgeStyles);
 	}
 
 	updatePositions(positions: NodePositionDatum[]) {
@@ -66,43 +66,44 @@ export class PaperRenderer implements Renderer {
 		this.edges.forEach((edge) => edge.updatePosition());
 	}
 
-	updateNodeStyle(style: NodeStyle) {
+	updateNodeStyles(styles: Map<string, NodeStyle>) {
 		this.paperScope.activate();
 		// todo here we'll handle the different groups in the future
-		this.nodes.forEach((node) => node.updateStyle(style));
+		this.nodes.forEach((node, key) => node.updateStyle(styles.get(key)!));
 
 		// if node changes size
 		this.edges.forEach((edge) => edge.updatePosition());
 
-		this.currentNodeStyle = style;
+		this.currentNodeStyles = styles;
 	}
 
-	updateEdgeStyle(style: EdgeStyle) {
+	updateEdgeStyles(styles: Map<string, EdgeStyle>) {
 		this.paperScope.activate();
 		// todo here we'll handle the different groups in the future
-		this.edges.forEach((edge) => edge.updateStyle(style));
-		this.currentEdgeStyle = style;
+		this.edges.forEach((edge, key) => edge.updateStyle(styles.get(key)!));
+		this.currentEdgeStyles = styles;
 	}
 
 	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
 		this.paperScope.activate();
 		this.paperScope.project.clear();
-		this.initGraph(inputNodes, inputEdges, this.currentNodeStyle, this.currentEdgeStyle);
-		if (this.currentNodeStyle && this.currentEdgeStyle) {
-			this.updateNodeStyle(this.currentNodeStyle);
-			this.updateEdgeStyle(this.currentEdgeStyle);
+		this.initGraph(inputNodes, inputEdges, this.currentNodeStyles, this.currentEdgeStyles);
+		if (this.currentNodeStyles && this.currentEdgeStyles) {
+			this.updateNodeStyles(this.currentNodeStyles);
+			this.updateEdgeStyles(this.currentEdgeStyles);
 		}
 	}
 
 	initGraph(
 		inputNodes: NodePositionDatum[],
 		inputEdges: EdgeDatum[],
-		nodeStyle: NodeStyle,
-		edgeStyle: EdgeStyle
+		nodeStyles: Map<string, NodeStyle>,
+		edgeStyles: Map<string, EdgeStyle>
 	): void {
 		this.paperScope.activate();
-		inputNodes.forEach((node) => {
-			const paperNode = new PNode(node.id, node.x, node.y, nodeStyle);
+
+		inputNodes.forEach((node, key) => {
+			const paperNode = new PNode(node.id, node.x, node.y, nodeStyles.get(node.id)!);
 			this.nodes.set(node.id, paperNode);
 		});
 
@@ -117,7 +118,7 @@ export class PaperRenderer implements Renderer {
 					[new TriangleDecorator(3, 3), 1]
 				];
 
-				const paperEdge = new PEdge(source, target, edgeStyle, decorators);
+				const paperEdge = new PEdge(source, target, edgeStyles.get(edge.id)!, decorators);
 				this.edges.set(edge.id, paperEdge);
 			}
 		});

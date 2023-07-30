@@ -41,9 +41,9 @@ export class PNode implements IPNode {
 	// todo support different shapes and stuff
 	updateStyle(style: NodeStyle) {
 		this.shape.style = {
-			fillColor: new Paper.Color(style.fill),
+			fillColor: new Paper.Color(style.color),
 			strokeColor: new Paper.Color(style.strokeColor),
-			strokeWidth: style.strokeThickness
+			strokeWidth: style.strokeWidth
 		};
 
 		this.shape.radius = style.size;

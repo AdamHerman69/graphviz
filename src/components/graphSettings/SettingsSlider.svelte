@@ -4,19 +4,19 @@
 	import type { Writable } from 'svelte/store';
 
 	export let name: string;
-	export let numericalSetting: Writable<NumericalSetting>;
+	export let numSettings: NumericalSetting;
 </script>
 
 <RangeSlider
 	{name}
-	bind:value={$numericalSetting.value}
+	bind:value={numSettings.value}
 	label={name}
-	max={$numericalSetting.max}
-	min={$numericalSetting.min}
-	step={$numericalSetting.increment || 1}
+	max={numSettings.max}
+	min={numSettings.min}
+	step={numSettings.increment || 1}
 >
 	<div class="flex justify-between items-center">
 		<div>{name}</div>
-		<div class="text-xs">{$numericalSetting.value}</div>
+		<div class="text-xs">{numSettings.value}</div>
 	</div>
 </RangeSlider>

@@ -2,36 +2,35 @@
 	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
-	import {
-		nodeSize,
-		nodeStrokeThickness,
-		nodeFill,
-		nodeStrokeColor,
-		edgeThickness,
-		edgeColor,
-		edgeType,
-		partialEdgeStart,
-		partialEdgeEnd
-	} from '../../stores/stores';
+	import { graphSettings, type EdgeType } from '../../stores/newStores';
 	import EdgePreview from './EdgePreview.svelte';
 </script>
 
 <div class="card h-full p-4 variant-ghost">
 	<b>Node Settings</b>
-	<SettingsSlider name="Size" numericalSetting={nodeSize} />
-	<SettingsSlider name="Stroke Thickness" numericalSetting={nodeStrokeThickness} />
+	<SettingsSlider name="Size" bind:numSettings={$graphSettings.nodeSettings[0].size} />
+	<SettingsSlider
+		name="Stroke Thickness"
+		bind:numSettings={$graphSettings.nodeSettings[0].strokeWidth}
+	/>
 	<div class="flex p-2">
-		<SettingsColor color={nodeFill} label="fill" />
-		<SettingsColor color={nodeStrokeColor} label="stroke" />
+		<SettingsColor bind:colorSetting={$graphSettings.nodeSettings[0].color} label="fill" />
+		<SettingsColor bind:colorSetting={$graphSettings.nodeSettings[0].strokeColor} label="stroke" />
 	</div>
 	<b>Edge Settings</b>
-	<EdgePreview />
-	<SettingsSelect name="Edge Type" selectSetting={edgeType} />
-	<SettingsSlider name="Thickness" numericalSetting={edgeThickness} />
-	<SettingsSlider name="Partial edge start" numericalSetting={partialEdgeStart} />
-	<SettingsSlider name="Partial edge end" numericalSetting={partialEdgeEnd} />
+	<!-- <EdgePreview /> -->
+	<!-- <SettingsSelect name="Edge Type" bind:selectSetting={$graphSettings.edgeSettings[0].type} /> -->
+	<SettingsSlider name="Thickness" bind:numSettings={$graphSettings.edgeSettings[0].width} />
+	<SettingsSlider
+		name="Partial edge start"
+		bind:numSettings={$graphSettings.edgeSettings[0].partialStart}
+	/>
+	<SettingsSlider
+		name="Partial edge end"
+		bind:numSettings={$graphSettings.edgeSettings[0].partialEnd}
+	/>
 
 	<div class="flex p-2">
-		<SettingsColor color={edgeColor} label="color" />
+		<SettingsColor bind:colorSetting={$graphSettings.edgeSettings[0].color} label="color" />
 	</div>
 </div>
