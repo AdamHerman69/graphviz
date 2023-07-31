@@ -2,7 +2,7 @@
 	import Graph from 'graphology';
 	import { parse } from 'graphology-graphml';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
-	import { GraphStore } from '../stores/stores';
+	import { graphStore } from '../stores/newStores';
 
 	import { toastStore } from '@skeletonlabs/skeleton';
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
@@ -23,7 +23,7 @@
 		try {
 			const graphString = await file.text();
 			graph = parse(Graph, graphString);
-			GraphStore.set(graph);
+			graphStore.set(graph);
 		} catch (error) {
 			toastStore.trigger({ message: 'Graph upload failed. Please check the file format.' });
 			console.log(error);

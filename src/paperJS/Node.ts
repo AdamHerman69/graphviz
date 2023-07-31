@@ -1,5 +1,5 @@
 import * as Paper from 'paper';
-import type { NodeStyle } from '../stores/stores';
+import type { NodeStyle } from '../stores/newStores';
 // TODO don't import stores but just types for the values, that the update styles method is going to consume
 
 export interface IPNode {
@@ -40,8 +40,22 @@ export class PNode implements IPNode {
 
 	// todo support different shapes and stuff
 	updateStyle(style: NodeStyle) {
+		let color: paper.Color;
+		if (typeof style.color === 'string') color = new Paper.Color(style.color);
+		else {
+			// gradient
+			color = new Paper.Color({
+				gradient: {
+					stops: style.color,
+					radial: true
+				},
+				origin: this.position,
+				destination: this.shape.bounds.rightCenter
+			});
+		}
+
 		this.shape.style = {
-			fillColor: new Paper.Color(style.color),
+			fillColor: color,
 			strokeColor: new Paper.Color(style.strokeColor),
 			strokeWidth: style.strokeWidth
 		};

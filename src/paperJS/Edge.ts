@@ -1,6 +1,6 @@
 import * as Paper from 'paper';
 import type { IPNode } from './Node';
-import type { EdgeStyle, EdgeType } from '../stores/stores';
+import type { EdgeStyle, EdgeType } from '../stores/newStores';
 import {
 	type Decorator,
 	createIsoscelesTriangle,
@@ -25,9 +25,16 @@ class LineShape implements EdgeShape {
 	updatePosition(source: paper.Point, target: paper.Point): void {
 		this.line.firstSegment.point = source;
 		this.line.lastSegment.point = target;
+
+		//update gradient
+		if (this.line.strokeColor?.gradient) {
+			this.line.strokeColor.origin = source;
+			this.line.strokeColor.destination = target;
+		}
 	}
 
 	updateStyle(style: paper.Style) {
+		console.log(style);
 		this.line.style = style;
 	}
 
@@ -51,6 +58,12 @@ class TriangleShape implements EdgeShape {
 			this.triangle.segments[1].point,
 			this.triangle.segments[2].point
 		] = getIsoscelesTrianglePointsEdge(target, source, this.width);
+
+		//update gradient
+		if (this.triangle.fillColor?.gradient) {
+			this.triangle.fillColor.origin = source;
+			this.triangle.fillColor.destination = target;
+		}
 	}
 
 	updateStyle(style: paper.Style) {
@@ -74,6 +87,8 @@ export interface IPEdge {
 export class PEdge {
 	source: IPNode;
 	target: IPNode;
+	sourceConnectionPoint: paper.Point;
+	targetConnectionPoint: paper.Point;
 	decorators: [Decorator, number][]; // number is a relative position on edge 0 - start, 1 - end
 	lineShape: EdgeShape;
 	partialStart: number;
@@ -90,13 +105,14 @@ export class PEdge {
 		this.target = target;
 		// line
 		// vvvvv doesn't work but doesn't really matter
-		const [sourceConnection, targetConnection] = this.getConnectionPoints();
+		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
+		console.log('in constructor:', this.sourceConnectionPoint, this.targetConnectionPoint);
 
 		this.type = style.type;
 		if (this.type == 'conical') {
-			this.lineShape = new TriangleShape(sourceConnection, targetConnection);
+			this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 		} else {
-			this.lineShape = new LineShape(sourceConnection, targetConnection);
+			this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 		}
 
 		this.decorators = decorators ?? [];
@@ -104,10 +120,14 @@ export class PEdge {
 		this.partialEnd = 1;
 
 		// doesn't work too, the points are NaN
-		this.updateDecorators(sourceConnection, targetConnection);
+		this.updateDecorators();
 	}
 
 	getConnectionPoints() {
+		// when starting the simulation all points are at the same position, rest wouldn't work
+		if (this.source.position.equals(this.target.position))
+			return [this.source.position, this.target.position];
+
 		const direction = this.target.position.subtract(this.source.position).normalize();
 		let sourceConnectionPoint = this.source.position.add(
 			direction.multiply(this.source.getFinalRadius())
@@ -132,41 +152,52 @@ export class PEdge {
 	}
 
 	updatePosition() {
-		const [sourceConnection, targetConnection] = this.getConnectionPoints();
-		this.lineShape.updatePosition(sourceConnection, targetConnection);
+		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
+		this.lineShape.updatePosition(this.sourceConnectionPoint, this.targetConnectionPoint);
 
-		this.updateDecorators(sourceConnection, targetConnection);
+		this.updateDecorators();
 	}
 
-	updateDecorators(sourceConnection: paper.Point, targetConnection: paper.Point) {
+	updateDecorators() {
 		this.decorators?.forEach((decTuple) => {
 			decTuple[0].update(
-				getRelativeEdgePoint(sourceConnection, targetConnection, decTuple[1]),
+				getRelativeEdgePoint(this.sourceConnectionPoint, this.targetConnectionPoint, decTuple[1]),
 				this.getDirection()
 			);
 		});
 	}
 
 	updateStyle(style: EdgeStyle) {
+		console.log(this.sourceConnectionPoint, this.targetConnectionPoint);
 		// edge type change
 		if (style.type != this.type) {
 			this.type = style.type;
 			this.lineShape.delete();
 
-			let sourceConnection, targetConnection;
-			[sourceConnection, targetConnection] = this.getConnectionPoints();
-
 			if (style.type == 'conical') {
-				this.lineShape = new TriangleShape(sourceConnection, targetConnection);
+				this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 			} else {
-				this.lineShape = new LineShape(sourceConnection, targetConnection);
+				this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 			}
+		}
+
+		let color: paper.Color;
+		if (typeof style.color === 'string') color = new Paper.Color(style.color);
+		else {
+			// gradient
+			color = new Paper.Color({
+				gradient: {
+					stops: style.color
+				},
+				origin: this.sourceConnectionPoint,
+				destination: this.targetConnectionPoint
+			});
 		}
 
 		// style update
 		const paperStyle = {
 			strokeWidth: style.thickness,
-			strokeColor: new Paper.Color(style.color)
+			strokeColor: color
 		};
 		this.lineShape.updateStyle(paperStyle);
 

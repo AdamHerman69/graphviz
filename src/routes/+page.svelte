@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { Toast } from '@skeletonlabs/skeleton';
 	import GraphImport from '../components/GraphImport.svelte';
-	import NodeLink from '../components/NodeLink.svelte';
 	import SettingsPanel from '../components/graphSettings/SettingsPanel.svelte';
 	import Graph from 'graphology';
 	import { hasCycle } from 'graphology-dag';
-	import {
-		GraphStore,
-		nodeSize,
-		nodeFill,
-		nodeStrokeThickness,
-		nodeStrokeColor,
-		edgeThickness,
-		edgeColor,
-		layout
-	} from '../stores/stores';
+	// import {
+	// 	GraphStore,
+	// 	nodeSize,
+	// 	nodeFill,
+	// 	nodeStrokeThickness,
+	// 	nodeStrokeColor,
+	// 	edgeThickness,
+	// 	edgeColor,
+	// 	layout
+	// } from '../stores/stores';
+	import { graphStore, graphSettings } from '../stores/newStores';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 
 	// example graph init
@@ -28,7 +28,7 @@
 	graph.addNode('g', { volume: 27 });
 	graph.addNode('h', { volume: 65 });
 	graph.addNode('i', { volume: 58 });
-	graph.addNode('j'), { volume: 32 };
+	graph.addNode('j', { volume: 32 });
 	graph.addEdge('a', 'b', { speed: 1010 });
 	graph.addEdge('a', 'c', { speed: 250 });
 	graph.addEdge('a', 'd', { speed: 555 });
@@ -45,11 +45,11 @@
 	graph.addEdge('h', 'i', { speed: 1005 });
 	graph.addEdge('j', 'i', { speed: 396 });
 
-	GraphStore.set(graph);
+	graphStore.set(graph);
 
 	function switchLayout() {
-		if ($layout.selected == 'force-graph') $layout.selected = 'tree';
-		else $layout.selected = 'force-graph';
+		if ($graphSettings.layout.value == 'force-graph') $graphSettings.layout.value = 'tree';
+		else $graphSettings.layout.value = 'force-graph';
 	}
 </script>
 
@@ -63,7 +63,7 @@
 			<div class="w-1/4"><SettingsPanel /></div>
 		</div>
 		<div class="flex-none m-10">
-			{#if !hasCycle($GraphStore)}
+			{#if !hasCycle($graphStore)}
 				<button
 					type="button"
 					on:click={switchLayout}

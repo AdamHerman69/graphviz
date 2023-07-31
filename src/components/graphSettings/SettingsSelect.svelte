@@ -8,8 +8,8 @@
 
 <label class="label">
 	<span>{name}</span>
-	<select bind:value={$selectSetting.selected} class="select">
-		{#each $selectSetting.values as option}
+	<select bind:value={selectSetting.value} class="select">
+		{#each selectSetting.values as option}
 			<option value={option}>{option}</option>
 		{/each}
 	</select>

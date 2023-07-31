@@ -1,19 +1,7 @@
 <script lang="ts">
 	import type Graph from 'graphology';
 	import {
-		GraphStore,
-		partialEdgeStart,
-		partialEdgeEnd,
-		nodeSize,
-		nodeFill,
-		nodeStrokeThickness,
-		nodeStrokeColor,
-		edgeColor,
-		edgeThickness,
-		edgeType,
-		layout
-	} from '../stores/stores';
-	import {
+		graphStore,
 		graphSettings,
 		type NodeSettings,
 		type EdgeSettings,
@@ -24,7 +12,6 @@
 	} from '../stores/newStores';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
-	import {} from '../stores/stores';
 	import {
 		type Renderer,
 		type NodePositionDatum,
@@ -53,15 +40,15 @@
 
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
-		restartSimulation($GraphStore);
+		restartSimulation($graphStore);
 	});
 
 	$: {
-		updateStyleMapsOnGraphChange($GraphStore);
+		updateStyleMapsOnGraphChange($graphStore);
 
 		if (paperRenderer) {
-			if ($layout.selected == 'force-graph') restartSimulation($GraphStore);
-			else if ($layout.selected == 'tree') treeInit($GraphStore); // new graph in tree mode doesn't update
+			if ($graphSettings.layout.value == 'force-graph') restartSimulation($graphStore);
+			else if ($graphSettings.layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
 		}
 	}
 
@@ -103,21 +90,13 @@
 		// attribute based styles
 		finalSettings.forEach((setting) => {
 			if (setting.attribute) {
-				if (Object.hasOwn(setting.attribute, 'range')) {
-					let scale = d3
-						.scaleLinear()
-						.domain([setting.attribute.range[0], setting.attribute.range[1]])
-						.range([setting.min, setting.max]);
-
-					let attributeValue = $GraphStore.getNodeAttribute(id, setting.attribute.name);
-					nodeStyle[setting.name] = scale(attributeValue);
-				}
+				let attributeValue = $graphStore.getNodeAttribute(id, setting.attribute.name);
+				nodeStyle[setting.name] = setting.attribute.scale(attributeValue);
 			} else {
 				nodeStyle[setting.name] = setting.value;
 			}
 		});
 
-		console.log(nodeStyle);
 		return nodeStyle;
 	}
 
@@ -179,7 +158,10 @@
 		d3nodes = graph.mapNodes((node: string) => ({
 			id: node,
 			v: node,
-			value: { width: $nodeSize.value, height: $nodeSize.value }
+			value: {
+				width: $graphSettings.nodeSettings[0].size?.value,
+				height: $graphSettings.nodeSettings[0].size?.value
+			} // todo get actual width
 		}));
 		d3links = graph.mapEdges(
 			(edgeKey: string, edgeAttributes: object, source: string, target: string) => ({

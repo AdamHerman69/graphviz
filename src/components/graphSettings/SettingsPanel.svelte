@@ -13,13 +13,13 @@
 		name="Stroke Thickness"
 		bind:numSettings={$graphSettings.nodeSettings[0].strokeWidth}
 	/>
-	<div class="flex p-2">
+	<!-- <div class="flex p-2">
 		<SettingsColor bind:colorSetting={$graphSettings.nodeSettings[0].color} label="fill" />
 		<SettingsColor bind:colorSetting={$graphSettings.nodeSettings[0].strokeColor} label="stroke" />
-	</div>
+	</div> -->
 	<b>Edge Settings</b>
 	<!-- <EdgePreview /> -->
-	<!-- <SettingsSelect name="Edge Type" bind:selectSetting={$graphSettings.edgeSettings[0].type} /> -->
+	<SettingsSelect name="Edge Type" bind:selectSetting={$graphSettings.edgeSettings[0].type} />
 	<SettingsSlider name="Thickness" bind:numSettings={$graphSettings.edgeSettings[0].width} />
 	<SettingsSlider
 		name="Partial edge start"
@@ -30,7 +30,7 @@
 		bind:numSettings={$graphSettings.edgeSettings[0].partialEnd}
 	/>
 
-	<div class="flex p-2">
+	<!-- <div class="flex p-2">
 		<SettingsColor bind:colorSetting={$graphSettings.edgeSettings[0].color} label="color" />
-	</div>
+	</div> -->
 </div>
