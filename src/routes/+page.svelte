@@ -4,31 +4,21 @@
 	import SettingsPanel from '../components/graphSettings/SettingsPanel.svelte';
 	import Graph from 'graphology';
 	import { hasCycle } from 'graphology-dag';
-	// import {
-	// 	GraphStore,
-	// 	nodeSize,
-	// 	nodeFill,
-	// 	nodeStrokeThickness,
-	// 	nodeStrokeColor,
-	// 	edgeThickness,
-	// 	edgeColor,
-	// 	layout
-	// } from '../stores/stores';
-	import { graphStore, graphSettings } from '../stores/newStores';
+	import { graphStore, layout } from '../stores/newStores';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 
 	// example graph init
 	const graph = new Graph();
-	graph.addNode('a', { volume: 40 });
+	graph.addNode('a', { volume: 40, neco: 'nejakej string' });
 	graph.addNode('b', { volume: 25 });
 	graph.addNode('c', { volume: 80 });
 	graph.addNode('d', { volume: 35 });
-	graph.addNode('e', { volume: 41 });
-	graph.addNode('f', { volume: 40 });
+	graph.addNode('e', { volume: 41, neco: 'random string' });
+	graph.addNode('f', { volume: 40, neco: 55 });
 	graph.addNode('g', { volume: 27 });
 	graph.addNode('h', { volume: 65 });
-	graph.addNode('i', { volume: 58 });
-	graph.addNode('j', { volume: 32 });
+	graph.addNode('i', { volume: 58, kk: 2 });
+	graph.addNode('j', { volume: 32, neco: 3 });
 	graph.addEdge('a', 'b', { speed: 1010 });
 	graph.addEdge('a', 'c', { speed: 250 });
 	graph.addEdge('a', 'd', { speed: 555 });
@@ -48,8 +38,8 @@
 	graphStore.set(graph);
 
 	function switchLayout() {
-		if ($graphSettings.layout.value == 'force-graph') $graphSettings.layout.value = 'tree';
-		else $graphSettings.layout.value = 'force-graph';
+		if ($layout.value == 'force-graph') $layout.value = 'tree';
+		else $layout.value = 'force-graph';
 	}
 </script>
 

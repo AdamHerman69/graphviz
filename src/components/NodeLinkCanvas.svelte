@@ -2,7 +2,9 @@
 	import type Graph from 'graphology';
 	import {
 		graphStore,
-		graphSettings,
+		nodeSettings,
+		edgeSettings,
+		layout,
 		type NodeSettings,
 		type EdgeSettings,
 		type NodeStyle,
@@ -47,42 +49,63 @@
 		updateStyleMapsOnGraphChange($graphStore);
 
 		if (paperRenderer) {
-			if ($graphSettings.layout.value == 'force-graph') restartSimulation($graphStore);
-			else if ($graphSettings.layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
+			if ($layout.value == 'force-graph') restartSimulation($graphStore);
+			else if ($layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
 		}
 	}
 
 	// node settings
 	$: {
+		console.log('updating nodes settings', $nodeSettings);
 		for (const [key, style] of nodeStyles.entries()) {
-			nodeStyles.set(key, getNodeStyle(key, $graphSettings.nodeSettings));
+			nodeStyles.set(key, getNodeStyle(key, $nodeSettings));
 		}
 		paperRenderer?.updateNodeStyles(nodeStyles);
 	}
 
 	// edge settings
 	$: {
+		console.log('updating edge settings', $edgeSettings);
 		for (const [key, style] of edgeStyles.entries()) {
-			edgeStyles.set(key, getEdgeStyle(key, $graphSettings.edgeSettings));
+			edgeStyles.set(key, getEdgeStyle(key, $edgeSettings));
 		}
+		console.log(edgeStyles);
 		paperRenderer?.updateEdgeStyles(edgeStyles);
 	}
 
+	function stripAttributeBasedSettings() {
+		$nodeSettings.forEach((nodeSetting) => {
+			delete nodeSetting.color.attribute;
+			delete nodeSetting.size.attribute;
+			delete nodeSetting.strokeColor.attribute;
+			delete nodeSetting.strokeWidth.attribute;
+		});
+
+		$edgeSettings.forEach((edgeSetting) => {
+			delete edgeSetting.color.attribute;
+			delete edgeSetting.partialEnd.attribute;
+			delete edgeSetting.partialStart.attribute;
+			delete edgeSetting.type.attribute;
+			delete edgeSetting.width.attribute;
+		});
+	}
+
 	function updateStyleMapsOnGraphChange(graph: Graph) {
+		stripAttributeBasedSettings();
 		nodeStyles = new Map<string, NodeStyle>();
-		graph.forEachNode((id) => nodeStyles.set(id, getNodeStyle(id, $graphSettings.nodeSettings)));
+		graph.forEachNode((id) => nodeStyles.set(id, getNodeStyle(id, $nodeSettings)));
 
 		edgeStyles = new Map<string, EdgeStyle>();
-		graph.forEachEdge((id) => edgeStyles.set(id, getEdgeStyle(id, $graphSettings.edgeSettings)));
+		graph.forEachEdge((id) => edgeStyles.set(id, getEdgeStyle(id, $edgeSettings)));
 	}
 
 	function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyle {
 		// todo rules (which nodeSettings array apply)
 		let finalSettings: Setting[] = [
-			$graphSettings.nodeSettings[0].size!,
-			$graphSettings.nodeSettings[0].color!,
-			$graphSettings.nodeSettings[0].strokeColor!,
-			$graphSettings.nodeSettings[0].strokeWidth!
+			nodeSettings[0].size!,
+			nodeSettings[0].color!,
+			nodeSettings[0].strokeColor!,
+			nodeSettings[0].strokeWidth!
 		];
 
 		let nodeStyle: NodeStyle = {};
@@ -101,13 +124,29 @@
 	}
 
 	function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyle {
-		return {
-			type: $graphSettings.edgeSettings[0].type?.value,
-			color: $graphSettings.edgeSettings[0].color?.value,
-			thickness: $graphSettings.edgeSettings[0].width?.value,
-			partialStart: $graphSettings.edgeSettings[0].partialStart?.value,
-			partialEnd: $graphSettings.edgeSettings[0].partialEnd?.value
-		};
+		// todo rules (which nodeSettings array apply)
+		let finalSettings: Setting[] = [
+			edgeSettings[0].type!,
+			edgeSettings[0].color!,
+			edgeSettings[0].width!,
+			edgeSettings[0].partialStart!,
+			edgeSettings[0].partialEnd
+		];
+
+		let edgeStyle: EdgeStyle = {};
+
+		// attribute based styles
+		finalSettings.forEach((setting) => {
+			if (setting.attribute) {
+				let attributeValue = $graphStore.getEdgeAttribute(id, setting.attribute.name);
+				edgeStyle[setting.name] = setting.attribute.scale(attributeValue);
+				console.log('got special value: ', edgeStyle[setting.name]);
+			} else {
+				edgeStyle[setting.name] = setting.value;
+			}
+		});
+
+		return edgeStyle;
 	}
 
 	function treeInit(graph: Graph) {
@@ -141,7 +180,7 @@
 			return {};
 		});
 
-		const size = $graphSettings.nodeSettings[0].size!.value;
+		const size = $nodeSettings[0].size!.value;
 		graph.forEachNode((node) => {
 			g.setNode(node, { label: node, width: size, height: size });
 		});
@@ -159,8 +198,8 @@
 			id: node,
 			v: node,
 			value: {
-				width: $graphSettings.nodeSettings[0].size?.value,
-				height: $graphSettings.nodeSettings[0].size?.value
+				width: $nodeSettings[0].size?.value,
+				height: $nodeSettings[0].size?.value
 			} // todo get actual width
 		}));
 		d3links = graph.mapEdges(

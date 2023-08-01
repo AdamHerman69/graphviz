@@ -34,7 +34,6 @@ class LineShape implements EdgeShape {
 	}
 
 	updateStyle(style: paper.Style) {
-		console.log(style);
 		this.line.style = style;
 	}
 
@@ -106,7 +105,6 @@ export class PEdge {
 		// line
 		// vvvvv doesn't work but doesn't really matter
 		[this.sourceConnectionPoint, this.targetConnectionPoint] = this.getConnectionPoints();
-		console.log('in constructor:', this.sourceConnectionPoint, this.targetConnectionPoint);
 
 		this.type = style.type;
 		if (this.type == 'conical') {
@@ -168,7 +166,6 @@ export class PEdge {
 	}
 
 	updateStyle(style: EdgeStyle) {
-		console.log(this.sourceConnectionPoint, this.targetConnectionPoint);
 		// edge type change
 		if (style.type != this.type) {
 			this.type = style.type;
@@ -196,7 +193,7 @@ export class PEdge {
 
 		// style update
 		const paperStyle = {
-			strokeWidth: style.thickness,
+			strokeWidth: style.width,
 			strokeColor: color
 		};
 		this.lineShape.updateStyle(paperStyle);

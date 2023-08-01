@@ -14,7 +14,7 @@ export type NodeStyle = {
 
 export type EdgeStyle = {
 	type: EdgeType;
-	thickness: number;
+	width: number;
 	color: string | Gradient;
 	partialStart: number;
 	partialEnd: number;
@@ -36,26 +36,26 @@ type ScaleFunction = (n: number) => number;
 
 export type RangeAttribute = Attribute & {
 	range: [number, number];
-	scale: ScaleFunction;
+	scale?: ScaleFunction;
 };
 
 // do with rules instead
-// export type DiscreteAttribute = Attribute & {
-// 	values: [domain: string | number, value: string | number];
-// };
+export type StringAttribute = Attribute & {
+	values: string[];
+};
 
-export type Setting = {
+export type Setting<T> = {
 	name: string;
 	value: any;
 	attribute?: RangeAttribute;
 };
 
-export type SelectSetting<T> = Setting & {
+export type SelectSetting<T> = Setting<T> & {
 	readonly values: T[];
 	value: T;
 };
 
-export type NumericalSetting = Setting & {
+export type NumericalSetting = Setting<number> & {
 	value: number;
 	min: number;
 	max: number;
@@ -63,7 +63,7 @@ export type NumericalSetting = Setting & {
 };
 
 export type Gradient = ['string', number][];
-export type ColorSetting = Setting & {
+export type ColorSetting = Setting<string | Gradient> & {
 	value: string | Gradient;
 };
 
@@ -102,50 +102,54 @@ export type GraphSettings = {
 
 let scale: ScaleLinear<number, number, never> = scaleLinear().domain([10, 100]).range([1, 10]);
 
-export const graphSettings: Writable<GraphSettings> = writable({
-	layout: { name: 'layout', values: Array.from(layoutTypes), value: 'force-graph' },
-	nodeSettings: [
-		{
-			priority: 0,
-			rule: { type: 'NODE', operator: 'AND', rules: [] },
-			size: {
-				name: 'size',
-				value: 5,
-				min: 1,
-				max: 10,
-				attribute: {
-					name: 'volume',
-					range: [10, 100],
-					scale: scale
-				}
-			},
-			strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10 },
-			color: {
-				name: 'color',
-				value: [
-					['yellow', 0],
-					['purple', 1]
-				]
-			},
-			strokeColor: { name: 'strokeColor', value: 'purple' }
-		}
-	],
-	edgeSettings: [
-		{
-			priority: 0,
-			rule: { type: 'EDGE', operator: 'AND', rules: [] },
-			type: { name: 'type', values: Array.from(edgeTypes), value: 'straight' },
-			width: { name: 'width', value: 1, min: 0, max: 5, increment: 0.5 },
-			color: {
-				name: 'color',
-				value: [
-					['green', 0],
-					['yellow', 0.5],
-					['red', 1]
-				]
-			},
-			partialStart: { name: 'partialStart', value: 0, min: 0, max: 0.5, increment: 0.05 },
-			partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 }
-		}
-	]
+export const layout: Writable<SelectSetting<LayoutType>> = writable({
+	name: 'layout',
+	values: Array.from(layoutTypes),
+	value: 'force-graph'
 });
+
+export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writable([
+	{
+		priority: 0,
+		rule: { type: 'NODE', operator: 'AND', rules: [] },
+		size: {
+			name: 'size',
+			value: 5,
+			min: 1,
+			max: 10,
+			attribute: {
+				name: 'volume',
+				range: [10, 100],
+				scale: scale
+			}
+		},
+		strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10 },
+		color: {
+			name: 'color',
+			value: [
+				['yellow', 0],
+				['purple', 1]
+			]
+		},
+		strokeColor: { name: 'strokeColor', value: 'purple' }
+	}
+]);
+
+export const edgeSettings: Writable<EdgeSettings[]> = writable([
+	{
+		priority: 0,
+		rule: { type: 'EDGE', operator: 'AND', rules: [] },
+		type: { name: 'type', values: Array.from(edgeTypes), value: 'straight' },
+		width: { name: 'width', value: 1, min: 0, max: 5, increment: 0.5 },
+		color: {
+			name: 'color',
+			value: [
+				['green', 0],
+				['yellow', 0.5],
+				['red', 1]
+			]
+		},
+		partialStart: { name: 'partialStart', value: 0, min: 0, max: 0.5, increment: 0.05 },
+		partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 }
+	}
+]);
