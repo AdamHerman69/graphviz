@@ -1,12 +1,13 @@
 import * as Paper from 'paper';
 import type { IPNode } from './Node';
-import type { EdgeStyle, EdgeType } from '../stores/newStores';
+import type { DecoratorData, EdgeStyle, EdgeType } from '../stores/newStores';
 import {
 	type Decorator,
 	createIsoscelesTriangle,
 	getIsoscelesTrianglePoints,
 	createIsoscelesTriangleEdge,
-	getIsoscelesTrianglePointsEdge
+	getIsoscelesTrianglePointsEdge,
+	TriangleDecorator
 } from './Triangle';
 
 interface EdgeShape {
@@ -94,12 +95,7 @@ export class PEdge {
 	partialEnd: number;
 	type: EdgeType;
 
-	constructor(
-		source: IPNode,
-		target: IPNode,
-		style: EdgeStyle,
-		decorators?: [Decorator, number][]
-	) {
+	constructor(source: IPNode, target: IPNode, style: EdgeStyle) {
 		this.source = source;
 		this.target = target;
 		// line
@@ -113,12 +109,58 @@ export class PEdge {
 			this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 		}
 
-		this.decorators = decorators ?? [];
 		this.partialStart = 0;
 		this.partialEnd = 1;
 
+		// decorators
+		this.decorators = [];
+		this.addRemoveDecorators(style.decorators);
+
 		// doesn't work too, the points are NaN
 		this.updateDecorators();
+	}
+
+	addRemoveDecorators(decoratorData: DecoratorData[]) {
+		// remove missing
+		console.log(this.decorators);
+
+		function isPresent(decTuple: [Decorator, number]): boolean {
+			decoratorData.some((decoratorDatum) => {
+				decoratorDatum.type === decTuple[0].type && decoratorDatum.position === decTuple[1];
+			});
+		}
+
+		const filtered = this.decorators.reduce(
+			(filtered: { present: [Decorator, number][]; deleted: [Decorator, number][] }, decTuple) => {
+				filtered[isPresent(decTuple) ? 'present' : 'deleted'].push(decTuple);
+				return filtered;
+			},
+			{ present: [], deleted: [] }
+		);
+		console.log(filtered);
+
+		filtered.deleted.forEach((decTuple) => decTuple[0].delete());
+		this.decorators = filtered.present;
+
+		// add new
+		let isNew: boolean;
+		decoratorData.forEach((decoratorDatum) => {
+			isNew = !this.decorators.some((decorator) => {
+				return (
+					decorator[0].type === decoratorDatum.type && decorator[1] === decoratorDatum.position
+				);
+			});
+
+			if (isNew) {
+				if (decoratorDatum.type === 'triangle') {
+					this.decorators.push([new TriangleDecorator(3, 3), decoratorDatum.position]);
+				} else if (decoratorDatum.type === 'circle') {
+					// todo not implemented
+				} else if (decoratorDatum.type === 'square') {
+					// todo not implemented
+				}
+			}
+		});
 	}
 
 	getConnectionPoints() {
@@ -173,7 +215,7 @@ export class PEdge {
 
 			if (style.type == 'conical') {
 				this.lineShape = new TriangleShape(this.sourceConnectionPoint, this.targetConnectionPoint);
-			} else {
+			} else if (style.type == 'straight') {
 				this.lineShape = new LineShape(this.sourceConnectionPoint, this.targetConnectionPoint);
 			}
 		}
@@ -190,6 +232,9 @@ export class PEdge {
 				destination: this.targetConnectionPoint
 			});
 		}
+
+		// decorators
+		this.addRemoveDecorators(style.decorators);
 
 		// style update
 		const paperStyle = {

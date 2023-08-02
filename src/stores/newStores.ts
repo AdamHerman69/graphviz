@@ -18,6 +18,7 @@ export type EdgeStyle = {
 	color: string | Gradient;
 	partialStart: number;
 	partialEnd: number;
+	decorators: DecoratorData[];
 };
 
 type AtomicRule = {};
@@ -62,6 +63,19 @@ export type NumericalSetting = Setting<number> & {
 	increment?: number;
 };
 
+const decoratorTypes = ['triangle', 'circle', 'square'] as const;
+export type DecoratorType = (typeof decoratorTypes)[number];
+
+export type DecoratorData = {
+	type: DecoratorType;
+	position: number;
+};
+
+export type DecoratorSetting = Setting<DecoratorData[]> & {
+	types: DecoratorType[];
+	value: DecoratorData[];
+};
+
 export type Gradient = ['string', number][];
 export type ColorSetting = Setting<string | Gradient> & {
 	value: string | Gradient;
@@ -92,6 +106,7 @@ export type EdgeSettings = {
 	color?: ColorSetting;
 	partialStart?: NumericalSetting;
 	partialEnd?: NumericalSetting;
+	decorators?: DecoratorSetting;
 };
 
 export type GraphSettings = {
@@ -150,6 +165,7 @@ export const edgeSettings: Writable<EdgeSettings[]> = writable([
 			]
 		},
 		partialStart: { name: 'partialStart', value: 0, min: 0, max: 0.5, increment: 0.05 },
-		partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 }
+		partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 },
+		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] }
 	}
 ]);

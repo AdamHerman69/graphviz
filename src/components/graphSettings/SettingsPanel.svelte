@@ -13,6 +13,7 @@
 	import EdgePreview from './EdgePreview.svelte';
 	import GradientPicker from './GradientPicker.svelte';
 	import type Graph from 'graphology';
+	import DecoratorSettings from './DecoratorSettings.svelte';
 
 	let availableNodeAttributes: (RangeAttribute | StringAttribute)[];
 	let availableNodeRangeAttributes: RangeAttribute[];
@@ -116,4 +117,5 @@
 	/>
 
 	<GradientPicker bind:colorSetting={$edgeSettings[0].color} />
+	<DecoratorSettings bind:decoratorSetting={$edgeSettings[0].decorators} />
 </div>

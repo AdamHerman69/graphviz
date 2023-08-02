@@ -1,5 +1,6 @@
 import * as Paper from 'paper';
 import { Color } from 'paper/dist/paper-core';
+import type { DecoratorType } from '../stores/newStores';
 
 export function createIsoscelesTriangleEdge(
 	topPoint: paper.Point,
@@ -63,9 +64,12 @@ export function getIsoscelesTrianglePoints(
 
 export interface Decorator {
 	update(newPosition: paper.Point, direction: paper.Point): void;
+	delete(): void;
+	type: DecoratorType;
 }
 
 export class TriangleDecorator implements Decorator {
+	type: DecoratorType;
 	triangle: paper.Path;
 	width: number;
 	length: number;
@@ -81,6 +85,7 @@ export class TriangleDecorator implements Decorator {
 		this.triangle.fillColor = new Paper.Color('white');
 		this.width = width;
 		this.length = lenght;
+		this.type = 'triangle';
 	}
 
 	// todo only update the path -> much better performance!
@@ -91,5 +96,9 @@ export class TriangleDecorator implements Decorator {
 			this.triangle.segments[1].point,
 			this.triangle.segments[2].point
 		] = getIsoscelesTrianglePoints(newPosition, this.width, this.length, direction);
+	}
+
+	delete() {
+		this.triangle.remove();
 	}
 }

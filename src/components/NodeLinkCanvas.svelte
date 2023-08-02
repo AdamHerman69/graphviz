@@ -69,7 +69,6 @@
 		for (const [key, style] of edgeStyles.entries()) {
 			edgeStyles.set(key, getEdgeStyle(key, $edgeSettings));
 		}
-		console.log(edgeStyles);
 		paperRenderer?.updateEdgeStyles(edgeStyles);
 	}
 
@@ -130,7 +129,8 @@
 			edgeSettings[0].color!,
 			edgeSettings[0].width!,
 			edgeSettings[0].partialStart!,
-			edgeSettings[0].partialEnd
+			edgeSettings[0].partialEnd,
+			edgeSettings[0].decorators
 		];
 
 		let edgeStyle: EdgeStyle = {};
