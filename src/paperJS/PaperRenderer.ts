@@ -68,7 +68,6 @@ export class PaperRenderer implements Renderer {
 
 	updateNodeStyles(styles: Map<string, NodeStyle>) {
 		this.paperScope.activate();
-		// todo here we'll handle the different groups in the future
 		this.nodes.forEach((node, key) => node.updateStyle(styles.get(key)!));
 
 		// if node changes size
@@ -79,7 +78,6 @@ export class PaperRenderer implements Renderer {
 
 	updateEdgeStyles(styles: Map<string, EdgeStyle>) {
 		this.paperScope.activate();
-		// todo here we'll handle the different groups in the future
 		this.edges.forEach((edge, key) => edge.updateStyle(styles.get(key)!));
 		this.currentEdgeStyles = styles;
 	}

@@ -122,8 +122,6 @@ export class PEdge {
 
 	addRemoveDecorators(decoratorData: DecoratorData[]) {
 		// remove missing
-		console.log(this.decorators);
-
 		function isPresent(decTuple: [Decorator, number]): boolean {
 			decoratorData.some((decoratorDatum) => {
 				decoratorDatum.type === decTuple[0].type && decoratorDatum.position === decTuple[1];
@@ -137,7 +135,6 @@ export class PEdge {
 			},
 			{ present: [], deleted: [] }
 		);
-		console.log(filtered);
 
 		filtered.deleted.forEach((decTuple) => decTuple[0].delete());
 		this.decorators = filtered.present;
@@ -235,6 +232,7 @@ export class PEdge {
 
 		// decorators
 		this.addRemoveDecorators(style.decorators);
+		this.updateDecorators();
 
 		// style update
 		const paperStyle = {
