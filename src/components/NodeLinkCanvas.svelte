@@ -10,7 +10,8 @@
 		type NodeStyle,
 		type EdgeStyle,
 		type Setting,
-		type RangeAttribute
+		type RangeAttribute,
+		type NodeProperties
 	} from '../stores/newStores';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
@@ -74,18 +75,18 @@
 
 	function stripAttributeBasedSettings() {
 		$nodeSettings.forEach((nodeSetting) => {
-			delete nodeSetting.color.attribute;
-			delete nodeSetting.size.attribute;
-			delete nodeSetting.strokeColor.attribute;
-			delete nodeSetting.strokeWidth.attribute;
+			delete nodeSetting.color?.attribute;
+			delete nodeSetting.size?.attribute;
+			delete nodeSetting.strokeColor?.attribute;
+			delete nodeSetting.strokeWidth?.attribute;
 		});
 
 		$edgeSettings.forEach((edgeSetting) => {
-			delete edgeSetting.color.attribute;
-			delete edgeSetting.partialEnd.attribute;
-			delete edgeSetting.partialStart.attribute;
-			delete edgeSetting.type.attribute;
-			delete edgeSetting.width.attribute;
+			delete edgeSetting.color?.attribute;
+			delete edgeSetting.partialEnd?.attribute;
+			delete edgeSetting.partialStart?.attribute;
+			delete edgeSetting.type?.attribute;
+			delete edgeSetting.width?.attribute;
 		});
 	}
 
@@ -99,26 +100,29 @@
 	}
 
 	function getNodeStyle(id: string, nodeSettings: NodeSettings[]): NodeStyle {
-		// todo rules (which nodeSettings array apply)
-		let finalSettings: Setting[] = [
-			nodeSettings[0].size!,
-			nodeSettings[0].color!,
-			nodeSettings[0].strokeColor!,
-			nodeSettings[0].strokeWidth!
-		];
+		let chosenSettings: NodeProperties = {};
+
+		// iterating in increasing priority order
+		nodeSettings.forEach((nodeSettings) => {
+			if (nodeSettings.frule($graphStore, id)) {
+				if (nodeSettings.size) chosenSettings['size'] = nodeSettings.size;
+				if (nodeSettings.color) chosenSettings['color'] = nodeSettings.color;
+				if (nodeSettings.strokeWidth) chosenSettings['strokeWidth'] = nodeSettings.strokeWidth;
+				if (nodeSettings.strokeColor) chosenSettings['strokeColor'] = nodeSettings.strokeColor;
+			}
+		});
 
 		let nodeStyle: NodeStyle = {};
 
 		// attribute based styles
-		finalSettings.forEach((setting) => {
+		for (const [key, setting] of Object.entries(chosenSettings)) {
 			if (setting.attribute) {
 				let attributeValue = $graphStore.getNodeAttribute(id, setting.attribute.name);
 				nodeStyle[setting.name] = setting.attribute.scale(attributeValue);
 			} else {
 				nodeStyle[setting.name] = setting.value;
 			}
-		});
-
+		}
 		return nodeStyle;
 	}
 

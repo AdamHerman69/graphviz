@@ -2,6 +2,7 @@ import type { Color, ScaleLinear } from 'd3';
 import { writable, type Writable } from 'svelte/store';
 import { scaleLinear } from 'd3';
 import type Graph from 'graphology';
+import type { FRule } from '$lib/rules';
 
 export const graphStore: Writable<Graph> = writable();
 
@@ -81,14 +82,18 @@ export type ColorSetting = Setting<string | Gradient> & {
 	value: string | Gradient;
 };
 
-export type NodeSettings = {
-	priority: number;
-	rule: Rule;
+export type NodeProperties = {
 	size?: NumericalSetting;
 	color?: ColorSetting;
 	strokeWidth?: NumericalSetting;
 	strokeColor?: ColorSetting;
 	// todo shape?
+};
+
+export type NodeSettings = NodeProperties & {
+	priority: number;
+	rule: Rule;
+	frule: FRule;
 };
 
 const edgeTypes = ['straight', 'arrow', 'conical'] as const;
@@ -127,6 +132,7 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 	{
 		priority: 0,
 		rule: { type: 'NODE', operator: 'AND', rules: [] },
+		frule: (graph, id) => true,
 		size: {
 			name: 'size',
 			value: 5,
@@ -147,6 +153,20 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 			]
 		},
 		strokeColor: { name: 'strokeColor', value: 'purple' }
+	},
+	{
+		priority: 1,
+		rule: { type: 'NODE', operator: 'AND', rules: [] },
+		frule: (graph, id) => {
+			return false;
+		},
+		color: {
+			name: 'color',
+			value: [
+				['yellow', 0],
+				['purple', 1]
+			]
+		}
 	}
 ]);
 

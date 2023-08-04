@@ -14,6 +14,7 @@
 	import GradientPicker from './GradientPicker.svelte';
 	import type Graph from 'graphology';
 	import DecoratorSettings from './DecoratorSettings.svelte';
+	import RuleSettings from './RuleSettings.svelte';
 
 	let availableNodeAttributes: (RangeAttribute | StringAttribute)[];
 	let availableNodeRangeAttributes: RangeAttribute[];
@@ -80,6 +81,7 @@
 </script>
 
 <div class="card h-full p-4 variant-ghost">
+	<RuleSettings bind:nodeSettings={$nodeSettings[1]} />
 	<b>Node Settings</b>
 	<SettingsSlider
 		name="Size"
