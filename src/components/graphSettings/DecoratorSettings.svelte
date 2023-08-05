@@ -1,6 +1,5 @@
 <script lang="ts">
-	import SettingsSlider from './SettingsSlider.svelte';
-	import type { DecoratorData, DecoratorSetting } from '../../stores/newStores';
+	import type { DecoratorSetting } from '../../utils/graphSettings';
 
 	export let decoratorSetting: DecoratorSetting;
 	console.log('decorator settting::', decoratorSetting);

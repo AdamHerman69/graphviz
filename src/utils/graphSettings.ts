@@ -1,10 +1,7 @@
-import type { Color, ScaleLinear } from 'd3';
+import type { ScaleLinear } from 'd3';
 import { writable, type Writable } from 'svelte/store';
 import { scaleLinear } from 'd3';
-import type Graph from 'graphology';
-import type { FRule } from '$lib/rules';
-
-export const graphStore: Writable<Graph> = writable();
+import type { FRule } from '../utils/rules';
 
 export type NodeStyle = {
 	size: number;
@@ -22,19 +19,16 @@ export type EdgeStyle = {
 	decorators: DecoratorData[];
 };
 
-type AtomicRule = {};
-
-type Rule = {
-	type: 'NODE' | 'EDGE';
-	operator: 'AND' | 'OR';
-	rules: (Rule | AtomicRule)[];
-};
+const decoratorTypes = ['triangle', 'circle', 'square'] as const;
+export type DecoratorType = (typeof decoratorTypes)[number];
 
 export type Attribute = {
 	name: string;
 };
 
 type ScaleFunction = (n: number) => number;
+
+let scale: ScaleLinear<number, number, never> = scaleLinear().domain([10, 100]).range([1, 10]);
 
 export type RangeAttribute = Attribute & {
 	range: [number, number];
@@ -63,9 +57,6 @@ export type NumericalSetting = Setting<number> & {
 	max: number;
 	increment?: number;
 };
-
-const decoratorTypes = ['triangle', 'circle', 'square'] as const;
-export type DecoratorType = (typeof decoratorTypes)[number];
 
 export type DecoratorData = {
 	type: DecoratorType;
@@ -119,8 +110,6 @@ export type GraphSettings = {
 	nodeSettings: NodeSettings[];
 	edgeSettings: EdgeSettings[];
 };
-
-let scale: ScaleLinear<number, number, never> = scaleLinear().domain([10, 100]).range([1, 10]);
 
 export const layout: Writable<SelectSetting<LayoutType>> = writable({
 	name: 'layout',

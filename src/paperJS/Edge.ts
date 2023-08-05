@@ -1,6 +1,6 @@
 import * as Paper from 'paper';
 import type { IPNode } from './Node';
-import type { DecoratorData, EdgeStyle, EdgeType } from '../stores/newStores';
+import type { DecoratorData, EdgeStyle, EdgeType } from '../utils/graphSettings';
 import {
 	type Decorator,
 	createIsoscelesTriangle,

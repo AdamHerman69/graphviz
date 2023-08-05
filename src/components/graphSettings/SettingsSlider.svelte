@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { RangeSlider } from '@skeletonlabs/skeleton';
-	import type { NumericalSetting } from '../../stores/newStores';
-	import type { RangeAttribute } from '../../stores/newStores';
+	import type { NumericalSetting, RangeAttribute } from '../../utils/graphSettings';
 	import { scaleLinear } from 'd3';
 
 	export let name: string;

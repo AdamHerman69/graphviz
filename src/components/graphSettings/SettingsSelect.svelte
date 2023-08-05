@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
-	import type { SelectSetting } from '../../stores/newStores';
+	import type { SelectSetting } from '../../utils/graphSettings';
 
 	export let name: String;
 	export let selectSetting: SelectSetting;

@@ -4,8 +4,7 @@
 	import { PaperRenderer } from '../../paperJS/PaperRenderer';
 	import { axisLeft } from 'd3';
 	import type { NodePositionDatum, EdgeDatum } from '../../paperJS/PaperRenderer';
-	import type { NodeStyle, EdgeStyle } from '../../stores/newStores';
-	import type { EdgeSettings, NodeSettings } from '../../stores/newStores';
+	import type { NodeStyle, EdgeStyle, EdgeSettings, NodeSettings } from '../../utils/graphSettings';
 	let canvas: HTMLCanvasElement;
 	let paperRenderer: Renderer;
 	let width: number;

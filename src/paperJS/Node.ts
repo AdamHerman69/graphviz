@@ -1,5 +1,5 @@
 import * as Paper from 'paper';
-import type { NodeStyle } from '../stores/newStores';
+import type { NodeStyle } from '../utils/graphSettings';
 // TODO don't import stores but just types for the values, that the update styles method is going to consume
 
 export interface IPNode {

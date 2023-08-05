@@ -4,7 +4,8 @@
 	import SettingsPanel from '../components/graphSettings/SettingsPanel.svelte';
 	import Graph from 'graphology';
 	import { hasCycle } from 'graphology-dag';
-	import { graphStore, layout } from '../stores/newStores';
+	import { graphStore } from '../utils/graph';
+	import { layout } from '../utils/graphSettings';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 
 	// example graph init

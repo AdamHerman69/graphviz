@@ -1,10 +1,8 @@
 <script lang="ts">
-	import type { FRule } from '$lib/rules';
+	import type { FRule } from '../../utils/rules';
 	import type Graph from 'graphology';
-	import Page from '../../routes/+page.svelte';
-	import SettingsSlider from './SettingsSlider.svelte';
 	import SettingsColor from './SettingsColor.svelte';
-	import type { NodeSettings } from '../../stores/newStores';
+	import type { NodeSettings } from '../../utils/graphSettings';
 
 	export let nodeSettings: NodeSettings;
 	let type: 'NODE' | 'EDGE';

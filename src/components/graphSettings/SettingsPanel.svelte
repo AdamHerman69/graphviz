@@ -1,18 +1,23 @@
 <script lang="ts">
-	import SettingsSlider from './SettingsSlider.svelte';
-	import SettingsColor from './SettingsColor.svelte';
-	import SettingsSelect from './SettingsSelect.svelte';
 	import {
 		nodeSettings,
 		edgeSettings,
 		type EdgeType,
 		type RangeAttribute,
-		graphStore,
 		type StringAttribute
-	} from '../../stores/newStores';
+	} from '../../utils/graphSettings';
+	import {
+		graphStore,
+		findAllNodeAttributes,
+		findAllEdgeAttributes,
+		classifyAttributes
+	} from '../../utils/graph';
+
+	import SettingsSlider from './SettingsSlider.svelte';
+	import SettingsColor from './SettingsColor.svelte';
+	import SettingsSelect from './SettingsSelect.svelte';
 	import EdgePreview from './EdgePreview.svelte';
 	import GradientPicker from './GradientPicker.svelte';
-	import type Graph from 'graphology';
 	import DecoratorSettings from './DecoratorSettings.svelte';
 	import RuleSettings from './RuleSettings.svelte';
 
@@ -22,8 +27,8 @@
 	let availableEdgeRangeAttributes: RangeAttribute[];
 
 	$: {
-		availableNodeAttributes = classfifyAttributes(findAllNodeAttributes($graphStore));
-		availableEdgeAttributes = classfifyAttributes(findAllEdgeAttributes($graphStore));
+		availableNodeAttributes = classifyAttributes(findAllNodeAttributes($graphStore));
+		availableEdgeAttributes = classifyAttributes(findAllEdgeAttributes($graphStore));
 		//@ts-ignore
 		availableNodeRangeAttributes = availableNodeAttributes.filter((attribute) =>
 			attribute.hasOwnProperty('range')
@@ -35,48 +40,6 @@
 
 		console.log('nodeattrs: ', availableNodeAttributes);
 		console.log('edgeattrs: ', availableEdgeAttributes);
-	}
-
-	function findAllNodeAttributes(graph: Graph): Map<string, any[]> {
-		let foundNodeAttributes: Map<string, any[]> = new Map<string, any[]>();
-		$graphStore.forEachNode((id, attributes) => {
-			for (const [key, value] of Object.entries(attributes)) {
-				if (!foundNodeAttributes.get(key)?.push(value)) {
-					foundNodeAttributes.set(key, [value]);
-				}
-			}
-		});
-		return foundNodeAttributes;
-	}
-
-	function findAllEdgeAttributes(graph: Graph): Map<string, any[]> {
-		let foundEdgeAttributes: Map<string, any[]> = new Map<string, any[]>();
-		$graphStore.forEachEdge((id, attributes) => {
-			for (const [key, value] of Object.entries(attributes)) {
-				if (!foundEdgeAttributes.get(key)?.push(value)) {
-					foundEdgeAttributes.set(key, [value]);
-				}
-			}
-		});
-		return foundEdgeAttributes;
-	}
-
-	function classfifyAttributes(
-		attributeMap: Map<string, any[]>
-	): (RangeAttribute | StringAttribute)[] {
-		let attributes: (RangeAttribute | StringAttribute)[] = [];
-		attributeMap.forEach((values, name) => {
-			const minValue = Math.min(...values);
-			if (isNaN(minValue)) {
-				const stringAttribute: StringAttribute = { name: name, values: values };
-				attributes.push(stringAttribute);
-			} else {
-				const maxValue = Math.max(...values);
-				const rangeAttribute: RangeAttribute = { name: name, range: [minValue, maxValue] };
-				attributes.push(rangeAttribute);
-			}
-		});
-		return attributes;
 	}
 </script>
 

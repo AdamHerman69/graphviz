@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type Graph from 'graphology';
 	import {
-		graphStore,
 		nodeSettings,
 		edgeSettings,
 		layout,
@@ -10,9 +9,10 @@
 		type NodeStyle,
 		type EdgeStyle,
 		type Setting,
-		type RangeAttribute,
 		type NodeProperties
-	} from '../stores/newStores';
+	} from '../utils/graphSettings';
+	import { graphStore } from '../utils/graph';
+
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 	import {

@@ -2,7 +2,7 @@
 	import Graph from 'graphology';
 	import { parse } from 'graphology-graphml';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
-	import { graphStore } from '../stores/newStores';
+	import { graphStore } from '../utils/graph';
 
 	import { toastStore } from '@skeletonlabs/skeleton';
 	import type { ToastSettings } from '@skeletonlabs/skeleton';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ColorPicker, { type RgbaColor } from 'svelte-awesome-color-picker';
-	import type { ColorSetting } from '../../stores/newStores';
+	import type { ColorSetting } from '../../utils/graphSettings';
 
 	export let label: string;
 	export let colorSetting: ColorSetting;
