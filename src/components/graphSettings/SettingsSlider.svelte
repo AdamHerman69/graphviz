@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { RangeSlider } from '@skeletonlabs/skeleton';
-	import type { NumericalSetting, RangeAttribute } from '../../utils/graphSettings';
+	import type { NumericalSetting } from '../../utils/graphSettings';
+	import type { RangeAttribute } from '../../utils/graph';
 	import { scaleLinear } from 'd3';
 
 	export let name: string;
 	export let numSettings: NumericalSetting;
 
 	export let availableAttributes: RangeAttribute[];
+	console.log('available attrs:', availableAttributes);
 
 	let boundAttribute: RangeAttribute;
 	let selectedAttribute: RangeAttribute;

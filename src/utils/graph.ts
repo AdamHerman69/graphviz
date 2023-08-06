@@ -23,7 +23,7 @@ export type StringAttribute = Attribute & {
 
 export const graphStore: Writable<Graph> = writable();
 
-export function findAllNodeAttributes(graph: Graph): Map<string, any[]> {
+export function findAllNodeAttributes(graph: Graph): (RangeAttribute | StringAttribute)[] {
 	let foundNodeAttributes: Map<string, any[]> = new Map<string, any[]>();
 	graph.forEachNode((id, attributes) => {
 		for (const [key, value] of Object.entries(attributes)) {
@@ -32,10 +32,10 @@ export function findAllNodeAttributes(graph: Graph): Map<string, any[]> {
 			}
 		}
 	});
-	return foundNodeAttributes;
+	return classifyAttributes(foundNodeAttributes);
 }
 
-export function findAllEdgeAttributes(graph: Graph): Map<string, any[]> {
+export function findAllEdgeAttributes(graph: Graph): (RangeAttribute | StringAttribute)[] {
 	let foundEdgeAttributes: Map<string, any[]> = new Map<string, any[]>();
 	graph.forEachEdge((id, attributes) => {
 		for (const [key, value] of Object.entries(attributes)) {
@@ -44,7 +44,7 @@ export function findAllEdgeAttributes(graph: Graph): Map<string, any[]> {
 			}
 		}
 	});
-	return foundEdgeAttributes;
+	return classifyAttributes(foundEdgeAttributes);
 }
 
 function classifyAttribute(name: string, values: any[]): RangeAttribute | StringAttribute {
@@ -57,7 +57,7 @@ function classifyAttribute(name: string, values: any[]): RangeAttribute | String
 	}
 }
 
-export function classifyAttributes(
+function classifyAttributes(
 	attributeMap: Map<string, any[]>
 ): (RangeAttribute | StringAttribute)[] {
 	let attributes: (RangeAttribute | StringAttribute)[] = [];
@@ -65,4 +65,9 @@ export function classifyAttributes(
 		attributes.push(classifyAttribute(name, values));
 	});
 	return attributes;
+}
+
+export function getAttributeType(attribute: RangeAttribute | StringAttribute): 'number' | 'string' {
+	if (attribute.hasOwnProperty('range')) return 'number';
+	else return 'string';
 }

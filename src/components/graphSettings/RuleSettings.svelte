@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { FRule } from '../../utils/rules';
+	import { type FRule, type graphPropertyGetter, graphPropertyGetters } from '../../utils/rules';
+	import { findAllNodeAttributes, graphStore } from '../../utils/graph';
 	import type Graph from 'graphology';
 	import SettingsColor from './SettingsColor.svelte';
 	import type { NodeSettings } from '../../utils/graphSettings';
@@ -7,44 +8,61 @@
 	export let nodeSettings: NodeSettings;
 	let type: 'NODE' | 'EDGE';
 	let operator: string;
-	let inputNumber = 2;
-	let first: 'in' | 'out';
+	let first: string;
+	let second: string | number = 2;
+	let valueType: 'number' | 'string';
+
+	let availableAttributes = findAllNodeAttributes($graphStore);
+
+	let leftGetter: (graph: Graph, id: string) => number | string;
+	let rightGetter: (graph: Graph, id: string) => number | string;
 
 	$: {
-		let firstF: (graph: Graph, id: string) => number;
-		let secondF: (graph: Graph, id: string) => number;
-		firstF =
-			first === 'in' ? (graph, id) => graph.inDegree(id) : (graph, id) => graph.outDegree(id);
-		secondF = () => {
-			return inputNumber;
+		if (first && graphPropertyGetters.get(first)) {
+			console.log(graphPropertyGetters.get(first));
+			valueType = graphPropertyGetters.get(first)!.type;
+			leftGetter = graphPropertyGetters.get(first)!.function;
+		} else if (first) {
+			valueType = availableAttributes.find((attribute) => attribute.name === first)!.type;
+			leftGetter = (graph: Graph, id: string) => graph.getNodeAttribute(id, first);
+		}
+
+		rightGetter = () => {
+			return second;
 		};
 
-		switch (operator) {
-			case '=':
-				nodeSettings.frule = (graph, id) => {
-					return firstF(graph, id) === secondF(graph, id);
-				};
-				break;
-			case '>':
-				nodeSettings.frule = (graph, id) => {
-					return firstF(graph, id) > secondF(graph, id);
-				};
-				break;
-			case '<':
-				nodeSettings.frule = (graph, id) => {
-					return firstF(graph, id) < secondF(graph, id);
-				};
-				break;
-			case '>=':
-				nodeSettings.frule = (graph, id) => {
-					return firstF(graph, id) >= secondF(graph, id);
-				};
-				break;
-			case '<=':
-				nodeSettings.frule = (graph, id) => {
-					return firstF(graph, id) <= secondF(graph, id);
-				};
-				break;
+		if (first && valueType === 'number') {
+			switch (operator) {
+				case '=':
+					nodeSettings.frule = (graph, id) => {
+						return leftGetter(graph, id) === rightGetter(graph, id);
+					};
+					break;
+				case '>':
+					nodeSettings.frule = (graph, id) => {
+						return leftGetter(graph, id) > rightGetter(graph, id);
+					};
+					break;
+				case '<':
+					nodeSettings.frule = (graph, id) => {
+						return leftGetter(graph, id) < rightGetter(graph, id);
+					};
+					break;
+				case '>=':
+					nodeSettings.frule = (graph, id) => {
+						return leftGetter(graph, id) >= rightGetter(graph, id);
+					};
+					break;
+				case '<=':
+					nodeSettings.frule = (graph, id) => {
+						return leftGetter(graph, id) <= rightGetter(graph, id);
+					};
+					break;
+			}
+		} else if (first) {
+			nodeSettings.frule = (graph, id) => {
+				return leftGetter(graph, id) === rightGetter(graph, id);
+			};
 		}
 	}
 </script>
@@ -58,20 +76,35 @@
 	<p>where</p>
 
 	<select class="select" bind:value={first}>
-		<option value="in">in degree</option>
-		<option value="out">out degree</option>
+		<optgroup label="graph properties">
+			{#each graphPropertyGetters as [name, getter]}
+				<option>{name}</option>
+			{/each}
+		</optgroup>
+		<optgroup label="node attributes">
+			{#each availableAttributes as attribute}
+				<option>{attribute.name}</option>
+			{/each}
+		</optgroup>
 	</select>
 
-	<!-- Operator -->
-	<select class="select" bind:value={operator}>
-		<option value="=">=</option>
-		<option value=">">&gt</option>
-		<option value="<">&lt</option>
-		<option value=">=">&ge</option>
-		<option value="<=">&le</option>
-	</select>
+	<!-- Numerical Operator -->
+	{#if valueType === 'number'}
+		<select class="select" bind:value={operator}>
+			<option value="=">=</option>
+			<option value=">">&gt</option>
+			<option value="<">&lt</option>
+			<option value=">=">&ge</option>
+			<option value="<=">&le</option>
+		</select>
 
-	<input type="number" class="bg-transparent" bind:value={inputNumber} />
+		<input type="number" class="bg-transparent" bind:value={second} />
+	{:else}
+		<div class="flex">
+			<p>is</p>
+			<input type="string" class="bg-transparent mx-1 w-full" bind:value={second} />
+		</div>
+	{/if}
 
 	<SettingsColor label="clr" bind:colorSetting={nodeSettings.color} />
 </div>

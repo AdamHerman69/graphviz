@@ -22,24 +22,6 @@ export type EdgeStyle = {
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;
 export type DecoratorType = (typeof decoratorTypes)[number];
 
-export type Attribute = {
-	name: string;
-};
-
-type ScaleFunction = (n: number) => number;
-
-let scale: ScaleLinear<number, number, never> = scaleLinear().domain([10, 100]).range([1, 10]);
-
-export type RangeAttribute = Attribute & {
-	range: [number, number];
-	scale?: ScaleFunction;
-};
-
-// do with rules instead
-export type StringAttribute = Attribute & {
-	values: string[];
-};
-
 export type Setting<T> = {
 	name: string;
 	value: any;
@@ -83,7 +65,6 @@ export type NodeProperties = {
 
 export type NodeSettings = NodeProperties & {
 	priority: number;
-	rule: Rule;
 	frule: FRule;
 };
 
@@ -96,7 +77,6 @@ type LayoutType = (typeof layoutTypes)[number];
 
 export type EdgeSettings = {
 	priority: number;
-	rule: Rule;
 	type?: SelectSetting<EdgeType>;
 	width?: NumericalSetting;
 	color?: ColorSetting;
@@ -126,12 +106,7 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 			name: 'size',
 			value: 5,
 			min: 1,
-			max: 10,
-			attribute: {
-				name: 'volume',
-				range: [10, 100],
-				scale: scale
-			}
+			max: 10
 		},
 		strokeWidth: { name: 'strokeWidth', value: 1, min: 0, max: 10 },
 		color: {

@@ -10,7 +10,7 @@
 		graphStore,
 		findAllNodeAttributes,
 		findAllEdgeAttributes,
-		classifyAttributes
+		getAttributeType
 	} from '../../utils/graph';
 
 	import SettingsSlider from './SettingsSlider.svelte';
@@ -22,20 +22,15 @@
 	import RuleSettings from './RuleSettings.svelte';
 
 	let availableNodeAttributes: (RangeAttribute | StringAttribute)[];
-	let availableNodeRangeAttributes: RangeAttribute[];
 	let availableEdgeAttributes: (RangeAttribute | StringAttribute)[];
-	let availableEdgeRangeAttributes: RangeAttribute[];
 
 	$: {
-		availableNodeAttributes = classifyAttributes(findAllNodeAttributes($graphStore));
-		availableEdgeAttributes = classifyAttributes(findAllEdgeAttributes($graphStore));
-		//@ts-ignore
-		availableNodeRangeAttributes = availableNodeAttributes.filter((attribute) =>
-			attribute.hasOwnProperty('range')
+		availableNodeAttributes = findAllNodeAttributes($graphStore).filter(
+			(attribute) => getAttributeType(attribute) === 'number'
 		);
-		//@ts-ignore
-		availableEdgeRangeAttributes = availableEdgeAttributes.filter((attribute) =>
-			attribute.hasOwnProperty('range')
+
+		availableEdgeAttributes = findAllEdgeAttributes($graphStore).filter(
+			(attribute) => getAttributeType(attribute) === 'number'
 		);
 
 		console.log('nodeattrs: ', availableNodeAttributes);
@@ -48,12 +43,12 @@
 	<b>Node Settings</b>
 	<SettingsSlider
 		name="Size"
-		availableAttributes={availableNodeRangeAttributes}
+		availableAttributes={availableNodeAttributes}
 		bind:numSettings={$nodeSettings[0].size}
 	/>
 	<SettingsSlider
 		name="Stroke"
-		availableAttributes={availableNodeRangeAttributes}
+		availableAttributes={availableNodeAttributes}
 		bind:numSettings={$nodeSettings[0].strokeWidth}
 	/>
 	<GradientPicker bind:colorSetting={$nodeSettings[0].color} />
@@ -67,17 +62,17 @@
 	<SettingsSelect name="Edge Type" bind:selectSetting={$edgeSettings[0].type} />
 	<SettingsSlider
 		name="Thickness"
-		availableAttributes={availableEdgeRangeAttributes}
+		availableAttributes={availableEdgeAttributes}
 		bind:numSettings={$edgeSettings[0].width}
 	/>
 	<SettingsSlider
 		name="Partial edge start"
-		availableAttributes={availableEdgeRangeAttributes}
+		availableAttributes={availableEdgeAttributes}
 		bind:numSettings={$edgeSettings[0].partialStart}
 	/>
 	<SettingsSlider
 		name="Partial edge end"
-		availableAttributes={availableEdgeRangeAttributes}
+		availableAttributes={availableEdgeAttributes}
 		bind:numSettings={$edgeSettings[0].partialEnd}
 	/>
 

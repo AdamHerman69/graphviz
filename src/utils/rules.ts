@@ -6,6 +6,11 @@ export type graphPropertyGetter = {
 	type: 'string' | 'number';
 };
 
+export type attributeGetter = {
+	function: (graph: Graph, id: string, attribute: string) => number | string;
+	type: 'string' | 'number';
+};
+
 type RuleOperator = 'AND' | 'OR';
 
 let inDegree: graphPropertyGetter = {
@@ -22,5 +27,3 @@ export let graphPropertyGetters = new Map<string, graphPropertyGetter>([
 	['inDegree', inDegree],
 	['outDegree', outDegree]
 ]);
-
-// todo add attribute getters
