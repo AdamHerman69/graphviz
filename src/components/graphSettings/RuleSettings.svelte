@@ -94,8 +94,8 @@
 			<option value="=">=</option>
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>
-			<option value=">=">&ge</option>
-			<option value="<=">&le</option>
+			<option value=">=">≥</option>
+			<option value="<=">≥</option>
 		</select>
 
 		<input type="number" class="bg-transparent" bind:value={second} />
