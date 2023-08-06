@@ -1,18 +1,25 @@
 <script lang="ts">
 	import { type FRule, type graphPropertyGetter, graphPropertyGetters } from '../../utils/rules';
-	import { findAllNodeAttributes, graphStore } from '../../utils/graph';
+	import { findAllNodeAttributes, graphStore, type RangeAttribute } from '../../utils/graph';
 	import type Graph from 'graphology';
 	import SettingsColor from './SettingsColor.svelte';
 	import type { NodeSettings } from '../../utils/graphSettings';
+	import SettingsSlider from './SettingsSlider.svelte';
+	import GradientPicker from './GradientPicker.svelte';
+	import { color } from 'd3';
 
 	export let nodeSettings: NodeSettings;
-	let type: 'NODE' | 'EDGE';
 	let operator: string;
 	let first: string;
 	let second: string | number = 2;
 	let valueType: 'number' | 'string';
 
+	console.log('rulest: nodesettings:', nodeSettings);
+
 	let availableAttributes = findAllNodeAttributes($graphStore);
+	let availableRangeAttributes: RangeAttribute[] = availableAttributes.filter(
+		(attribute) => attribute.type === 'number'
+	);
 
 	let leftGetter: (graph: Graph, id: string) => number | string;
 	let rightGetter: (graph: Graph, id: string) => number | string;
@@ -68,11 +75,6 @@
 </script>
 
 <div class="card p-4 variant-ghost">
-	<select class="select" bind:value={type}>
-		<option value="NODE">node</option>
-		<option value="EDGE">edge</option>
-	</select>
-
 	<p>where</p>
 
 	<select class="select" bind:value={first}>
@@ -106,5 +108,48 @@
 		</div>
 	{/if}
 
-	<SettingsColor label="clr" bind:colorSetting={nodeSettings.color} />
+	{#if nodeSettings.size}
+		<SettingsSlider
+			name="size"
+			availableAttributes={availableRangeAttributes}
+			bind:numSettings={nodeSettings.size}
+		/>
+	{:else}
+		<button on:click={() => (nodeSettings['size'] = { name: 'size', value: 1, min: 0, max: 10 })}>
+			Modify size
+		</button>
+	{/if}
+
+	{#if nodeSettings.strokeWidth}
+		<SettingsSlider
+			name="Stroke"
+			availableAttributes={availableRangeAttributes}
+			bind:numSettings={nodeSettings.strokeWidth}
+		/>
+	{:else}
+		<button
+			on:click={() =>
+				(nodeSettings['strokeWidth'] = { name: 'strokeWidth', value: 1, min: 0, max: 10 })}
+		>
+			Modify stroke width
+		</button>
+	{/if}
+
+	{#if nodeSettings.color}
+		<GradientPicker bind:colorSetting={nodeSettings.color} />
+	{:else}
+		<button on:click={() => (nodeSettings['color'] = { name: 'color', value: 'white' })}>
+			Modify color
+		</button>
+	{/if}
+
+	{#if nodeSettings.strokeColor}
+		<SettingsColor bind:colorSetting={nodeSettings.strokeColor} label="stroke color" />
+	{:else}
+		<button
+			on:click={() => (nodeSettings['strokeColor'] = { name: 'strokeColor', value: 'white' })}
+		>
+			Modify stroke color
+		</button>
+	{/if}
 </div>

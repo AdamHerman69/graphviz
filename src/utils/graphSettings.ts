@@ -2,6 +2,7 @@ import type { ScaleLinear } from 'd3';
 import { writable, type Writable } from 'svelte/store';
 import { scaleLinear } from 'd3';
 import type { FRule } from '../utils/rules';
+import type { RangeAttribute } from './graph';
 
 export type NodeStyle = {
 	size: number;
@@ -100,7 +101,6 @@ export const layout: Writable<SelectSetting<LayoutType>> = writable({
 export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writable([
 	{
 		priority: 0,
-		rule: { type: 'NODE', operator: 'AND', rules: [] },
 		frule: (graph, id) => true,
 		size: {
 			name: 'size',
@@ -120,16 +120,8 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 	},
 	{
 		priority: 1,
-		rule: { type: 'NODE', operator: 'AND', rules: [] },
 		frule: (graph, id) => {
 			return false;
-		},
-		color: {
-			name: 'color',
-			value: [
-				['yellow', 0],
-				['purple', 1]
-			]
 		}
 	}
 ]);
