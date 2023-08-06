@@ -49,6 +49,7 @@
 	$: {
 		updateStyleMapsOnGraphChange($graphStore);
 
+		console.log('graph change node styles: ', nodeStyles);
 		if (paperRenderer) {
 			if ($layout.value == 'force-graph') restartSimulation($graphStore);
 			else if ($layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
@@ -92,6 +93,7 @@
 
 	function updateStyleMapsOnGraphChange(graph: Graph) {
 		stripAttributeBasedSettings();
+
 		nodeStyles = new Map<string, NodeStyle>();
 		graph.forEachNode((id) => nodeStyles.set(id, getNodeStyle(id, $nodeSettings)));
 
@@ -217,7 +219,12 @@
 		);
 
 		// add paper objects - has to be before the simulation inicialization because that changes the d3links objects
-		paperRenderer.restart(d3nodes as NodePositionDatum[], d3links as EdgeDatum[]);
+		paperRenderer.restart(
+			d3nodes as NodePositionDatum[],
+			d3links as EdgeDatum[],
+			nodeStyles,
+			edgeStyles
+		);
 
 		// start d3-force
 		simulation = d3

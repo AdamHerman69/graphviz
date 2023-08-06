@@ -50,6 +50,12 @@
 				]
 			}
 		});
+		tabSet = $nodeSettings.length - 1;
+		$nodeSettings = $nodeSettings;
+	}
+
+	function deleteRule() {
+		$nodeSettings.splice(tabSet, 1);
 		$nodeSettings = $nodeSettings;
 	}
 </script>
@@ -114,6 +120,7 @@
 	{#each $nodeSettings as ns, index}
 		<div class:hidden={tabSet != index}>
 			{#if index > 0}
+				<button class="button" on:click={deleteRule}>Delete</button>
 				<NodeRuleSettings bind:nodeSettings={ns} />
 			{/if}
 		</div>

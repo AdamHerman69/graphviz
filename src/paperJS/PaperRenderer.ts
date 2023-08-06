@@ -23,7 +23,12 @@ export interface Renderer {
 	updatePositions(positions: NodePositionDatum[]): void;
 	updateNodeStyles(styles: Map<string, NodeStyle>): void;
 	updateEdgeStyles(styles: Map<string, EdgeStyle>): void;
-	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]): void;
+	restart(
+		inputNodes: NodePositionDatum[],
+		inputEdges: EdgeDatum[],
+		nodeStyles: Map<string, NodeStyle>,
+		edgeStyles: Map<string, EdgeStyle>
+	): void;
 	zoomed(zoomEvent: d3.ZoomBehavior<HTMLCanvasElement, any>): d3.ZoomTransform;
 	exportSVG(): string;
 }
@@ -33,8 +38,6 @@ export class PaperRenderer implements Renderer {
 	edges: Map<string, IPEdge>;
 	paperScope: paper.PaperScope;
 	transform: d3.ZoomTransform;
-	currentNodeStyles: Map<string, NodeStyle>;
-	currentEdgeStyles: Map<string, EdgeStyle>;
 
 	constructor(
 		canvas: HTMLCanvasElement,
@@ -51,10 +54,7 @@ export class PaperRenderer implements Renderer {
 
 		this.initGraph(inputNodes, inputEdges, nodeStyles, edgeStyles);
 
-		this.currentNodeStyles = nodeStyles;
 		this.updateNodeStyles(nodeStyles);
-
-		this.currentEdgeStyles = edgeStyles;
 		this.updateEdgeStyles(edgeStyles);
 	}
 
@@ -68,28 +68,32 @@ export class PaperRenderer implements Renderer {
 
 	updateNodeStyles(styles: Map<string, NodeStyle>) {
 		this.paperScope.activate();
-		this.nodes.forEach((node, key) => node.updateStyle(styles.get(key)!));
+		this.nodes.forEach((node, key) => {
+			node.updateStyle(styles.get(key)!);
+		});
 
 		// if node changes size
 		this.edges.forEach((edge) => edge.updatePosition());
-
-		this.currentNodeStyles = styles;
 	}
 
 	updateEdgeStyles(styles: Map<string, EdgeStyle>) {
 		this.paperScope.activate();
 		this.edges.forEach((edge, key) => edge.updateStyle(styles.get(key)!));
-		this.currentEdgeStyles = styles;
 	}
 
-	restart(inputNodes: NodePositionDatum[], inputEdges: EdgeDatum[]) {
+	restart(
+		inputNodes: NodePositionDatum[],
+		inputEdges: EdgeDatum[],
+		nodeStyles: Map<string, NodeStyle>,
+		edgeStyles: Map<string, EdgeStyle>
+	) {
 		this.paperScope.activate();
 		this.paperScope.project.clear();
-		this.initGraph(inputNodes, inputEdges, this.currentNodeStyles, this.currentEdgeStyles);
-		if (this.currentNodeStyles && this.currentEdgeStyles) {
-			this.updateNodeStyles(this.currentNodeStyles);
-			this.updateEdgeStyles(this.currentEdgeStyles);
-		}
+
+		this.nodes = new Map<string, IPNode>();
+		this.edges = new Map<string, PEdge>();
+
+		this.initGraph(inputNodes, inputEdges, nodeStyles, edgeStyles);
 	}
 
 	initGraph(

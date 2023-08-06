@@ -23,7 +23,13 @@ let outDegree: graphPropertyGetter = {
 	type: 'number'
 };
 
+let degree: graphPropertyGetter = {
+	function: (graph, id) => graph.degree(id),
+	type: 'number'
+};
+
 export let graphPropertyGetters = new Map<string, graphPropertyGetter>([
+	['degree', degree],
 	['inDegree', inDegree],
 	['outDegree', outDegree]
 ]);

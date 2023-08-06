@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { type FRule, type graphPropertyGetter, graphPropertyGetters } from '../../utils/rules';
-	import { findAllNodeAttributes, graphStore, type RangeAttribute } from '../../utils/graph';
+	import {
+		findAllNodeAttributes,
+		graphStore,
+		type RangeAttribute,
+		type StringAttribute
+	} from '../../utils/graph';
 	import type Graph from 'graphology';
 	import SettingsColor from './SettingsColor.svelte';
 	import type { NodeSettings } from '../../utils/graphSettings';
@@ -16,17 +21,22 @@
 
 	console.log('rulest: nodesettings:', nodeSettings);
 
-	let availableAttributes = findAllNodeAttributes($graphStore);
-	let availableRangeAttributes: RangeAttribute[] = availableAttributes.filter(
-		(attribute) => attribute.type === 'number'
-	);
+	let availableAttributes: (RangeAttribute | StringAttribute)[];
+	findAllNodeAttributes($graphStore);
+	let availableRangeAttributes: RangeAttribute[];
 
 	let leftGetter: (graph: Graph, id: string) => number | string;
 	let rightGetter: (graph: Graph, id: string) => number | string;
 
 	$: {
+		availableAttributes = findAllNodeAttributes($graphStore);
+		availableRangeAttributes = availableAttributes.filter(
+			(attribute) => attribute.type === 'number'
+		);
+
+		// todo delete all attribute based rules
+
 		if (first && graphPropertyGetters.get(first)) {
-			console.log(graphPropertyGetters.get(first));
 			valueType = graphPropertyGetters.get(first)!.type;
 			leftGetter = graphPropertyGetters.get(first)!.function;
 		} else if (first) {
