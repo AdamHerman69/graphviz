@@ -20,7 +20,7 @@ export class PNode implements IPNode {
 		this.position = new Paper.Point(x, y);
 		this.shape = new Paper.Shape.Circle(this.position, style.size);
 		this.label = new Paper.PointText({
-			point: this.position,
+			point: new Paper.Point(this.position.x - this.style.size, this.position.y - this.style.size),
 			content: label
 		});
 
@@ -35,7 +35,10 @@ export class PNode implements IPNode {
 		this.position.x = newX;
 		this.position.y = newY;
 		this.shape.position = this.position;
-		this.label.point = this.position;
+		this.label.point = new Paper.Point(
+			this.position.x - this.style.size / 2,
+			this.position.y + this.style.size / 2
+		);
 	}
 
 	// todo support different shapes and stuff
