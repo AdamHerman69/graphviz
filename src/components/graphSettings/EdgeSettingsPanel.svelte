@@ -76,7 +76,10 @@
 	{#each $edgeSettings as es, index}
 		<div class:hidden={tabSet != index}>
 			{#if index > 0}
-				<button class="button" on:click={deleteRule}>Delete</button>
+				<button
+					class="h-6 w-6 rounded-full border-dashed border-2 border-white absolute"
+					on:click={deleteRule}>x</button
+				>
 				<EdgeRuleSettings bind:edgeSettings={es} />
 			{/if}
 		</div>

@@ -11,7 +11,7 @@
 	import GradientPicker from './GradientPicker.svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
 	import DecoratorSettings from './DecoratorSettings.svelte';
-	import EdgeRule from './EdgeRule.svelte';
+	import EdgeRules from './Rules.svelte';
 
 	export let edgeSettings: EdgeSettings;
 	let rule: FRule = (graph, id) => {
@@ -23,8 +23,8 @@
 	}
 </script>
 
-<div class="card p-4 variant-ghost">
-	<EdgeRule bind:rule />
+<div>
+	<Rules bind:rule type="edge" />
 
 	<!-- Edge type -->
 	{#if edgeSettings.type}

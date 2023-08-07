@@ -70,9 +70,7 @@
 </script>
 
 <div class="card p-4 variant-ghost">
-	<p>where</p>
-
-	<select class="select" bind:value={first}>
+	<select class="select w-1/3" bind:value={first}>
 		<optgroup label="graph properties">
 			{#each nodePropertyGetters as [name, getter]}
 				<option>{name}</option>
@@ -90,7 +88,7 @@
 
 	<!-- Numerical Operator -->
 	{#if valueType === 'number'}
-		<select class="select" bind:value={operator}>
+		<select class="select w-1/4" bind:value={operator}>
 			<option value="=">=</option>
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>
@@ -98,11 +96,9 @@
 			<option value="<=">≤</option>
 		</select>
 
-		<input type="number" class="bg-transparent" bind:value={second} />
+		<input type="number" class="bg-transparent w-1/4" bind:value={second} />
 	{:else}
-		<div class="flex">
-			<p>is</p>
-			<input type="string" class="bg-transparent mx-1 w-full" bind:value={second} />
-		</div>
+		is
+		<input type="string" class="bg-transparent mx-1 w-1/2" bind:value={second} />
 	{/if}
 </div>

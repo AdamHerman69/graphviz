@@ -51,7 +51,6 @@
 	</TabGroup>
 
 	<div class:hidden={tabSet != 0}>
-		<b>Node Settings</b>
 		<SettingsSlider
 			name="Size"
 			availableAttributes={$availableAttributes.node.range}
@@ -71,7 +70,10 @@
 	{#each $nodeSettings as ns, index}
 		<div class:hidden={tabSet != index}>
 			{#if index > 0}
-				<button class="button" on:click={deleteRule}>Delete</button>
+				<button
+					class="h-6 w-6 rounded-full border-dashed border-2 border-white absolute"
+					on:click={deleteRule}>x</button
+				>
 				<NodeRuleSettings bind:nodeSettings={ns} />
 			{/if}
 		</div>

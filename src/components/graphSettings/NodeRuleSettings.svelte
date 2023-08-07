@@ -6,7 +6,7 @@
 	import type { NodeSettings } from '../../utils/graphSettings';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import GradientPicker from './GradientPicker.svelte';
-	import NodeRule from './NodeRule.svelte';
+	import Rules from './Rules.svelte';
 
 	export let nodeSettings: NodeSettings;
 
@@ -23,8 +23,8 @@
 	}
 </script>
 
-<div class="card p-4 variant-ghost">
-	<NodeRule bind:rule />
+<div>
+	<Rules bind:rule type="node" />
 
 	{#if nodeSettings.size}
 		<SettingsSlider

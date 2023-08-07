@@ -45,14 +45,12 @@
 	}
 </script>
 
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
-
 <div class="h-full w-full flex justify-center items-center">
 	<div class="h-full w-full flex flex-col mx-8">
 		<h1 class="h1 flex-none m-10 text-center">node-link vizualization demo</h1>
 		<div class="grow flex">
 			<div class="w-3/4"><NodeLinkCanvas /></div>
-			<div class="w-1/4">
+			<div class="w-1/4 text-sm">
 				<NodeSettingsPanel />
 				<EdgeSettingsPanel />
 			</div>
