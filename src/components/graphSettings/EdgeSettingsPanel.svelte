@@ -29,6 +29,7 @@
 
 	function deleteRule() {
 		$edgeSettings.splice(tabSet, 1);
+		tabSet--;
 		$edgeSettings = $edgeSettings;
 	}
 </script>

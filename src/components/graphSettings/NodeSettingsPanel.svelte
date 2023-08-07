@@ -29,6 +29,7 @@
 
 	function deleteRule() {
 		$nodeSettings.splice(tabSet, 1);
+		tabSet--;
 		$nodeSettings = $nodeSettings;
 	}
 </script>

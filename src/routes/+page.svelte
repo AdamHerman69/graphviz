@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Toast } from '@skeletonlabs/skeleton';
 	import GraphImport from '../components/GraphImport.svelte';
-	import SettingsPanel from '../components/graphSettings/SettingsPanel.svelte';
+	import NodeSettingsPanel from '../components/graphSettings/NodeSettingsPanel.svelte';
 	import Graph from 'graphology';
 	import { hasCycle } from 'graphology-dag';
 	import { graphStore } from '../utils/graph';
@@ -53,7 +53,7 @@
 		<div class="grow flex">
 			<div class="w-3/4"><NodeLinkCanvas /></div>
 			<div class="w-1/4">
-				<SettingsPanel />
+				<NodeSettingsPanel />
 				<EdgeSettingsPanel />
 			</div>
 		</div>
