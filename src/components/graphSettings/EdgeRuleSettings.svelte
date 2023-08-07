@@ -1,9 +1,11 @@
 <script lang="ts">
 	import {
 		type FRule,
-		type graphPropertyGetter,
+		type GraphPropertyGetter,
 		edgePropertyGetters,
-		nodePropertyGetters
+		nodePropertyGetters,
+		createNodeAttributeGetter,
+		createNodePropertyGetter
 	} from '../../utils/rules';
 	import {
 		availableAttributes,
@@ -22,26 +24,54 @@
 	export let edgeSettings: EdgeSettings;
 	let target: 'edge' | 'source' | 'target' = 'edge';
 	let operator: string;
-	let first: string;
+	let firstEdge: string;
+	let firstNode: string;
 	let second: string | number = 2;
 	let valueType: 'number' | 'string';
 
 	let leftGetter: (graph: Graph, id: string) => number | string;
 	let rightGetter: (graph: Graph, id: string) => number | string;
 
+	let sourceIDGetter = (graph: Graph, id: string) => {
+		graph.getSourceAttribute;
+	};
+
+	$: first = target === 'edge' ? firstEdge : firstNode;
+
 	$: {
 		// todo delete all attribute based rules
+		// compute the leftGetter function
+		if (first) {
+			// graph property for (edge | source | target)
+			let propertyGetter: GraphPropertyGetter | undefined;
+			if (target === 'edge') propertyGetter = edgePropertyGetters.get(first);
+			else if (target === 'source' || target === 'target')
+				propertyGetter = createNodePropertyGetter(first, target);
+			if (propertyGetter) {
+				valueType = propertyGetter.type;
+				leftGetter = propertyGetter.function;
 
-		if (first && edgePropertyGetters.get(first)) {
-			valueType = edgePropertyGetters.get(first)!.type;
-			leftGetter = edgePropertyGetters.get(first)!.function;
-		} else if (first) {
-			let attribute = [
-				...$availableAttributes.edge.range,
-				...$availableAttributes.edge.string
-			].find((attribute) => attribute.name === first);
-			valueType = attribute!.type;
-			leftGetter = attribute!.getter;
+				// attribute property for (edge | source | target)
+			} else {
+				let attribute: RangeAttribute | StringAttribute;
+				if (target === 'edge') {
+					attribute = [
+						...$availableAttributes.edge.range,
+						...$availableAttributes.edge.string
+					].find((attribute) => attribute.name === first)!;
+					leftGetter = attribute!.getter;
+				} else if (target === 'source' || target === 'target') {
+					attribute = [
+						...$availableAttributes.node.range,
+						...$availableAttributes.node.string
+					].find((attribute) => (attribute.name = first))!;
+					// getter needs to get the adjecent node too
+					console.log('computing attr getter: ', attribute);
+					leftGetter = createNodeAttributeGetter(attribute, target)!.function;
+					console.log('getter got: ', leftGetter);
+				}
+				valueType = attribute!.type;
+			}
 		}
 
 		rightGetter = () => {

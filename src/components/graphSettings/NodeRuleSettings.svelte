@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type FRule, type graphPropertyGetter, nodePropertyGetters } from '../../utils/rules';
+	import { type FRule, type GraphPropertyGetter, nodePropertyGetters } from '../../utils/rules';
 	import {
 		availableAttributes,
 		graphStore,
