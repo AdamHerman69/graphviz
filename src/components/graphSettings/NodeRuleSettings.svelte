@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { type FRule, type graphPropertyGetter, graphPropertyGetters } from '../../utils/rules';
+	import { type FRule, type graphPropertyGetter, nodePropertyGetters } from '../../utils/rules';
 	import {
-		findAllNodeAttributes,
+		availableAttributes,
 		graphStore,
 		type RangeAttribute,
 		type StringAttribute
@@ -11,7 +11,6 @@
 	import type { NodeSettings } from '../../utils/graphSettings';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import GradientPicker from './GradientPicker.svelte';
-	import { color } from 'd3';
 
 	export let nodeSettings: NodeSettings;
 	let operator: string;
@@ -19,29 +18,24 @@
 	let second: string | number = 2;
 	let valueType: 'number' | 'string';
 
-	console.log('rulest: nodesettings:', nodeSettings);
-
-	let availableAttributes: (RangeAttribute | StringAttribute)[];
-	findAllNodeAttributes($graphStore);
-	let availableRangeAttributes: RangeAttribute[];
+	console.log('rules: nodesettings:', nodeSettings);
 
 	let leftGetter: (graph: Graph, id: string) => number | string;
 	let rightGetter: (graph: Graph, id: string) => number | string;
 
 	$: {
-		availableAttributes = findAllNodeAttributes($graphStore);
-		availableRangeAttributes = availableAttributes.filter(
-			(attribute) => attribute.type === 'number'
-		);
-
 		// todo delete all attribute based rules
 
-		if (first && graphPropertyGetters.get(first)) {
-			valueType = graphPropertyGetters.get(first)!.type;
-			leftGetter = graphPropertyGetters.get(first)!.function;
+		if (first && nodePropertyGetters.get(first)) {
+			valueType = nodePropertyGetters.get(first)!.type;
+			leftGetter = nodePropertyGetters.get(first)!.function;
 		} else if (first) {
-			valueType = availableAttributes.find((attribute) => attribute.name === first)!.type;
-			leftGetter = (graph: Graph, id: string) => graph.getNodeAttribute(id, first);
+			let attribute = [
+				...$availableAttributes.node.range,
+				...$availableAttributes.node.string
+			].find((attribute) => attribute.name === first);
+			valueType = attribute!.type;
+			leftGetter = attribute!.getter;
 		}
 
 		rightGetter = () => {
@@ -89,12 +83,15 @@
 
 	<select class="select" bind:value={first}>
 		<optgroup label="graph properties">
-			{#each graphPropertyGetters as [name, getter]}
+			{#each nodePropertyGetters as [name, getter]}
 				<option>{name}</option>
 			{/each}
 		</optgroup>
 		<optgroup label="node attributes">
-			{#each availableAttributes as attribute}
+			{#each $availableAttributes.node.range as attribute}
+				<option>{attribute.name}</option>
+			{/each}
+			{#each $availableAttributes.node.string as attribute}
 				<option>{attribute.name}</option>
 			{/each}
 		</optgroup>
@@ -107,7 +104,7 @@
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>
 			<option value=">=">≥</option>
-			<option value="<=">≥</option>
+			<option value="<=">≤</option>
 		</select>
 
 		<input type="number" class="bg-transparent" bind:value={second} />
@@ -121,7 +118,7 @@
 	{#if nodeSettings.size}
 		<SettingsSlider
 			name="size"
-			availableAttributes={availableRangeAttributes}
+			availableAttributes={$availableAttributes.node.range}
 			bind:numSettings={nodeSettings.size}
 		/>
 	{:else}
@@ -133,7 +130,7 @@
 	{#if nodeSettings.strokeWidth}
 		<SettingsSlider
 			name="Stroke"
-			availableAttributes={availableRangeAttributes}
+			availableAttributes={$availableAttributes.node.range}
 			bind:numSettings={nodeSettings.strokeWidth}
 		/>
 	{:else}

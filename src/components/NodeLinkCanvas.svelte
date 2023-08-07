@@ -9,9 +9,10 @@
 		type NodeStyle,
 		type EdgeStyle,
 		type Setting,
-		type NodeProperties
+		type NodeProperties,
+		type EdgeProperties
 	} from '../utils/graphSettings';
-	import { graphStore } from '../utils/graph';
+	import { graphStore, availableAttributes, recomputeGraphAttributes } from '../utils/graph';
 
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
@@ -43,11 +44,13 @@
 
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
+		recomputeGraphAttributes($graphStore, $availableAttributes);
 		restartSimulation($graphStore);
 	});
 
 	$: {
 		updateStyleMapsOnGraphChange($graphStore);
+		recomputeGraphAttributes($graphStore, $availableAttributes);
 
 		console.log('graph change node styles: ', nodeStyles);
 		if (paperRenderer) {
@@ -129,20 +132,24 @@
 	}
 
 	function getEdgeStyle(id: string, edgeSettings: EdgeSettings[]): EdgeStyle {
-		// todo rules (which nodeSettings array apply)
-		let finalSettings: Setting[] = [
-			edgeSettings[0].type!,
-			edgeSettings[0].color!,
-			edgeSettings[0].width!,
-			edgeSettings[0].partialStart!,
-			edgeSettings[0].partialEnd,
-			edgeSettings[0].decorators
-		];
+		let chosenSettings: EdgeProperties = {};
+
+		// iterating in increasing priority order
+		edgeSettings.forEach((edgeSettings) => {
+			if (edgeSettings.frule($graphStore, id)) {
+				if (edgeSettings.type) chosenSettings['type'] = edgeSettings.type;
+				if (edgeSettings.width) chosenSettings['width'] = edgeSettings.width;
+				if (edgeSettings.color) chosenSettings['color'] = edgeSettings.color;
+				if (edgeSettings.partialStart) chosenSettings['partialStart'] = edgeSettings.partialStart;
+				if (edgeSettings.partialEnd) chosenSettings['partialEnd'] = edgeSettings.partialEnd;
+				if (edgeSettings.decorators) chosenSettings['decorators'] = edgeSettings.decorators;
+			}
+		});
 
 		let edgeStyle: EdgeStyle = {};
 
 		// attribute based styles
-		finalSettings.forEach((setting) => {
+		for (const [key, setting] of Object.entries(chosenSettings)) {
 			if (setting.attribute) {
 				let attributeValue = $graphStore.getEdgeAttribute(id, setting.attribute.name);
 				edgeStyle[setting.name] = setting.attribute.scale(attributeValue);
@@ -150,7 +157,7 @@
 			} else {
 				edgeStyle[setting.name] = setting.value;
 			}
-		});
+		}
 
 		return edgeStyle;
 	}

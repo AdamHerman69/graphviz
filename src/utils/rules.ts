@@ -28,8 +28,12 @@ let degree: graphPropertyGetter = {
 	type: 'number'
 };
 
-export let graphPropertyGetters = new Map<string, graphPropertyGetter>([
+export let nodePropertyGetters = new Map<string, graphPropertyGetter>([
 	['degree', degree],
 	['inDegree', inDegree],
 	['outDegree', outDegree]
 ]);
+
+// todo is directed
+
+export let edgePropertyGetters = new Map<string, graphPropertyGetter>([]);

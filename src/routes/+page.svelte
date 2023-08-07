@@ -7,6 +7,7 @@
 	import { graphStore } from '../utils/graph';
 	import { layout } from '../utils/graphSettings';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
+	import EdgeSettingsPanel from '../components/graphSettings/EdgeSettingsPanel.svelte';
 
 	// example graph init
 	const graph = new Graph();
@@ -51,7 +52,10 @@
 		<h1 class="h1 flex-none m-10 text-center">node-link vizualization demo</h1>
 		<div class="grow flex">
 			<div class="w-3/4"><NodeLinkCanvas /></div>
-			<div class="w-1/4"><SettingsPanel /></div>
+			<div class="w-1/4">
+				<SettingsPanel />
+				<EdgeSettingsPanel />
+			</div>
 		</div>
 		<div class="flex-none m-10">
 			{#if !hasCycle($graphStore)}

@@ -64,10 +64,13 @@ export type NodeProperties = {
 	// todo shape?
 };
 
-export type NodeSettings = NodeProperties & {
+type RuleSettings = {
 	priority: number;
 	frule: FRule;
 };
+
+export type NodeSettings = NodeProperties & RuleSettings;
+export type EdgeSettings = EdgeProperties & RuleSettings;
 
 const edgeTypes = ['straight', 'arrow', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
@@ -76,8 +79,7 @@ export type EdgeType = (typeof edgeTypes)[number];
 const layoutTypes = ['force-graph', 'tree'] as const;
 type LayoutType = (typeof layoutTypes)[number];
 
-export type EdgeSettings = {
-	priority: number;
+export type EdgeProperties = {
 	type?: SelectSetting<EdgeType>;
 	width?: NumericalSetting;
 	color?: ColorSetting;
@@ -129,7 +131,7 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 export const edgeSettings: Writable<EdgeSettings[]> = writable([
 	{
 		priority: 0,
-		rule: { type: 'EDGE', operator: 'AND', rules: [] },
+		frule: (graph, id) => true,
 		type: { name: 'type', values: Array.from(edgeTypes), value: 'straight' },
 		width: { name: 'width', value: 1, min: 0, max: 5, increment: 0.5 },
 		color: {

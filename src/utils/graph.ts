@@ -5,6 +5,7 @@ import { type ScaleLinear, scaleLinear } from 'd3';
 export type Attribute = {
 	name: string;
 	type: 'number' | 'string';
+	owner: 'edge' | 'node';
 };
 
 type ScaleFunction = (n: number) => number;
@@ -14,16 +15,36 @@ let scale: ScaleLinear<number, number, never> = scaleLinear().domain([10, 100]).
 export type RangeAttribute = Attribute & {
 	range: [number, number];
 	scale?: ScaleFunction;
+	getter: (graph: Graph, id: string) => number;
 };
 
 // do with rules instead
 export type StringAttribute = Attribute & {
 	values: string[];
+	getter: (graph: Graph, id: string) => string;
 };
+
+export type GraphAttributes = {
+	node: { range: RangeAttribute[]; string: StringAttribute[] };
+	edge: { range: RangeAttribute[]; string: StringAttribute[] };
+};
+
+export const availableAttributes: Writable<GraphAttributes> = writable({
+	node: { range: [], string: [] },
+	edge: { range: [], string: [] }
+});
+
+export function recomputeGraphAttributes(graph: Graph, availableAttributes: GraphAttributes) {
+	availableAttributes.node = findAllNodeAttributes(graph);
+	availableAttributes.edge = findAllEdgeAttributes(graph);
+}
 
 export const graphStore: Writable<Graph> = writable();
 
-export function findAllNodeAttributes(graph: Graph): (RangeAttribute | StringAttribute)[] {
+function findAllNodeAttributes(graph: Graph): {
+	range: RangeAttribute[];
+	string: StringAttribute[];
+} {
 	let foundNodeAttributes: Map<string, any[]> = new Map<string, any[]>();
 	graph.forEachNode((id, attributes) => {
 		for (const [key, value] of Object.entries(attributes)) {
@@ -32,10 +53,13 @@ export function findAllNodeAttributes(graph: Graph): (RangeAttribute | StringAtt
 			}
 		}
 	});
-	return classifyAttributes(foundNodeAttributes);
+	return classifyAttributes(foundNodeAttributes, 'node');
 }
 
-export function findAllEdgeAttributes(graph: Graph): (RangeAttribute | StringAttribute)[] {
+function findAllEdgeAttributes(graph: Graph): {
+	range: RangeAttribute[];
+	string: StringAttribute[];
+} {
 	let foundEdgeAttributes: Map<string, any[]> = new Map<string, any[]>();
 	graph.forEachEdge((id, attributes) => {
 		for (const [key, value] of Object.entries(attributes)) {
@@ -44,27 +68,59 @@ export function findAllEdgeAttributes(graph: Graph): (RangeAttribute | StringAtt
 			}
 		}
 	});
-	return classifyAttributes(foundEdgeAttributes);
+	return classifyAttributes(foundEdgeAttributes, 'edge');
 }
 
-function classifyAttribute(name: string, values: any[]): RangeAttribute | StringAttribute {
+function classifyAttribute(
+	name: string,
+	values: any[],
+	owner: 'node' | 'edge'
+): RangeAttribute | StringAttribute {
 	const minValue = Math.min(...values);
+
 	if (isNaN(minValue)) {
-		return { name: name, values: values, type: 'string' };
+		let getter: (graph: Graph, id: string) => string =
+			owner === 'edge'
+				? (graph: Graph, id: string) => graph.getEdgeAttribute(id, name)
+				: (graph: Graph, id: string) => graph.getNodeAttribute(id, name);
+		return {
+			name: name,
+			values: values,
+			type: 'string',
+			getter: getter
+		} as StringAttribute;
 	} else {
 		const maxValue = Math.max(...values);
-		return { name: name, range: [minValue, maxValue], type: 'number' };
+		let getter: (graph: Graph, id: string) => number =
+			owner === 'edge'
+				? (graph: Graph, id: string) => graph.getEdgeAttribute(id, name)
+				: (graph: Graph, id: string) => graph.getNodeAttribute(id, name);
+		return {
+			name: name,
+			range: [minValue, maxValue],
+			type: 'number',
+			getter: getter
+		} as RangeAttribute;
 	}
 }
 
 function classifyAttributes(
-	attributeMap: Map<string, any[]>
-): (RangeAttribute | StringAttribute)[] {
-	let attributes: (RangeAttribute | StringAttribute)[] = [];
+	attributeMap: Map<string, any[]>,
+	owner: 'node' | 'edge'
+): {
+	range: RangeAttribute[];
+	string: StringAttribute[];
+} {
+	let rangeAttributes: RangeAttribute[] = [];
+	let stringAttributes: StringAttribute[] = [];
+	let attribute: RangeAttribute | StringAttribute;
 	attributeMap.forEach((values, name) => {
-		attributes.push(classifyAttribute(name, values));
+		attribute = classifyAttribute(name, values, owner);
+		if (attribute.type === 'number') rangeAttributes.push(attribute as RangeAttribute);
+		else if (attribute.type === 'string') stringAttributes.push(attribute as StringAttribute);
+		else console.log('Error classifying an attribute: ', attribute);
 	});
-	return attributes;
+	return { range: rangeAttributes, string: stringAttributes };
 }
 
 export function getAttributeType(attribute: RangeAttribute | StringAttribute): 'number' | 'string' {
