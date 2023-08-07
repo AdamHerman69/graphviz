@@ -1,119 +1,30 @@
 <script lang="ts">
-	import { type FRule, type GraphPropertyGetter, nodePropertyGetters } from '../../utils/rules';
-	import {
-		availableAttributes,
-		graphStore,
-		type RangeAttribute,
-		type StringAttribute
-	} from '../../utils/graph';
+	import type { FRule } from '../../utils/rules';
+	import { availableAttributes } from '../../utils/graph';
 	import type Graph from 'graphology';
 	import SettingsColor from './SettingsColor.svelte';
 	import type { NodeSettings } from '../../utils/graphSettings';
 	import SettingsSlider from './SettingsSlider.svelte';
 	import GradientPicker from './GradientPicker.svelte';
+	import NodeRule from './NodeRule.svelte';
 
 	export let nodeSettings: NodeSettings;
-	let operator: string;
-	let first: string;
-	let second: string | number = 2;
-	let valueType: 'number' | 'string';
 
 	console.log('rules: nodesettings:', nodeSettings);
 
 	let leftGetter: (graph: Graph, id: string) => number | string;
 	let rightGetter: (graph: Graph, id: string) => number | string;
+	let rule: FRule = (graph, id) => {
+		return false;
+	};
 
 	$: {
-		// todo delete all attribute based rules
-
-		if (first && nodePropertyGetters.get(first)) {
-			valueType = nodePropertyGetters.get(first)!.type;
-			leftGetter = nodePropertyGetters.get(first)!.function;
-		} else if (first) {
-			let attribute = [
-				...$availableAttributes.node.range,
-				...$availableAttributes.node.string
-			].find((attribute) => attribute.name === first);
-			valueType = attribute!.type;
-			leftGetter = attribute!.getter;
-		}
-
-		rightGetter = () => {
-			return second;
-		};
-
-		if (first && valueType === 'number') {
-			switch (operator) {
-				case '=':
-					nodeSettings.frule = (graph, id) => {
-						return leftGetter(graph, id) === rightGetter(graph, id);
-					};
-					break;
-				case '>':
-					nodeSettings.frule = (graph, id) => {
-						return leftGetter(graph, id) > rightGetter(graph, id);
-					};
-					break;
-				case '<':
-					nodeSettings.frule = (graph, id) => {
-						return leftGetter(graph, id) < rightGetter(graph, id);
-					};
-					break;
-				case '>=':
-					nodeSettings.frule = (graph, id) => {
-						return leftGetter(graph, id) >= rightGetter(graph, id);
-					};
-					break;
-				case '<=':
-					nodeSettings.frule = (graph, id) => {
-						return leftGetter(graph, id) <= rightGetter(graph, id);
-					};
-					break;
-			}
-		} else if (first) {
-			nodeSettings.frule = (graph, id) => {
-				return leftGetter(graph, id) === rightGetter(graph, id);
-			};
-		}
+		nodeSettings.frule = rule;
 	}
 </script>
 
 <div class="card p-4 variant-ghost">
-	<p>where</p>
-
-	<select class="select" bind:value={first}>
-		<optgroup label="graph properties">
-			{#each nodePropertyGetters as [name, getter]}
-				<option>{name}</option>
-			{/each}
-		</optgroup>
-		<optgroup label="node attributes">
-			{#each $availableAttributes.node.range as attribute}
-				<option>{attribute.name}</option>
-			{/each}
-			{#each $availableAttributes.node.string as attribute}
-				<option>{attribute.name}</option>
-			{/each}
-		</optgroup>
-	</select>
-
-	<!-- Numerical Operator -->
-	{#if valueType === 'number'}
-		<select class="select" bind:value={operator}>
-			<option value="=">=</option>
-			<option value=">">&gt</option>
-			<option value="<">&lt</option>
-			<option value=">=">≥</option>
-			<option value="<=">≤</option>
-		</select>
-
-		<input type="number" class="bg-transparent" bind:value={second} />
-	{:else}
-		<div class="flex">
-			<p>is</p>
-			<input type="string" class="bg-transparent mx-1 w-full" bind:value={second} />
-		</div>
-	{/if}
+	<NodeRule bind:rule />
 
 	{#if nodeSettings.size}
 		<SettingsSlider
