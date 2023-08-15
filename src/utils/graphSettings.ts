@@ -171,6 +171,24 @@ export const edgeSettings: Writable<EdgeSettings[]> = writable([
 		},
 		partialStart: { name: 'partialStart', value: 0, min: 0, max: 0.5, increment: 0.05 },
 		partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 },
-		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] }
+		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] },
+		labels: [
+			{
+				text: 'mid',
+				color: 'pink',
+				size: 3,
+				relativePosition: 0.5,
+				position: 'below',
+				rotate: false
+			},
+			{
+				text: 'third',
+				color: 'skyBlue',
+				size: 3,
+				relativePosition: 0.3,
+				position: 'below',
+				rotate: false
+			}
+		]
 	}
 ]);

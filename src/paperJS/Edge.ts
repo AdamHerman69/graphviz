@@ -1,6 +1,6 @@
 import * as Paper from 'paper';
 import type { IPNode } from './Node';
-import type { DecoratorData, EdgeStyle, EdgeType } from '../utils/graphSettings';
+import type { DecoratorData, EdgeStyle, EdgeType, EdgeLabel } from '../utils/graphSettings';
 import {
 	type Decorator,
 	createIsoscelesTriangle,
@@ -94,7 +94,7 @@ export class PEdge {
 	partialStart: number;
 	partialEnd: number;
 	type: EdgeType;
-
+	labels: Map<EdgeLabel, paper.PointText>;
 	constructor(source: IPNode, target: IPNode, style: EdgeStyle) {
 		this.source = source;
 		this.target = target;
@@ -115,6 +115,9 @@ export class PEdge {
 		// decorators
 		this.decorators = [];
 		this.addRemoveDecorators(style.decorators);
+
+		this.labels = new Map<EdgeLabel, paper.PointText>();
+		this.updateLabels(style.labels);
 
 		// doesn't work too, the points are NaN
 		this.updateDecorators();
@@ -160,6 +163,40 @@ export class PEdge {
 		});
 	}
 
+	updateLabels(labels: EdgeLabel[]) {
+		if (!labels) return;
+
+		labels.forEach((label) => {
+			if (!this.labels.has(label)) {
+				console.log('creting edge label');
+				this.labels.set(
+					label,
+					new Paper.PointText({
+						content: label.text,
+						fontSize: label.size,
+						fillColor: label.color
+					})
+				);
+			} else {
+				this.labels.get(label).content = label.text;
+				this.labels.get(label).fontSize = label.size;
+				this.labels.get(label).fillColor = label.color;
+			}
+		});
+
+		this.updateLabelPositions();
+	}
+
+	updateLabelPositions() {
+		this.labels.forEach((pointText, labelObject) => {
+			pointText.position = getRelativeEdgePoint(
+				this.source.position,
+				this.target.position,
+				labelObject.relativePosition
+			);
+		});
+	}
+
 	getConnectionPoints() {
 		// when starting the simulation all points are at the same position, rest wouldn't work
 		if (this.source.position.equals(this.target.position))
@@ -193,6 +230,7 @@ export class PEdge {
 		this.lineShape.updatePosition(this.sourceConnectionPoint, this.targetConnectionPoint);
 
 		this.updateDecorators();
+		this.updateLabelPositions();
 	}
 
 	updateDecorators() {

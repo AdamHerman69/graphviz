@@ -166,7 +166,7 @@
 				edgeStyle[setting.name] = setting.value;
 			}
 		}
-
+		edgeStyle.labels = chosenSettings.labels;
 		return edgeStyle;
 	}
 
