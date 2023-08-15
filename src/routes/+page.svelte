@@ -9,6 +9,9 @@
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 	import EdgeSettingsPanel from '../components/graphSettings/EdgeSettingsPanel.svelte';
 
+	// todo delete
+	import { nodeSettings } from '../utils/graphSettings';
+
 	// example graph init
 	const graph = new Graph();
 	graph.addNode('a', { volume: 40, neco: 'nejakej string' });
@@ -42,6 +45,9 @@
 	function switchLayout() {
 		if ($layout.value == 'force-graph') $layout.value = 'tree';
 		else $layout.value = 'force-graph';
+
+		// todo delete
+		$nodeSettings[0].labels?.push({ position: 'right', text: 'new', color: 'white', size: 3 });
 	}
 </script>
 

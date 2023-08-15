@@ -123,7 +123,7 @@ export class PEdge {
 	addRemoveDecorators(decoratorData: DecoratorData[]) {
 		// remove missing
 		function isPresent(decTuple: [Decorator, number]): boolean {
-			decoratorData.some((decoratorDatum) => {
+			return decoratorData.some((decoratorDatum) => {
 				decoratorDatum.type === decTuple[0].type && decoratorDatum.position === decTuple[1];
 			});
 		}

@@ -3,12 +3,14 @@ import { writable, type Writable } from 'svelte/store';
 import { scaleLinear } from 'd3';
 import type { FRule } from '../utils/rules';
 import type { RangeAttribute } from './graph';
+import type { Node } from 'dagre';
 
 export type NodeStyle = {
 	size: number;
 	color: string | Gradient;
 	strokeWidth: number;
 	strokeColor: string;
+	labels: NodeLabel[];
 };
 
 export type EdgeStyle = {
@@ -18,6 +20,23 @@ export type EdgeStyle = {
 	partialStart: number;
 	partialEnd: number;
 	decorators: DecoratorData[];
+	labels: EdgeLabel[];
+};
+
+type LabelStyle = {
+	text: string;
+	color: string;
+	size: number;
+};
+
+export type NodeLabel = LabelStyle & {
+	position: 'below' | 'above' | 'left' | 'right' | 'center';
+};
+
+export type EdgeLabel = LabelStyle & {
+	relativePosition: number;
+	position: 'below' | 'above' | 'center';
+	rotate: boolean;
 };
 
 const decoratorTypes = ['triangle', 'circle', 'square'] as const;
@@ -61,6 +80,7 @@ export type NodeProperties = {
 	color?: ColorSetting;
 	strokeWidth?: NumericalSetting;
 	strokeColor?: ColorSetting;
+	labels?: NodeLabel[];
 	// todo shape?
 };
 
@@ -86,6 +106,7 @@ export type EdgeProperties = {
 	partialStart?: NumericalSetting;
 	partialEnd?: NumericalSetting;
 	decorators?: DecoratorSetting;
+	labels?: EdgeLabel[];
 };
 
 export type GraphSettings = {
@@ -118,7 +139,13 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 				['purple', 1]
 			]
 		},
-		strokeColor: { name: 'strokeColor', value: 'purple' }
+		strokeColor: { name: 'strokeColor', value: 'purple' },
+		labels: [
+			{ position: 'left', text: 'test', color: 'pink', size: 4 },
+			{ position: 'above', text: 'test', color: 'skyBlue', size: 5 },
+			{ position: 'left', text: 'test', color: 'skyBlue', size: 3 },
+			{ position: 'center', text: 'test', color: 'purple', size: 3 }
+		]
 	},
 	{
 		priority: 1,

@@ -114,8 +114,11 @@
 				if (nodeSettings.color) chosenSettings['color'] = nodeSettings.color;
 				if (nodeSettings.strokeWidth) chosenSettings['strokeWidth'] = nodeSettings.strokeWidth;
 				if (nodeSettings.strokeColor) chosenSettings['strokeColor'] = nodeSettings.strokeColor;
+				if (nodeSettings.labels) chosenSettings['labels'] = nodeSettings.labels;
 			}
 		});
+
+		// todo label text
 
 		let nodeStyle: NodeStyle = {};
 
@@ -128,6 +131,8 @@
 				nodeStyle[setting.name] = setting.value;
 			}
 		}
+
+		nodeStyle.labels = chosenSettings.labels;
 		return nodeStyle;
 	}
 
@@ -143,8 +148,11 @@
 				if (edgeSettings.partialStart) chosenSettings['partialStart'] = edgeSettings.partialStart;
 				if (edgeSettings.partialEnd) chosenSettings['partialEnd'] = edgeSettings.partialEnd;
 				if (edgeSettings.decorators) chosenSettings['decorators'] = edgeSettings.decorators;
+				if (edgeSettings.labels) chosenSettings['labels'] = edgeSettings.labels;
 			}
 		});
+
+		// todo label text
 
 		let edgeStyle: EdgeStyle = {};
 
