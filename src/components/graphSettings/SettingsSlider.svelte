@@ -44,6 +44,7 @@
 	<div class="flex justify-between items-center">
 		<div class="text-s">
 			{name}
+			<!-- {numSettings.source} -->
 		</div>
 		<button class="btn btn-sm variant-ghost" on:click={bindAttributeHandle}>
 			{#if boundAttribute === undefined && !bindSettingsOpen}

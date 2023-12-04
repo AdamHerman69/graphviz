@@ -4,6 +4,7 @@ import { scaleLinear } from 'd3';
 import type { FRule } from '../utils/rules';
 import type { RangeAttribute } from './graph';
 import type { Node } from 'dagre';
+import type { Guideline } from '../guidelines/guideline';
 
 export type NodeStyle = {
 	size: number;
@@ -46,6 +47,7 @@ export type Setting<T> = {
 	name: string;
 	value: any;
 	attribute?: RangeAttribute;
+	source: null | Guideline;
 };
 
 export type SelectSetting<T> = Setting<T> & {
@@ -87,10 +89,41 @@ export type NodeProperties = {
 type RuleSettings = {
 	priority: number;
 	frule: FRule;
+	source: null | Guideline;
 };
 
 export type NodeSettings = NodeProperties & RuleSettings;
 export type EdgeSettings = EdgeProperties & RuleSettings;
+
+export function cloneNodeSettings(nodeSettings: NodeSettings): NodeSettings {
+	let newNS: NodeSettings = {
+		priority: nodeSettings.priority,
+		frule: nodeSettings.frule,
+		source: nodeSettings.source
+	};
+	if (nodeSettings.size) newNS.size = structuredClone(nodeSettings.size);
+	if (nodeSettings.color) newNS.color = structuredClone(nodeSettings.color);
+	if (nodeSettings.strokeWidth) newNS.strokeWidth = structuredClone(nodeSettings.strokeWidth);
+	if (nodeSettings.strokeColor) newNS.strokeColor = structuredClone(nodeSettings.strokeColor);
+	if (nodeSettings.labels) newNS.labels = structuredClone(nodeSettings.labels);
+	return newNS;
+}
+
+export function cloneEdgeSettings(edgeSettings: EdgeSettings): EdgeSettings {
+	let newES: EdgeSettings = {
+		priority: edgeSettings.priority,
+		frule: edgeSettings.frule,
+		source: edgeSettings.source
+	};
+	if (edgeSettings.type) newES.type = structuredClone(edgeSettings.type);
+	if (edgeSettings.width) newES.width = structuredClone(edgeSettings.width);
+	if (edgeSettings.color) newES.color = structuredClone(edgeSettings.color);
+	if (edgeSettings.partialStart) newES.partialStart = structuredClone(edgeSettings.partialStart);
+	if (edgeSettings.partialEnd) newES.partialEnd = structuredClone(edgeSettings.partialEnd);
+	if (edgeSettings.labels) newES.labels = structuredClone(edgeSettings.labels);
+	if (edgeSettings.labels) newES.labels = structuredClone(edgeSettings.labels);
+	return newES;
+}
 
 const edgeTypes = ['straight', 'arrow', 'conical'] as const;
 export type EdgeType = (typeof edgeTypes)[number];
@@ -139,13 +172,13 @@ export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writabl
 				['purple', 1]
 			]
 		},
-		strokeColor: { name: 'strokeColor', value: 'purple' },
-		labels: [
-			{ position: 'left', text: 'test', color: 'pink', size: 4 },
-			{ position: 'above', text: 'test', color: 'skyBlue', size: 5 },
-			{ position: 'left', text: 'test', color: 'skyBlue', size: 3 },
-			{ position: 'center', text: 'test', color: 'purple', size: 3 }
-		]
+		strokeColor: { name: 'strokeColor', value: 'purple' }
+		// labels: [
+		// 	{ position: 'left', text: 'test', color: 'pink', size: 4 },
+		// 	{ position: 'above', text: 'test', color: 'skyBlue', size: 5 },
+		// 	{ position: 'left', text: 'test', color: 'skyBlue', size: 3 },
+		// 	{ position: 'center', text: 'test', color: 'purple', size: 3 }
+		// ]
 	},
 	{
 		priority: 1,
@@ -171,24 +204,24 @@ export const edgeSettings: Writable<EdgeSettings[]> = writable([
 		},
 		partialStart: { name: 'partialStart', value: 0, min: 0, max: 0.5, increment: 0.05 },
 		partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 },
-		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] },
-		labels: [
-			{
-				text: 'mid',
-				color: 'pink',
-				size: 3,
-				relativePosition: 0.5,
-				position: 'below',
-				rotate: false
-			},
-			{
-				text: 'third',
-				color: 'skyBlue',
-				size: 3,
-				relativePosition: 0.3,
-				position: 'below',
-				rotate: false
-			}
-		]
+		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] }
+		// labels: [
+		// 	{
+		// 		text: 'mid',
+		// 		color: 'pink',
+		// 		size: 3,
+		// 		relativePosition: 0.5,
+		// 		position: 'below',
+		// 		rotate: false
+		// 	},
+		// 	{
+		// 		text: 'third',
+		// 		color: 'skyBlue',
+		// 		size: 3,
+		// 		relativePosition: 0.3,
+		// 		position: 'below',
+		// 		rotate: false
+		// 	}
+		// ]
 	}
 ]);

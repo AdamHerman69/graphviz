@@ -11,6 +11,8 @@
 
 	// todo delete
 	import { nodeSettings } from '../utils/graphSettings';
+	import Guidelines from '../components/guidelines/GuidelinesPanel.svelte';
+	import GuidelinesPanel from '../components/guidelines/GuidelinesPanel.svelte';
 
 	// example graph init
 	const graph = new Graph();
@@ -55,7 +57,8 @@
 	<div class="h-full w-full flex flex-col mx-8">
 		<h1 class="h1 flex-none m-10 text-center">node-link vizualization demo</h1>
 		<div class="grow flex">
-			<div class="w-3/4"><NodeLinkCanvas /></div>
+			<div class="w-1/4"><GuidelinesPanel /></div>
+			<div class="w-2/4"><NodeLinkCanvas /></div>
 			<div class="w-1/4 text-sm">
 				<NodeSettingsPanel />
 				<EdgeSettingsPanel />
