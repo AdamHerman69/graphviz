@@ -5,7 +5,7 @@
 	import Graph from 'graphology';
 	import { hasCycle } from 'graphology-dag';
 	import { graphStore } from '../utils/graph';
-	import { layout } from '../utils/graphSettings';
+	import { layout, saveState } from '../utils/graphSettings';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
 	import EdgeSettingsPanel from '../components/graphSettings/EdgeSettingsPanel.svelte';
 
@@ -50,6 +50,8 @@
 
 		// todo delete
 		$nodeSettings[0].labels?.push({ position: 'right', text: 'new', color: 'white', size: 3 });
+
+		saveState();
 	}
 </script>
 

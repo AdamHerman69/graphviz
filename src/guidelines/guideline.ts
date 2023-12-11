@@ -5,7 +5,9 @@ import {
 	nodeSettings,
 	edgeSettings,
 	cloneNodeSettings,
-	cloneEdgeSettings
+	cloneEdgeSettings,
+	saveState,
+	pauseStateSaving
 } from '../utils/graphSettings';
 import { writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
@@ -29,6 +31,7 @@ function preview(guideline: Guideline) {}
 
 export function apply(guideline: Guideline) {
 	console.log(guideline.name, ' applied');
+	pauseStateSaving.set(true);
 
 	if (guideline.nodeSettings) {
 		let newNS = cloneNodeSettings(guideline.nodeSettings[0]);
@@ -45,14 +48,20 @@ export function apply(guideline: Guideline) {
 		if (newNS.labels) globalNS.labels = newNS.labels;
 
 		globalNS.source = guideline;
-		nodeSettings.update((settings) => [globalNS, ...settings.slice(1)]);
 
 		// apply rules
+		let newNodeRules: NodeSettings[] = [];
 		guideline.nodeSettings.forEach((ns, index) => {
 			if (index == 0) return;
 			console.log('applying rules based', index);
-			nodeSettings.update((nodeSet) => [...nodeSet, cloneNodeSettings(ns)]);
+			newNodeRules.push(cloneNodeSettings(ns));
 		});
+
+		nodeSettings.update((previousSettings) => [
+			globalNS,
+			...previousSettings.slice(1),
+			...newNodeRules
+		]);
 	}
 
 	if (guideline.edgeSettings) {
@@ -74,15 +83,28 @@ export function apply(guideline: Guideline) {
 		if (newES.labels) globalES.labels = newES.labels;
 
 		globalES.source = guideline;
-		edgeSettings.update((settings) => [globalES, ...settings.slice(1)]);
 
 		// apply rules
+		let newEdgeRules: EdgeSettings[] = [];
 		guideline.edgeSettings.forEach((es, index) => {
 			if (index == 0) return;
 			console.log('applying rules based', index);
-			edgeSettings.update((edgeSet) => [...edgeSet, cloneEdgeSettings(es)]);
+			newEdgeRules.push(cloneEdgeSettings(es));
 		});
+
+		edgeSettings.update((previousSettings) => [
+			globalES,
+			...previousSettings.slice(1),
+			...newEdgeRules
+		]);
 	}
+	console.log('resuming saving');
+
+	// hack to don't save multiple states when updating
+	setTimeout(() => {
+		pauseStateSaving.set(false);
+		saveState();
+	}, 20);
 }
 
 function evalPartialEdges(graph: Graph): number {

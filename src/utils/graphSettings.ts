@@ -1,5 +1,5 @@
 import type { ScaleLinear } from 'd3';
-import { writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { scaleLinear } from 'd3';
 import type { FRule } from '../utils/rules';
 import type { RangeAttribute } from './graph';
@@ -120,7 +120,7 @@ export function cloneEdgeSettings(edgeSettings: EdgeSettings): EdgeSettings {
 	if (edgeSettings.color) newES.color = structuredClone(edgeSettings.color);
 	if (edgeSettings.partialStart) newES.partialStart = structuredClone(edgeSettings.partialStart);
 	if (edgeSettings.partialEnd) newES.partialEnd = structuredClone(edgeSettings.partialEnd);
-	if (edgeSettings.labels) newES.labels = structuredClone(edgeSettings.labels);
+	if (edgeSettings.decorators) newES.decorators = structuredClone(edgeSettings.decorators);
 	if (edgeSettings.labels) newES.labels = structuredClone(edgeSettings.labels);
 	return newES;
 }
@@ -142,19 +142,13 @@ export type EdgeProperties = {
 	labels?: EdgeLabel[];
 };
 
-export type GraphSettings = {
-	layout: SelectSetting<LayoutType>;
-	nodeSettings: NodeSettings[];
-	edgeSettings: EdgeSettings[];
-};
-
 export const layout: Writable<SelectSetting<LayoutType>> = writable({
 	name: 'layout',
 	values: Array.from(layoutTypes),
 	value: 'force-graph'
 });
 
-export const nodeSettings: Writable<[NodeSettings, ...NodeSettings[]]> = writable([
+export const nodeSettings: Writable<[NodeSettings[]]> = writable([
 	{
 		priority: 0,
 		frule: (graph, id) => true,
@@ -225,3 +219,77 @@ export const edgeSettings: Writable<EdgeSettings[]> = writable([
 		// ]
 	}
 ]);
+
+export type GraphSettings = {
+	layout: SelectSetting<LayoutType>;
+	nodeSettings: NodeSettings[];
+	edgeSettings: EdgeSettings[]; // todo update Edge settings to require first element as well
+};
+
+export let pauseStateSaving: Writable<boolean> = writable(false);
+export let currentStateIndex: Writable<number> = writable(-1);
+export let history: Writable<GraphSettings[]> = writable([]);
+
+export function saveState() {
+	if (get(pauseStateSaving)) {
+		console.log('skipped save');
+		return;
+	}
+
+	console.log('history before save state: ', get(history));
+
+	let currentState: GraphSettings = {
+		layout: structuredClone(get(layout)),
+		nodeSettings: get(nodeSettings).map((ns) => cloneNodeSettings(ns)),
+		edgeSettings: get(edgeSettings).map((es) => cloneEdgeSettings(es))
+	};
+	history.update((history) => [...history.slice(0, get(currentStateIndex) + 1), currentState]);
+	currentStateIndex.update((index) => index + 1);
+
+	console.log('history after save state: ', get(history), 'index:', get(currentStateIndex));
+}
+
+export function restoreState(index: number) {
+	console.log('restoring state');
+	console.log(get(history));
+	console.log(index);
+	console.log(get(history)[index]);
+
+	let newState: GraphSettings = {
+		layout: structuredClone(get(history)[index].layout),
+		nodeSettings: get(history)[index].nodeSettings.map((ns) => cloneNodeSettings(ns)),
+		edgeSettings: get(history)[index].edgeSettings.map((es) => cloneEdgeSettings(es))
+	};
+
+	layout.set(newState.layout);
+	nodeSettings.set(newState.nodeSettings);
+	edgeSettings.set(newState.edgeSettings);
+}
+
+export function undo() {
+	// todo message no more states
+	if (get(currentStateIndex) == 0) {
+		console.log('no more states');
+		return;
+	}
+	console.log('undo');
+	console.log('history:', get(history));
+	console.log('index before update:', get(currentStateIndex));
+	currentStateIndex.update((index) => index - 1);
+	console.log('index after update:', get(currentStateIndex));
+	restoreState(get(currentStateIndex));
+}
+
+export function redo() {
+	// todo message no more states
+	if (get(currentStateIndex) == get(history).length - 1) {
+		console.log('no more states');
+		return;
+	}
+
+	console.log('redo');
+	console.log(get(history));
+	currentStateIndex.update((index) => index + 1);
+	restoreState(get(currentStateIndex));
+	// todo bug when redoing after undoing twice, index is negative
+}

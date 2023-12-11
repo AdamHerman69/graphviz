@@ -4,13 +4,19 @@
 		nodeSettings,
 		edgeSettings,
 		layout,
+		undo,
+		redo,
+		history,
 		type NodeSettings,
 		type EdgeSettings,
 		type NodeStyle,
 		type EdgeStyle,
 		type Setting,
 		type NodeProperties,
-		type EdgeProperties
+		type EdgeProperties,
+		cloneNodeSettings,
+		cloneEdgeSettings,
+		saveState
 	} from '../utils/graphSettings';
 	import { graphStore, availableAttributes, recomputeGraphAttributes } from '../utils/graph';
 
@@ -46,6 +52,7 @@
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
 		recomputeGraphAttributes($graphStore, $availableAttributes);
 		restartSimulation($graphStore);
+		saveState();
 	});
 
 	$: {
@@ -53,15 +60,18 @@
 		recomputeGraphAttributes($graphStore, $availableAttributes);
 
 		console.log('graph change node styles: ', nodeStyles);
-		if (paperRenderer) {
-			if ($layout.value == 'force-graph') restartSimulation($graphStore);
-			else if ($layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
-		}
+		// todo this should be in a separete function
+		// if (paperRenderer) {
+		// 	if ($layout.value == 'force-graph') restartSimulation($graphStore);
+		// 	else if ($layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
+		// }
 	}
 
 	// node settings
 	$: {
-		console.log('updating nodes settings', $nodeSettings);
+		//saveState();
+
+		//console.log('updating nodes settings', $nodeSettings);
 		for (const [key, style] of nodeStyles.entries()) {
 			nodeStyles.set(key, getNodeStyle(key, $nodeSettings));
 		}
@@ -70,7 +80,9 @@
 
 	// edge settings
 	$: {
-		console.log('updating edge settings', $edgeSettings);
+		//saveState();
+
+		//console.log('updating edge settings', $edgeSettings);
 		for (const [key, style] of edgeStyles.entries()) {
 			edgeStyles.set(key, getEdgeStyle(key, $edgeSettings));
 		}
@@ -340,6 +352,12 @@
 
 <button type="button" on:click={exportSVG} class="btn variant-filled absolute top-5"
 	>export SVG</button
+>
+<button type="button" on:click={undo} class="btn variant-filled absolute top-10 left-5">
+	undo</button
+>
+<button type="button" on:click={redo} class="btn variant-filled absolute top-30 left-5">
+	redo</button
 >
 <canvas
 	class="h-full w-full border-solid border-2 border-orange-200"

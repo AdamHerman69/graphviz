@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { nodeSettings, edgeSettings, type EdgeType } from '../../utils/graphSettings';
+	import {
+		history,
+		currentStateIndex,
+		nodeSettings,
+		edgeSettings,
+		type EdgeType
+	} from '../../utils/graphSettings';
 	import {
 		graphStore,
 		type RangeAttribute,
