@@ -11,6 +11,7 @@
 	import SettingsColor from './SettingsColor.svelte';
 	import SettingsSelect from './SettingsSelect.svelte';
 	import EdgePreview from './EdgePreview.svelte';
+	import EdgeLabelSettings from './EdgeLabelSettings.svelte';
 	import GradientPicker from './GradientPicker.svelte';
 	import DecoratorSettings from './DecoratorSettings.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
@@ -34,7 +35,7 @@
 	}
 </script>
 
-<div class="card p-4 variant-ghost">
+<div class="card p-4 m-2 rounded-3xl">
 	<TabGroup>
 		{#each $edgeSettings as edgeSettings, index}
 			<Tab bind:group={tabSet} value={index} name={index.toString()}>
@@ -59,18 +60,15 @@
 			bind:numSettings={$edgeSettings[0].width}
 		/>
 		<SettingsSlider
-			name="Partial edge start"
+			name="Partial edge"
 			availableAttributes={$availableAttributes.edge.range}
 			bind:numSettings={$edgeSettings[0].partialStart}
-		/>
-		<SettingsSlider
-			name="Partial edge end"
-			availableAttributes={$availableAttributes.edge.range}
-			bind:numSettings={$edgeSettings[0].partialEnd}
+			bind:secondNumSettings={$edgeSettings[0].partialEnd}
 		/>
 
 		<GradientPicker bind:colorSetting={$edgeSettings[0].color} />
 		<DecoratorSettings bind:decoratorSetting={$edgeSettings[0].decorators} />
+		<EdgeLabelSettings bind:edgeLabels={$edgeSettings[0].labels} />
 	</div>
 
 	{#each $edgeSettings as es, index}

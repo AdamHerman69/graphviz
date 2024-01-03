@@ -178,7 +178,12 @@
 				edgeStyle[setting.name] = setting.value;
 			}
 		}
-		edgeStyle.labels = chosenSettings.labels;
+		edgeStyle.labels = structuredClone(chosenSettings.labels);
+		edgeStyle.labels.forEach((label) => {
+			if (label.attributeName) {
+				label.text = $graphStore.getEdgeAttribute(id, label.attributeName);
+			}
+		});
 		return edgeStyle;
 	}
 

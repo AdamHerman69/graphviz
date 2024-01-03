@@ -2,7 +2,7 @@ import type { ScaleLinear } from 'd3';
 import { get, writable, type Writable } from 'svelte/store';
 import { scaleLinear } from 'd3';
 import type { FRule } from '../utils/rules';
-import type { RangeAttribute } from './graph';
+import type { RangeAttribute, Attribute } from './graph';
 import type { Node } from 'dagre';
 import type { Guideline } from '../guidelines/guideline';
 
@@ -28,6 +28,7 @@ type LabelStyle = {
 	text: string;
 	color: string;
 	size: number;
+	attributeName?: string;
 };
 
 export type NodeLabel = LabelStyle & {
@@ -166,13 +167,13 @@ export const nodeSettings: Writable<[NodeSettings[]]> = writable([
 				['purple', 1]
 			]
 		},
-		strokeColor: { name: 'strokeColor', value: 'purple' }
-		// labels: [
-		// 	{ position: 'left', text: 'test', color: 'pink', size: 4 },
-		// 	{ position: 'above', text: 'test', color: 'skyBlue', size: 5 },
-		// 	{ position: 'left', text: 'test', color: 'skyBlue', size: 3 },
-		// 	{ position: 'center', text: 'test', color: 'purple', size: 3 }
-		// ]
+		strokeColor: { name: 'strokeColor', value: 'purple' },
+		labels: [
+			{ position: 'left', text: 'left', color: 'pink', size: 4 },
+			{ position: 'above', text: 'above', color: 'skyBlue', size: 5 },
+			{ position: 'left', text: 'left', color: 'skyBlue', size: 3 },
+			{ position: 'center', text: 'center', color: 'purple', size: 3 }
+		]
 	},
 	{
 		priority: 1,
@@ -196,27 +197,27 @@ export const edgeSettings: Writable<EdgeSettings[]> = writable([
 				['red', 1]
 			]
 		},
-		partialStart: { name: 'partialStart', value: 0, min: 0, max: 0.5, increment: 0.05 },
-		partialEnd: { name: 'partialEnd', value: 1, min: 0.5, max: 1, increment: 0.05 },
-		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] }
-		// labels: [
-		// 	{
-		// 		text: 'mid',
-		// 		color: 'pink',
-		// 		size: 3,
-		// 		relativePosition: 0.5,
-		// 		position: 'below',
-		// 		rotate: false
-		// 	},
-		// 	{
-		// 		text: 'third',
-		// 		color: 'skyBlue',
-		// 		size: 3,
-		// 		relativePosition: 0.3,
-		// 		position: 'below',
-		// 		rotate: false
-		// 	}
-		// ]
+		partialStart: { name: 'partialStart', value: 0, min: 0, max: 1, increment: 0.05 },
+		partialEnd: { name: 'partialEnd', value: 1, min: 0, max: 1, increment: 0.05 },
+		decorators: { types: Array.from(decoratorTypes), name: 'decorators', value: [] },
+		labels: [
+			{
+				text: 'mid',
+				color: 'pink',
+				size: 3,
+				relativePosition: 0.5,
+				position: 'below',
+				rotate: false
+			},
+			{
+				text: 'third',
+				color: 'skyBlue',
+				size: 3,
+				relativePosition: 0.3,
+				position: 'below',
+				rotate: false
+			}
+		]
 	}
 ]);
 

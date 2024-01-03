@@ -9,6 +9,7 @@ import {
 	getIsoscelesTrianglePointsEdge,
 	TriangleDecorator
 } from './Triangle';
+import { lab } from 'd3';
 
 interface EdgeShape {
 	updatePosition(source: paper.Point, target: paper.Point): void;
@@ -75,6 +76,63 @@ class TriangleShape implements EdgeShape {
 	}
 }
 
+class Label {
+	pointText: paper.PointText;
+	datum: EdgeLabel;
+
+	constructor(labelDatum: EdgeLabel) {
+		this.datum = labelDatum;
+		this.pointText = new Paper.PointText({
+			content: labelDatum.text,
+			fontSize: labelDatum.size,
+			fillColor: labelDatum.color
+		});
+	}
+
+	updateStyle(labelDatum: EdgeLabel) {
+		this.pointText.content = labelDatum.text;
+		this.pointText.fontSize = labelDatum.size;
+		if (this.datum.color != labelDatum.color) {
+			this.pointText.fillColor = new Paper.Color(labelDatum.color);
+		}
+
+		this.datum = labelDatum;
+	}
+
+	updatePosition(source: paper.Point, target: paper.Point) {
+		this.pointText.position = getRelativeEdgePoint(source, target, this.datum.relativePosition);
+
+		// Calculate the vector from this.source.position to this.target.position
+		let vector = target.subtract(source);
+
+		// Rotate this vector by 90 degrees to get a vector that is perpendicular to the line
+		let perpendicularVector = vector.rotate(90);
+
+		// Normalize this vector and multiply it by 3 to get a vector that is perpendicular to the line and has a length of 3
+		let offsetVector = perpendicularVector.normalize().multiply(3);
+
+		if (this.datum.position === 'above')
+			this.pointText.position = this.pointText.position.add(offsetVector);
+		if (this.datum.position === 'below')
+			this.pointText.position = this.pointText.position.subtract(offsetVector);
+
+		// rotation
+		if (this.datum.rotate) {
+			// Calculate the angle between this.source.position and this.target.position
+			let angle = source.subtract(target).angle;
+
+			// Rotate the pointText object to this angle
+			this.pointText.rotation = angle;
+		} else {
+			this.pointText.rotation = 0;
+		}
+	}
+
+	delete() {
+		this.pointText.remove();
+	}
+}
+
 export interface IPEdge {
 	source: IPNode;
 	target: IPNode;
@@ -94,7 +152,7 @@ export class PEdge {
 	partialStart: number;
 	partialEnd: number;
 	type: EdgeType;
-	labels: Map<EdgeLabel, paper.PointText>;
+	labels: Label[];
 	constructor(source: IPNode, target: IPNode, style: EdgeStyle) {
 		this.source = source;
 		this.target = target;
@@ -116,7 +174,7 @@ export class PEdge {
 		this.decorators = [];
 		this.addRemoveDecorators(style.decorators);
 
-		this.labels = new Map<EdgeLabel, paper.PointText>();
+		this.labels = [];
 		this.updateLabels(style.labels);
 
 		// doesn't work too, the points are NaN
@@ -166,34 +224,29 @@ export class PEdge {
 	updateLabels(labels: EdgeLabel[]) {
 		if (!labels) return;
 
-		labels.forEach((label) => {
-			if (!this.labels.has(label)) {
-				console.log('creting edge label');
-				this.labels.set(
-					label,
-					new Paper.PointText({
-						content: label.text,
-						fontSize: label.size,
-						fillColor: label.color
-					})
-				);
+		labels.forEach((labelDatum, index) => {
+			if (this.labels[index]) {
+				// update existing labels
+				this.labels[index].updateStyle(labelDatum);
+				this.labels[index].updatePosition(this.source.position, this.target.position);
 			} else {
-				this.labels.get(label).content = label.text;
-				this.labels.get(label).fontSize = label.size;
-				this.labels.get(label).fillColor = label.color;
+				// create new labels
+				this.labels.push(new Label(labelDatum));
 			}
 		});
 
-		this.updateLabelPositions();
+		// delete extra labels
+		if (this.labels.length > labels.length) {
+			const extraLabels = this.labels.splice(labels.length);
+			extraLabels.forEach((label) => {
+				label.delete();
+			});
+		}
 	}
 
 	updateLabelPositions() {
-		this.labels.forEach((pointText, labelObject) => {
-			pointText.position = getRelativeEdgePoint(
-				this.source.position,
-				this.target.position,
-				labelObject.relativePosition
-			);
+		this.labels.forEach((label) => {
+			label.updatePosition(this.source.position, this.target.position);
 		});
 	}
 
@@ -271,6 +324,8 @@ export class PEdge {
 		// decorators
 		this.addRemoveDecorators(style.decorators);
 		this.updateDecorators();
+		//this.addRemoveLabels(style.labels);
+		this.updateLabels(style.labels);
 
 		// style update
 		const paperStyle = {

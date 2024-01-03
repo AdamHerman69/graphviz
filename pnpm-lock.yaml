@@ -35,12 +35,18 @@ dependencies:
   graphology-graphml:
     specifier: ^0.5.2
     version: 0.5.2(graphology-types@0.24.7)
+  lottie-web:
+    specifier: ^5.12.2
+    version: 5.12.2
   paper:
     specifier: ^0.12.17
     version: 0.12.17
   svelte-awesome-color-picker:
     specifier: ^2.4.6
     version: 2.4.6
+  svelte-range-slider-pips:
+    specifier: ^2.2.3
+    version: 2.2.3
 
 devDependencies:
   '@floating-ui/dom':
@@ -2004,6 +2010,10 @@ packages:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
 
+  /lottie-web@5.12.2:
+    resolution: {integrity: sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==}
+    dev: false
+
   /lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
@@ -2667,6 +2677,10 @@ packages:
       svelte: 4.0.5
       typescript: 5.1.6
     dev: true
+
+  /svelte-range-slider-pips@2.2.3:
+    resolution: {integrity: sha512-ZAwX9+NDOE6cdqUTMfwBw27YI7NFgSXyPS1ARx3Zuaish2q6FuAtgx5d9+uqNzxQ7WVFhxgM7iQp8MvCpvy4Jw==}
+    dev: false
 
   /svelte@4.0.5:
     resolution: {integrity: sha512-PHKPWP1wiWHBtsE57nCb8xiWB3Ht7/3Kvi3jac0XIxUM2rep8alO7YoAtgWeGD7++tFy46krilOrPW0mG3Dx+A==}
