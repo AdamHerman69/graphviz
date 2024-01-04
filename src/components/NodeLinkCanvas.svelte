@@ -29,6 +29,8 @@
 		PaperRenderer
 	} from '../paperJS/PaperRenderer';
 	import * as dagre from 'dagre';
+	import { edgePropertyGetters, nodePropertyGetters } from '../utils/rules';
+	import { greadability } from '$lib/greadability';
 
 	let canvas: HTMLCanvasElement;
 
@@ -48,6 +50,13 @@
 	let nodeStyles: Map<string, NodeStyle> = new Map<string, NodeStyle>();
 	let edgeStyles: Map<string, EdgeStyle> = new Map<string, EdgeStyle>();
 
+	let readability: {
+		crossing: number;
+		crossingAngle: number;
+		angularResolutionMin: number;
+		angularResolutionDev: number;
+	};
+
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
 		recomputeGraphAttributes($graphStore, $availableAttributes);
@@ -60,11 +69,11 @@
 		recomputeGraphAttributes($graphStore, $availableAttributes);
 
 		console.log('graph change node styles: ', nodeStyles);
-		// todo this should be in a separete function
-		// if (paperRenderer) {
-		// 	if ($layout.value == 'force-graph') restartSimulation($graphStore);
-		// 	else if ($layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
-		// }
+		//todo this should be in a separete function
+		if (paperRenderer) {
+			if ($layout.value == 'force-graph') restartSimulation($graphStore);
+			else if ($layout.value == 'tree') treeInit($graphStore); // new graph in tree mode doesn't update
+		}
 	}
 
 	// node settings
@@ -130,8 +139,6 @@
 			}
 		});
 
-		// todo label text
-
 		let nodeStyle: NodeStyle = {};
 
 		// attribute based styles
@@ -144,7 +151,25 @@
 			}
 		}
 
-		nodeStyle.labels = chosenSettings.labels;
+		// labels
+		// label attributes
+		// node property getters
+
+		nodeStyle.labels = structuredClone(chosenSettings.labels);
+		nodeStyle.labels.forEach((label) => {
+			if (label.attributeName) {
+				if (nodePropertyGetters.has(label.attributeName))
+					label.text = nodePropertyGetters
+						.get(label.attributeName)!
+						.function($graphStore, id)
+						.toString();
+				else {
+					let attributeText = $graphStore.getNodeAttribute(id, label.attributeName);
+					label.text = attributeText ? attributeText : '';
+				}
+			}
+		});
+
 		return nodeStyle;
 	}
 
@@ -164,8 +189,6 @@
 			}
 		});
 
-		// todo label text
-
 		let edgeStyle: EdgeStyle = {};
 
 		// attribute based styles
@@ -178,10 +201,20 @@
 				edgeStyle[setting.name] = setting.value;
 			}
 		}
+
+		// labels
 		edgeStyle.labels = structuredClone(chosenSettings.labels);
 		edgeStyle.labels.forEach((label) => {
 			if (label.attributeName) {
-				label.text = $graphStore.getEdgeAttribute(id, label.attributeName);
+				if (edgePropertyGetters.has(label.attributeName)) {
+					label.text = edgePropertyGetters
+						.get(label.attributeName)!
+						.function($graphStore, id)
+						.toString();
+				} else {
+					let attributeText = $graphStore.getEdgeAttribute(id, label.attributeName);
+					label.text = attributeText ? attributeText : '';
+				}
 			}
 		});
 		return edgeStyle;
@@ -269,6 +302,7 @@
 			.force('center', d3.forceCenter(width / 2, height / 2))
 			.on('tick', () => {
 				if (simRunning) paperRenderer.updatePositions(d3nodes as NodePositionDatum[]);
+				readability = greadability(d3nodes, d3links);
 			});
 
 		// styles should persist
@@ -353,6 +387,11 @@
 		// Revoke the object URL to free up resources
 		URL.revokeObjectURL(anchorElement.href);
 	}
+
+	function computeReadability() {
+		console.log('computing readability');
+		console.log(greadability(d3nodes, d3links));
+	}
 </script>
 
 <button type="button" on:click={exportSVG} class="btn variant-filled absolute top-5"
@@ -364,8 +403,21 @@
 <button type="button" on:click={redo} class="btn variant-filled absolute top-30 left-5">
 	redo</button
 >
+<button
+	type="button"
+	on:click={computeReadability}
+	class="btn variant-filled absolute top-40 left-5"
+>
+	greadability</button
+>
+<div class="card">
+	<div>Crossings: {readability?.crossing}</div>
+	<div>Crossing Angle: {readability?.crossingAngle}</div>
+	<div>Angular ResolutionMin: {readability?.angularResolutionMin}</div>
+	<div>Angular Resolution Dev: {readability?.angularResolutionDev}</div>
+</div>
 <canvas
-	class="h-full w-full border-solid border-2 border-orange-200"
+	class="h-full w-full"
 	resize
 	bind:this={canvas}
 	bind:clientWidth={width}

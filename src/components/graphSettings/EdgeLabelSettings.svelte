@@ -20,9 +20,6 @@
 		});
 		edgeLabels = edgeLabels;
 	}
-
-	$: {
-	}
 </script>
 
 <div>
@@ -30,8 +27,8 @@
 	<RangeSlider bind:values={relativePositions} min={0} max={1} step={0.01} float />
 	{#each edgeLabels as label, index}
 		<div class="flex items-center">
-			<!-- Size -->
-			<!-- Text -->
+			<!-- TODO Size -->
+
 			<select class="bg-transparent" bind:value={label.attributeName}>
 				<optgroup label="edge properties">
 					{#each edgePropertyGetters as [name, getter]}

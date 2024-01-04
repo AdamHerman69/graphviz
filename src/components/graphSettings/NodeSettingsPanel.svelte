@@ -21,6 +21,7 @@
 	import DecoratorSettings from './DecoratorSettings.svelte';
 	import NodeRuleSettings from './NodeRuleSettings.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import NodeLabelSettings from './NodeLabelSettings.svelte';
 
 	let tabSet: number = 0;
 
@@ -72,6 +73,8 @@
 			<SettingsColor bind:colorSetting={$nodeSettings[0].strokeColor} label="" />
 			<div>stroke</div>
 		</div>
+
+		<NodeLabelSettings bind:nodeLabels={$nodeSettings[0].labels} />
 	</div>
 	{#each $nodeSettings as ns, index}
 		<div class:hidden={tabSet != index}>

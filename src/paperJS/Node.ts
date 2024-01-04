@@ -1,6 +1,15 @@
 import * as Paper from 'paper';
 import type { NodeLabel, NodeStyle } from '../utils/graphSettings';
+import type { offset } from '@floating-ui/dom';
 // TODO don't import stores but just types for the values, that the update styles method is going to consume
+
+const labelOffsets = {
+	above: new Paper.Point(0, -5),
+	below: new Paper.Point(0, 5),
+	left: new Paper.Point(-5, 0),
+	right: new Paper.Point(5, 0),
+	center: new Paper.Point(0, 0)
+};
 
 export interface IPNode {
 	position: paper.Point;
@@ -13,25 +22,13 @@ export class PNode implements IPNode {
 	position: paper.Point;
 	shape: paper.Shape;
 	style: NodeStyle;
-	labels: {
-		above: { offset: paper.Point; pointText?: paper.PointText };
-		below: { offset: paper.Point; pointText?: paper.PointText };
-		left: { offset: paper.Point; pointText?: paper.PointText };
-		right: { offset: paper.Point; pointText?: paper.PointText };
-		center: { offset: paper.Point; pointText?: paper.PointText };
-	};
+	labels: { pointText: paper.PointText; offset: paper.Point; verticalOffset: paper.Point }[];
 
 	constructor(label: string, x: number, y: number, style: NodeStyle) {
 		this.style = style;
 		this.position = new Paper.Point(x, y);
 		this.shape = new Paper.Shape.Circle(this.position, style.size);
-		this.labels = {
-			above: { offset: new Paper.Point(0, -5) },
-			below: { offset: new Paper.Point(0, 5) },
-			left: { offset: new Paper.Point(-5, 0) },
-			right: { offset: new Paper.Point(5, 0) },
-			center: { offset: new Paper.Point(0, 0) }
-		};
+		this.labels = [];
 
 		// this.label = new Paper.PointText({
 		// 	point: this.position,
@@ -45,7 +42,7 @@ export class PNode implements IPNode {
 		// todo updateLabels
 
 		this.updateStyle(style);
-		this.updateLabels(style.labels);
+		this.updateLabels2(style.labels);
 	}
 
 	getFinalRadius(): number {
@@ -56,7 +53,7 @@ export class PNode implements IPNode {
 		this.position.x = newX;
 		this.position.y = newY;
 		this.shape.position = this.position;
-		this.updateLabelPosition(this.position);
+		this.updateLabelPositions2();
 		// this.label.point = this.position.add(
 		// 	new Paper.Point(-this.label.bounds.width / 2, this.label.bounds.height / 4)
 		// );
@@ -105,44 +102,116 @@ export class PNode implements IPNode {
 		this.shape.radius = style.size;
 
 		// todo optimize, when changing?
-		this.updateLabels(style.labels);
-		this.updateLabelPosition();
+		this.updateLabels2(style.labels);
 	}
 
-	updateLabels(nodeLabels: NodeLabel[]) {
-		let _labels: {
-			above: NodeLabel[];
-			below: NodeLabel[];
-			left: NodeLabel[];
-			right: NodeLabel[];
-			center: NodeLabel[];
-		} = { above: [], below: [], left: [], right: [], center: [] };
+	// updateLabels(nodeLabels: NodeLabel[]) {
+	// 	let _labels: {
+	// 		above: NodeLabel[];
+	// 		below: NodeLabel[];
+	// 		left: NodeLabel[];
+	// 		right: NodeLabel[];
+	// 		center: NodeLabel[];
+	// 	} = { above: [], below: [], left: [], right: [], center: [] };
+	// 	if (!nodeLabels) return;
+	// 	nodeLabels.forEach((nodeLabel) => {
+	// 		_labels[nodeLabel.position].push(nodeLabel);
+	// 	});
+
+	// 	for (const [key, nodeLabels] of Object.entries(_labels)) {
+	// 		if (nodeLabels.length === 0) {
+	// 			this.labels[key].pointText?.remove();
+	// 		} else {
+	// 			let text = '';
+	// 			nodeLabels.forEach((nodeLabel, index) => {
+	// 				text = text + nodeLabel.text;
+	// 				if (index < nodeLabels.length - 1) text = text + '\n';
+	// 			});
+
+	// 			if (!Object.hasOwn(this.labels[key], 'pointText')) {
+	// 				// position map or something
+	// 				this.labels[key].pointText = new Paper.PointText({
+	// 					content: text,
+	// 					fontSize: nodeLabels[0].size,
+	// 					fillColor: nodeLabels[0].color
+	// 				});
+	// 				console.log('creted label: ', this.labels[key]);
+	// 			}
+	// 			this.labels[key].pointText.content = text;
+	// 		}
+	// 	}
+	// }
+
+	calculateVerticalOffset(total: number, rank: number, position: string) {
+		if (total === 1) return 0;
+		const labelVertSpace = 3;
+		let totalVertSpace = total * labelVertSpace;
+		switch (position) {
+			case 'above':
+				return totalVertSpace - rank * labelVertSpace;
+			case 'below':
+				return -rank * labelVertSpace;
+			default: // left, right, center
+				return totalVertSpace / 2 - rank * labelVertSpace;
+		}
+	}
+
+	updateLabels2(nodeLabels: NodeLabel[]) {
 		if (!nodeLabels) return;
-		nodeLabels.forEach((nodeLabel) => {
-			_labels[nodeLabel.position].push(nodeLabel);
+		let labelPositions = {
+			above: { total: nodeLabels.filter((label) => label.position === 'above').length, rank: 0 },
+			below: { total: nodeLabels.filter((label) => label.position === 'below').length, rank: 0 },
+			left: { total: nodeLabels.filter((label) => label.position === 'left').length, rank: 0 },
+			right: { total: nodeLabels.filter((label) => label.position === 'right').length, rank: 0 },
+			center: { total: nodeLabels.filter((label) => label.position === 'center').length, rank: 0 }
+		};
+
+		// update labels
+		nodeLabels.forEach((label, index) => {
+			let verticalOffset = new Paper.Point(
+				0,
+				this.calculateVerticalOffset(
+					labelPositions[label.position].total,
+					labelPositions[label.position].rank,
+					label.position
+				)
+			);
+
+			if (index >= this.labels.length) {
+				this.labels.push({
+					pointText: new Paper.PointText({
+						content: label.text,
+						fontSize: label.size,
+						fillColor: label.color
+					}),
+					verticalOffset: verticalOffset,
+					offset: labelOffsets[label.position]
+				});
+			} else {
+				this.labels[index].pointText.content = label.text;
+				this.labels[index].pointText.fontSize = label.size;
+				this.labels[index].pointText.fillColor = new Paper.Color(label.color);
+				this.labels[index].offset = labelOffsets[label.position];
+				this.labels[index].verticalOffset = verticalOffset;
+			}
+
+			labelPositions[label.position].rank++;
 		});
 
-		for (const [key, nodeLabels] of Object.entries(_labels)) {
-			if (nodeLabels.length === 0) {
-				this.labels[key].pointText?.delete();
-			} else {
-				let text = '';
-				nodeLabels.forEach((nodeLabel, index) => {
-					text = text + nodeLabel.text;
-					if (index < nodeLabels.length - 1) text = text + '\n';
-				});
+		// delete extra labels
+		let deletedLabels = this.labels.splice(nodeLabels.length);
+		deletedLabels.forEach((label) => label.pointText.remove());
 
-				if (!Object.hasOwn(this.labels[key], 'pointText')) {
-					// position map or something
-					this.labels[key].pointText = new Paper.PointText({
-						content: text,
-						fontSize: nodeLabels[0].size,
-						fillColor: nodeLabels[0].color
-					});
-					console.log('creted label: ', this.labels[key]);
-				}
-				this.labels[key].pointText.content = text;
-			}
-		}
+		this.updateLabelPositions2();
+	}
+
+	updateLabelPositions2() {
+		this.labels.forEach((labelObject) => {
+			let offsetScaledToSize = labelObject.offset.add(
+				labelObject.offset.normalize().multiply(this.getFinalRadius())
+			);
+			let finalOffset = offsetScaledToSize.add(labelObject.verticalOffset);
+			labelObject.pointText.position = this.position.add(finalOffset);
+		});
 	}
 }

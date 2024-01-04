@@ -48,9 +48,6 @@
 		if ($layout.value == 'force-graph') $layout.value = 'tree';
 		else $layout.value = 'force-graph';
 
-		// todo delete
-		$nodeSettings[0].labels?.push({ position: 'right', text: 'new', color: 'white', size: 3 });
-
 		saveState();
 	}
 </script>
