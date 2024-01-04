@@ -12,6 +12,7 @@
 	import SettingsSelect from './SettingsSelect.svelte';
 	import DecoratorSettings from './DecoratorSettings.svelte';
 	import Rules from './Rules.svelte';
+	import EdgeLabelSettings from './EdgeLabelSettings.svelte';
 
 	export let edgeSettings: EdgeSettings;
 	let rule: FRule = (graph, id) => {
@@ -131,5 +132,13 @@
 		>
 			Modify decorators
 		</button>
+	{/if}
+
+	<!-- Labels -->
+	{#if edgeSettings.labels}
+		{console.log(edgeSettings.labels)}
+		<EdgeLabelSettings bind:edgeLabels={edgeSettings.labels} />
+	{:else}
+		<button on:click={() => (edgeSettings['labels'] = [])}> Add labels </button>
 	{/if}
 </div>

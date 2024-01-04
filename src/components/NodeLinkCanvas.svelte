@@ -394,32 +394,25 @@
 	}
 </script>
 
-<button type="button" on:click={exportSVG} class="btn variant-filled absolute top-5"
-	>export SVG</button
->
-<button type="button" on:click={undo} class="btn variant-filled absolute top-10 left-5">
-	undo</button
->
-<button type="button" on:click={redo} class="btn variant-filled absolute top-30 left-5">
-	redo</button
->
-<button
-	type="button"
-	on:click={computeReadability}
-	class="btn variant-filled absolute top-40 left-5"
->
-	greadability</button
->
-<div class="card">
-	<div>Crossings: {readability?.crossing}</div>
-	<div>Crossing Angle: {readability?.crossingAngle}</div>
-	<div>Angular ResolutionMin: {readability?.angularResolutionMin}</div>
-	<div>Angular Resolution Dev: {readability?.angularResolutionDev}</div>
+<div class="relative h-full w-full">
+	<canvas
+		class="h-full w-full"
+		resize
+		bind:this={canvas}
+		bind:clientWidth={width}
+		bind:clientHeight={height}
+	/>
+
+	<div class="absolute top-2 right-2">
+		<button type="button" on:click={exportSVG} class="btn variant-filled">export SVG</button>
+		<button type="button" on:click={undo} class="btn variant-filled"> undo</button>
+		<button type="button" on:click={redo} class="btn variant-filled"> redo</button>
+	</div>
+
+	<div class="card absolute bottom-20 left-0 text-sm">
+		<div>Crossings: {readability?.crossing}</div>
+		<div>Crossing Angle: {readability?.crossingAngle}</div>
+		<div>Angular ResolutionMin: {readability?.angularResolutionMin}</div>
+		<div>Angular Resolution Dev: {readability?.angularResolutionDev}</div>
+	</div>
 </div>
-<canvas
-	class="h-full w-full"
-	resize
-	bind:this={canvas}
-	bind:clientWidth={width}
-	bind:clientHeight={height}
-/>

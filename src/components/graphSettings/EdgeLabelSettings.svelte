@@ -24,7 +24,10 @@
 
 <div>
 	<span>Labels</span>
-	<RangeSlider bind:values={relativePositions} min={0} max={1} step={0.01} float />
+	{#if relativePositions.length > 0}
+		<RangeSlider bind:values={relativePositions} min={0} max={1} step={0.01} float />
+	{/if}
+
 	{#each edgeLabels as label, index}
 		<div class="flex items-center">
 			<!-- TODO Size -->

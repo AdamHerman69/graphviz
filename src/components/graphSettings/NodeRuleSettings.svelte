@@ -7,6 +7,7 @@
 	import SettingsSlider from './SettingsSlider.svelte';
 	import GradientPicker from './GradientPicker.svelte';
 	import Rules from './Rules.svelte';
+	import NodeLabelSettings from './NodeLabelSettings.svelte';
 
 	export let nodeSettings: NodeSettings;
 
@@ -69,5 +70,11 @@
 		>
 			Modify stroke color
 		</button>
+	{/if}
+
+	{#if nodeSettings.labels}
+		<NodeLabelSettings bind:nodeLabels={nodeSettings.labels} />
+	{:else}
+		<button on:click={() => (nodeSettings['labels'] = [])}> Add labels</button>
 	{/if}
 </div>
