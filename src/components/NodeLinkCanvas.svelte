@@ -17,10 +17,11 @@
 		cloneNodeSettings,
 		cloneEdgeSettings,
 		saveState,
-		type NumericalSetting
+		type NumericalSetting,
+		type ColorSetting
 	} from '../utils/graphSettings';
 	import { graphStore, availableAttributes, recomputeGraphAttributes } from '../utils/graph';
-
+	import { getGradientColor } from '../utils/gradient';
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 	import {
@@ -146,22 +147,25 @@
 		// todo handle range with properties
 		// attribute based styles
 		for (let [key, setting] of Object.entries(chosenSettings)) {
-			setting = setting as NumericalSetting;
 			if (setting.attribute) {
-				// let attributeValue: number;
-				// if (nodePropertyGetters.has(setting.attribute.name))
-				// 	attributeValue = nodePropertyGetters
-				// 		.get(setting.attribute.name)!
-				// 		.function($graphStore, id);
-				// else {
-				// 	attributeValue = $graphStore.getNodeAttribute(id, setting.attribute.name);
-				// }
-
 				// todo fefactor so we don't have to do this. Maek attribute and property getter be the same thing
 				let getter = setting.attribute.getter
 					? setting.attribute.getter
 					: setting.attribute.function;
-				nodeStyle[setting.name] = setting.scale(getter($graphStore, id));
+				if (setting.min) {
+					setting = setting as NumericalSetting;
+					nodeStyle[setting.name] = setting.scale(getter($graphStore, id));
+				} else {
+					setting = setting as ColorSetting;
+
+					let gradientPosition = setting.scale(getter($graphStore, id));
+					if (getter($graphStore, id) == 80) {
+						console.log('80');
+						console.log(gradientPosition);
+						console.log(getGradientColor(setting.value, gradientPosition));
+					}
+					nodeStyle[setting.name] = getGradientColor(setting.value, gradientPosition);
+				}
 			} else {
 				nodeStyle[setting.name] = setting.value;
 			}
@@ -208,15 +212,20 @@
 		let edgeStyle: EdgeStyle = {};
 
 		// attribute based styles
-		for (const [key, setting] of Object.entries(chosenSettings)) {
+		for (let [key, setting] of Object.entries(chosenSettings)) {
+			setting = setting as NumericalSetting;
 			if (setting.attribute) {
-				let attributeValue = $graphStore.getEdgeAttribute(id, setting.attribute.name);
-				edgeStyle[setting.name] = setting.attribute.scale(attributeValue);
-				console.log('got special value: ', edgeStyle[setting.name]);
+				// todo fefactor so we don't have to do this. Maek attribute and property getter be the same thing
+				let getter = setting.attribute.getter
+					? setting.attribute.getter
+					: setting.attribute.function;
+				edgeStyle[setting.name] = setting.scale(getter($graphStore, id));
 			} else {
 				edgeStyle[setting.name] = setting.value;
 			}
 		}
+
+		// todo colors
 
 		// labels
 		edgeStyle.labels = structuredClone(chosenSettings.labels);

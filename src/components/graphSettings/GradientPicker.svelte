@@ -4,7 +4,10 @@
 	import { rgb } from 'd3';
 
 	export let colorSetting: ColorSetting;
-	let colors: [RgbaColor, number][] = [[{ r: 255, g: 255, b: 255, a: 1 }, 0]];
+	let colors: [RgbaColor, number][] =
+		typeof colorSetting.value === 'string'
+			? [[{ r: 255, g: 255, b: 255, a: 1 }, 0]]
+			: colorSetting.value.map((colorTuple) => [parseColor(colorTuple[0]), colorTuple[1]]);
 
 	function addColor() {
 		colors.push([{ r: 255, g: 255, b: 255, a: 1 }, 1]);
@@ -21,9 +24,16 @@
 		return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`;
 	}
 
+	function parseColor(colorString: string): RgbaColor {
+		let rgba = rgb(colorString);
+		return { r: rgba.r, g: rgba.g, b: rgba.b, a: rgba.opacity };
+	}
+
 	$: {
 		// todo this runs twice on adding new color, probably because of the binding in component re-render. Probably doesn't matter
+
 		if (colors.length == 1) {
+			console.log('OVERRIDING: ', colorSetting);
 			colorSetting.value = toString(colors[0][0]);
 		} else {
 			colorSetting.value = colors.map((colorTuple) => [toString(colorTuple[0]), colorTuple[1]]);

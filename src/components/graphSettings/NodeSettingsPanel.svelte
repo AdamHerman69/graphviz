@@ -22,6 +22,7 @@
 	import NodeRuleSettings from './NodeRuleSettings.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import NodeLabelSettings from './NodeLabelSettings.svelte';
+	import { nodePropertyGetters } from '../../utils/rules';
 
 	let tabSet: number = 0;
 
@@ -70,7 +71,12 @@
 		/>
 		<GradientPicker bind:colorSetting={$nodeSettings[0].color} />
 		<div class="w-full flex py-1 items-center">
-			<SettingsColor bind:colorSetting={$nodeSettings[0].strokeColor} label="" />
+			<SettingsColor
+				bind:colorSetting={$nodeSettings[0].strokeColor}
+				label=""
+				attributes={$availableAttributes.node.range}
+				propertyGetters={nodePropertyGetters}
+			/>
 			<div>stroke</div>
 		</div>
 

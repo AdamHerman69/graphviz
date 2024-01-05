@@ -14,10 +14,12 @@
 
 	import bindAnimation from '../../lib/icons/unlink.json';
 	import boundAnimation from '../../lib/icons/link.json';
+	import PropertyPicker from './PropertyPicker.svelte';
 
 	export let name: string;
 	export let numSettings: NumericalSetting;
 	export let secondNumSettings: NumericalSetting;
+	export let availableAttributes: RangeAttribute[];
 
 	let values: number[] = secondNumSettings
 		? [numSettings.value, secondNumSettings.value]
@@ -29,14 +31,10 @@
 	}
 
 	$: if (selectedAttribute) {
-		console.log('ran: ', selectedAttribute);
 		applyAttributeBinding(selectedAttribute, selectedRange);
 	}
 
-	export let availableAttributes: RangeAttribute[];
-
-	let boundAttribute: RangeAttribute | GraphPropertyGetter;
-	let selectedAttribute: RangeAttribute;
+	let selectedAttribute: RangeAttribute | GraphPropertyGetter;
 	let selectedRange: number[] = [numSettings.min, numSettings.max];
 
 	let bindButton: HTMLButtonElement;
@@ -56,12 +54,11 @@
 		selectedRange: number[]
 	) {
 		console.log('applying binding: ', attribute, selectedRange);
-		boundAttribute = attribute;
 		let range: [number, number] = attribute.range
 			? attribute.range
 			: computePropertyRange($graphStore, attribute);
 		numSettings.scale = scaleLinear().domain(range).range(selectedRange);
-		numSettings['attribute'] = boundAttribute;
+		numSettings['attribute'] = attribute;
 	}
 
 	function bindAttributeHandle() {
@@ -81,6 +78,8 @@
 		if (!selectedAttribute) selectedAttribute = availableAttributes[0];
 		//applyAttributeBinding(selectedAttribute, selectedRange);
 
+		// todo refactor animation to a separate function
+
 		bindAnimationInstance.destroy();
 		bindAnimationInstance = lottie.loadAnimation({
 			container: bindButton,
@@ -98,21 +97,11 @@
 	</div>
 	<div class="flex justify-end items-center">
 		{#if numSettings.attribute}
-			<select bind:value={selectedAttribute} class="bg-transparent">
-				<optgroup label="attributes">
-					{#each availableAttributes as attribute}
-						<option value={attribute}
-							>{attribute.name} [{attribute.range[0]}, {attribute.range[1]}]</option
-						>
-					{/each}
-				</optgroup>
-				<optgroup label="properties">
-					{#each nodePropertyGetters as [name, getter]}
-						<option value={getter}>{name}</option>
-					{/each}
-				</optgroup>
-			</select>
-			>
+			<PropertyPicker
+				bind:property={selectedAttribute}
+				attributes={availableAttributes}
+				propertyGetters={nodePropertyGetters}
+			/>
 		{/if}
 		<button
 			class="h-6"

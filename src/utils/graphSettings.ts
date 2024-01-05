@@ -54,7 +54,7 @@ export type SelectSetting<T> = Setting<T> & {
 	value: T;
 };
 
-type ScaleFunction = (n: number) => number;
+export type ScaleFunction = (n: number) => number;
 
 export type NumericalSetting = Setting<number> & {
 	value: number;
@@ -77,6 +77,7 @@ export type DecoratorSetting = Setting<DecoratorData[]> & {
 export type Gradient = ['string', number][];
 export type ColorSetting = Setting<string | Gradient> & {
 	value: string | Gradient;
+	scale?: ScaleFunction;
 };
 
 export type NodeProperties = {
@@ -150,7 +151,7 @@ export const layout: Writable<SelectSetting<LayoutType>> = writable({
 	value: 'force-graph'
 });
 
-export const nodeSettings: Writable<[NodeSettings[]]> = writable([
+export const nodeSettings: Writable<NodeSettings[]> = writable([
 	{
 		priority: 0,
 		frule: (graph, id) => true,
