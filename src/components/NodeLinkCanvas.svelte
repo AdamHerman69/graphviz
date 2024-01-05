@@ -152,18 +152,13 @@
 				let getter = setting.attribute.getter
 					? setting.attribute.getter
 					: setting.attribute.function;
-				if (setting.min) {
+				if (setting.min != undefined) {
 					setting = setting as NumericalSetting;
 					nodeStyle[setting.name] = setting.scale(getter($graphStore, id));
 				} else {
 					setting = setting as ColorSetting;
 
 					let gradientPosition = setting.scale(getter($graphStore, id));
-					if (getter($graphStore, id) == 80) {
-						console.log('80');
-						console.log(gradientPosition);
-						console.log(getGradientColor(setting.value, gradientPosition));
-					}
 					nodeStyle[setting.name] = getGradientColor(setting.value, gradientPosition);
 				}
 			} else {

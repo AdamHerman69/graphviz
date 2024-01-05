@@ -63,11 +63,13 @@
 			name="Size"
 			availableAttributes={$availableAttributes.node.range}
 			bind:numSettings={$nodeSettings[0].size}
+			propertyGetters={nodePropertyGetters}
 		/>
 		<SettingsSlider
 			name="Stroke"
 			availableAttributes={$availableAttributes.node.range}
 			bind:numSettings={$nodeSettings[0].strokeWidth}
+			propertyGetters={nodePropertyGetters}
 		/>
 		<GradientPicker bind:colorSetting={$nodeSettings[0].color} />
 		<div class="w-full flex py-1 items-center">

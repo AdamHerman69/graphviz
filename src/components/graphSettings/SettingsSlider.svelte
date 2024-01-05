@@ -20,6 +20,7 @@
 	export let numSettings: NumericalSetting;
 	export let secondNumSettings: NumericalSetting;
 	export let availableAttributes: RangeAttribute[];
+	export let propertyGetters: Map<string, GraphPropertyGetter>;
 
 	let values: number[] = secondNumSettings
 		? [numSettings.value, secondNumSettings.value]
@@ -100,7 +101,7 @@
 			<PropertyPicker
 				bind:property={selectedAttribute}
 				attributes={availableAttributes}
-				propertyGetters={nodePropertyGetters}
+				{propertyGetters}
 			/>
 		{/if}
 		<button

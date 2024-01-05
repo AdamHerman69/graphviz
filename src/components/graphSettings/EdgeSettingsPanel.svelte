@@ -16,6 +16,7 @@
 	import DecoratorSettings from './DecoratorSettings.svelte';
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import EdgeRuleSettings from './EdgeRuleSettings.svelte';
+	import { edgePropertyGetters } from '../../utils/rules';
 
 	let tabSet: number = 0;
 
@@ -58,12 +59,14 @@
 			name="Thickness"
 			availableAttributes={$availableAttributes.edge.range}
 			bind:numSettings={$edgeSettings[0].width}
+			propertyGetters={edgePropertyGetters}
 		/>
 		<SettingsSlider
 			name="Partial edge"
 			availableAttributes={$availableAttributes.edge.range}
 			bind:numSettings={$edgeSettings[0].partialStart}
 			bind:secondNumSettings={$edgeSettings[0].partialEnd}
+			propertyGetters={edgePropertyGetters}
 		/>
 
 		<GradientPicker bind:colorSetting={$edgeSettings[0].color} />

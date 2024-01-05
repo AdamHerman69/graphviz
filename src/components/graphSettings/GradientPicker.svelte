@@ -33,7 +33,6 @@
 		// todo this runs twice on adding new color, probably because of the binding in component re-render. Probably doesn't matter
 
 		if (colors.length == 1) {
-			console.log('OVERRIDING: ', colorSetting);
 			colorSetting.value = toString(colors[0][0]);
 		} else {
 			colorSetting.value = colors.map((colorTuple) => [toString(colorTuple[0]), colorTuple[1]]);
