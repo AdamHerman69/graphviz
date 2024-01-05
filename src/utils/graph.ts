@@ -1,6 +1,5 @@
 import type Graph from 'graphology';
 import { type Writable, writable } from 'svelte/store';
-import { type ScaleLinear, scaleLinear } from 'd3';
 
 export type Attribute = {
 	name: string;
@@ -8,13 +7,8 @@ export type Attribute = {
 	owner: 'edge' | 'node';
 };
 
-type ScaleFunction = (n: number) => number;
-
-let scale: ScaleLinear<number, number, never> = scaleLinear().domain([10, 100]).range([1, 10]);
-
 export type RangeAttribute = Attribute & {
 	range: [number, number];
-	scale?: ScaleFunction;
 	getter: (graph: Graph, id: string) => number;
 };
 

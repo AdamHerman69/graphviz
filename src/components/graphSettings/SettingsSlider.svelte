@@ -5,6 +5,12 @@
 	import lottie, { type AnimationItem } from 'lottie-web';
 	import { onMount } from 'svelte';
 	import RangeSlider from 'svelte-range-slider-pips';
+	import {
+		nodePropertyGetters,
+		type GraphPropertyGetter,
+		computePropertyRange
+	} from '../../utils/rules';
+	import { graphStore } from '../../utils/graph';
 
 	import bindAnimation from '../../lib/icons/unlink.json';
 	import boundAnimation from '../../lib/icons/link.json';
@@ -28,9 +34,8 @@
 	}
 
 	export let availableAttributes: RangeAttribute[];
-	console.log('available attrs:', availableAttributes);
 
-	let boundAttribute: RangeAttribute;
+	let boundAttribute: RangeAttribute | GraphPropertyGetter;
 	let selectedAttribute: RangeAttribute;
 	let selectedRange: number[] = [numSettings.min, numSettings.max];
 
@@ -46,12 +51,16 @@
 		});
 	});
 
-	function applyAttributeBinding(attribute: RangeAttribute, selectedRange: number[]) {
+	function applyAttributeBinding(
+		attribute: RangeAttribute | GraphPropertyGetter,
+		selectedRange: number[]
+	) {
 		console.log('applying binding: ', attribute, selectedRange);
 		boundAttribute = attribute;
-		boundAttribute.scale = scaleLinear()
-			.domain([boundAttribute.range[0], boundAttribute.range[1]])
-			.range(selectedRange);
+		let range: [number, number] = attribute.range
+			? attribute.range
+			: computePropertyRange($graphStore, attribute);
+		numSettings.scale = scaleLinear().domain(range).range(selectedRange);
 		numSettings['attribute'] = boundAttribute;
 	}
 
@@ -90,12 +99,20 @@
 	<div class="flex justify-end items-center">
 		{#if numSettings.attribute}
 			<select bind:value={selectedAttribute} class="bg-transparent">
-				{#each availableAttributes as attribute}
-					<option value={attribute}
-						>{attribute.name} [{attribute.range[0]}, {attribute.range[1]}]</option
-					>
-				{/each}
+				<optgroup label="attributes">
+					{#each availableAttributes as attribute}
+						<option value={attribute}
+							>{attribute.name} [{attribute.range[0]}, {attribute.range[1]}]</option
+						>
+					{/each}
+				</optgroup>
+				<optgroup label="properties">
+					{#each nodePropertyGetters as [name, getter]}
+						<option value={getter}>{name}</option>
+					{/each}
+				</optgroup>
 			</select>
+			>
 		{/if}
 		<button
 			class="h-6"

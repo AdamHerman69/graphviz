@@ -4,10 +4,10 @@ import type { offset } from '@floating-ui/dom';
 // TODO don't import stores but just types for the values, that the update styles method is going to consume
 
 const labelOffsets = {
-	above: new Paper.Point(0, -5),
-	below: new Paper.Point(0, 5),
-	left: new Paper.Point(-5, 0),
-	right: new Paper.Point(5, 0),
+	above: new Paper.Point(0, -4),
+	below: new Paper.Point(0, 4),
+	left: new Paper.Point(-4, 0),
+	right: new Paper.Point(4, 0),
 	center: new Paper.Point(0, 0)
 };
 

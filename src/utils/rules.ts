@@ -35,6 +35,22 @@ export let nodePropertyGetters = new Map<string, GraphPropertyGetter>([
 	['outDegree', outDegree]
 ]);
 
+export function computePropertyRange(
+	graph: Graph,
+	propertyGetter: GraphPropertyGetter
+): [number, number] {
+	if (propertyGetter.type === 'string') throw new Error('Cannot compute range for string property');
+	let min = Infinity;
+	let max = -Infinity;
+	console.log(propertyGetter);
+	graph.forEachNode((id) => {
+		let value = propertyGetter.function(graph, id);
+		if (value < min) min = value;
+		if (value > max) max = value;
+	});
+	return [min, max];
+}
+
 // todo is directed
 
 // used when we need a property getter on a source or target for a given edge

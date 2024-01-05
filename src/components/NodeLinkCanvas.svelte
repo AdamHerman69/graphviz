@@ -16,7 +16,8 @@
 		type EdgeProperties,
 		cloneNodeSettings,
 		cloneEdgeSettings,
-		saveState
+		saveState,
+		type NumericalSetting
 	} from '../utils/graphSettings';
 	import { graphStore, availableAttributes, recomputeGraphAttributes } from '../utils/graph';
 
@@ -56,6 +57,7 @@
 		angularResolutionMin: number;
 		angularResolutionDev: number;
 	};
+	let tickCount = 0;
 
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
@@ -141,11 +143,25 @@
 
 		let nodeStyle: NodeStyle = {};
 
+		// todo handle range with properties
 		// attribute based styles
-		for (const [key, setting] of Object.entries(chosenSettings)) {
+		for (let [key, setting] of Object.entries(chosenSettings)) {
+			setting = setting as NumericalSetting;
 			if (setting.attribute) {
-				let attributeValue = $graphStore.getNodeAttribute(id, setting.attribute.name);
-				nodeStyle[setting.name] = setting.attribute.scale(attributeValue);
+				// let attributeValue: number;
+				// if (nodePropertyGetters.has(setting.attribute.name))
+				// 	attributeValue = nodePropertyGetters
+				// 		.get(setting.attribute.name)!
+				// 		.function($graphStore, id);
+				// else {
+				// 	attributeValue = $graphStore.getNodeAttribute(id, setting.attribute.name);
+				// }
+
+				// todo fefactor so we don't have to do this. Maek attribute and property getter be the same thing
+				let getter = setting.attribute.getter
+					? setting.attribute.getter
+					: setting.attribute.function;
+				nodeStyle[setting.name] = setting.scale(getter($graphStore, id));
 			} else {
 				nodeStyle[setting.name] = setting.value;
 			}
@@ -302,6 +318,12 @@
 			.force('center', d3.forceCenter(width / 2, height / 2))
 			.on('tick', () => {
 				if (simRunning) paperRenderer.updatePositions(d3nodes as NodePositionDatum[]);
+				if (tickCount++ > 100) {
+					readability = greadability(d3nodes, d3links);
+					tickCount = 0;
+				}
+			})
+			.on('end', () => {
 				readability = greadability(d3nodes, d3links);
 			});
 

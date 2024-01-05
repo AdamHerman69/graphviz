@@ -1,7 +1,5 @@
-import type { ScaleLinear } from 'd3';
 import { get, writable, type Writable } from 'svelte/store';
-import { scaleLinear } from 'd3';
-import type { FRule } from '../utils/rules';
+import type { FRule, GraphPropertyGetter } from '../utils/rules';
 import type { RangeAttribute, Attribute } from './graph';
 import type { Node } from 'dagre';
 import type { Guideline } from '../guidelines/guideline';
@@ -28,7 +26,7 @@ type LabelStyle = {
 	text: string;
 	color: string;
 	size: number;
-	attributeName?: string;
+	attributeName?: string; // can be a property as well
 };
 
 export type NodeLabel = LabelStyle & {
@@ -47,7 +45,7 @@ export type DecoratorType = (typeof decoratorTypes)[number];
 export type Setting<T> = {
 	name: string;
 	value: any;
-	attribute?: RangeAttribute;
+	attribute?: RangeAttribute | GraphPropertyGetter;
 	source: null | Guideline;
 };
 
@@ -56,10 +54,13 @@ export type SelectSetting<T> = Setting<T> & {
 	value: T;
 };
 
+type ScaleFunction = (n: number) => number;
+
 export type NumericalSetting = Setting<number> & {
 	value: number;
 	min: number;
 	max: number;
+	scale?: ScaleFunction;
 	increment?: number;
 };
 
