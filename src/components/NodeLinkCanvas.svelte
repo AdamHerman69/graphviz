@@ -429,16 +429,19 @@
 		bind:clientHeight={height}
 	/>
 
-	<div class="absolute top-2 right-2">
+	<div class="absolute top-20 right-2">
 		<button type="button" on:click={exportSVG} class="btn variant-filled">export SVG</button>
 		<button type="button" on:click={undo} class="btn variant-filled"> undo</button>
 		<button type="button" on:click={redo} class="btn variant-filled"> redo</button>
 	</div>
 
-	<div class="card absolute bottom-20 left-0 text-sm">
+	<div class="card shadow-2xl variant-glass p-4 m-2 rounded-3xl absolute bottom-20 left-80">
 		<div>Crossings: {readability?.crossing}</div>
 		<div>Crossing Angle: {readability?.crossingAngle}</div>
 		<div>Angular ResolutionMin: {readability?.angularResolutionMin}</div>
 		<div>Angular Resolution Dev: {readability?.angularResolutionDev}</div>
 	</div>
 </div>
+
+<style>
+</style>

@@ -3,6 +3,7 @@
 	import type { FRule } from '../../utils/rules';
 	import EdgeRule from './EdgeRule.svelte';
 	import NodeRule from './NodeRule.svelte';
+	import RadialSelector from './RadialSelector.svelte';
 
 	export let rule: FRule;
 	export let type: 'node' | 'edge';
@@ -58,27 +59,32 @@
 	}
 </script>
 
-<div class="card variant-ghost p-1">
-	{#each ruleObjects as subRule, index}
-		{#if subRule.type === 'atomic'}
-			{#if type === 'edge'}
-				<EdgeRule bind:rule={subRule.rule} />
+<div class="card .cardInset variant-glass p-1">
+	<div class="absolute left-1/2 transform -translate-x-1/2">
+		<RadialSelector bind:selected={operator} options={['&', 'or']} height={30} width={40} />
+	</div>
+	<div class="mt-6">
+		{#each ruleObjects as subRule, index}
+			{#if subRule.type === 'atomic'}
+				{#if type === 'edge'}
+					<EdgeRule bind:rule={subRule.rule} />
+				{:else}
+					<NodeRule bind:rule={subRule.rule} />
+				{/if}
 			{:else}
-				<NodeRule bind:rule={subRule.rule} />
+				<svelte:self bind:rule={subRule.rule} {type} />
 			{/if}
-		{:else}
-			<svelte:self bind:rule={subRule.rule} {type} />
-		{/if}
-		{#if ruleObjects.length > 1 && index < ruleObjects.length - 1}
+			<!-- {#if ruleObjects.length > 1 && index < ruleObjects.length - 1}
 			<div class="flex align-middle">
 				<p class="align-middle">{operator}</p>
 				<button class="btn btn-sm variant-ghost" on:click={switchOperator}>switch</button>
 			</div>
-		{/if}
-	{/each}
+		{/if} -->
+		{/each}
+	</div>
 
 	<div class="flex">
-		<button class="btn btn-sm variant-ghost" on:click={addAtomicRule}>add atomic</button>
-		<button class="btn btn-sm variant-ghost" on:click={addNestedRule}>add nested</button>
+		<button class="btn btn-sm" on:click={addAtomicRule}>add atomic</button>
+		<button class="btn btn-sm" on:click={addNestedRule}>add nested</button>
 	</div>
 </div>

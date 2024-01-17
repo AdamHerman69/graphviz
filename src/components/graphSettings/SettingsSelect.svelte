@@ -6,11 +6,14 @@
 	export let selectSetting: SelectSetting;
 </script>
 
-<label class="label">
-	<span>{name}</span>
-	<select bind:value={selectSetting.value} class="select">
+<div class="flex justify-between">
+	<div class="text-m uppercase">
+		{name}
+		<!-- {numSettings.source} -->
+	</div>
+	<select bind:value={selectSetting.value} class="bg-transparent">
 		{#each selectSetting.values as option}
 			<option value={option}>{option}</option>
 		{/each}
 	</select>
-</label>
+</div>

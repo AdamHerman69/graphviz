@@ -2,22 +2,28 @@ import { color } from 'd3';
 import type { Gradient } from './graphSettings';
 
 export function getGradientColor(gradient: [string, number][], position: number): string {
+	console.log(gradient, position);
 	// Sort the gradient colors based on their positions
-	gradient.sort((a, b) => a[1] - b[1]);
+	let gradientCopy = [...gradient].sort((a, b) => a[1] - b[1]);
 
 	// Find the two colors that surround the given position
 	let color1: [number, number, number, number] = [0, 0, 0, 1];
 	let color2: [number, number, number, number] = [255, 255, 255, 1];
 
 	// If the gradient doesn't end at 1, add the last color at 1
-	if (gradient[gradient.length - 1][1] < 1) {
-		gradient.push([gradient[gradient.length - 1][0], 1]);
+	if (gradientCopy[gradientCopy.length - 1][1] < 1) {
+		gradientCopy.push([gradientCopy[gradientCopy.length - 1][0], 1]);
+	}
+	// If the gradient doesn't start at 0, add the first color at 0
+	if (gradientCopy[0][1] > 0) {
+		gradientCopy.unshift([gradientCopy[0][0], 0]);
 	}
 
 	let color1position, color2position;
-	for (let i = 0; i < gradient.length; i++) {
-		const [color, pos] = gradient[i];
+	for (let i = 0; i < gradientCopy.length; i++) {
+		const [color, pos] = gradientCopy[i];
 		if (pos <= position) {
+			console.log(color);
 			color1 = parseColor(color);
 			color1position = pos;
 		} else {
@@ -26,6 +32,7 @@ export function getGradientColor(gradient: [string, number][], position: number)
 			break;
 		}
 	}
+
 	if (color2position === undefined) {
 		color2position = 1;
 	}
@@ -46,6 +53,7 @@ export function getGradientColor(gradient: [string, number][], position: number)
 }
 
 function parseColor(color: string): [number, number, number, number] {
+	console.log(color);
 	const [r, g, b, a] = color.match(/\d+/g)?.map(Number) || [0, 0, 0, 1];
 	return [r, g, b, a];
 }

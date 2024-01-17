@@ -42,7 +42,7 @@
 	}
 </script>
 
-<div class="card p-4 m-2 rounded-3xl">
+<div class="card variant-glass p-4 m-2 rounded-3xl">
 	<TabGroup>
 		{#each $nodeSettings as nodeSettings, index}
 			<Tab bind:group={tabSet} value={index} name={index.toString()}>

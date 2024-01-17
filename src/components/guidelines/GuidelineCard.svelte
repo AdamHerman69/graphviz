@@ -5,7 +5,7 @@
 	export let guideline: Guideline;
 </script>
 
-<div class="card p-2">
+<div class="card shadow-2xl variant-glass p-4 m-2 rounded-3xl">
 	<div>{guideline.name}</div>
 	<div>{guideline.description}</div>
 	<div>score: {guideline.score}</div>

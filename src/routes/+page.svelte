@@ -7,7 +7,9 @@
 	import { graphStore } from '../utils/graph';
 	import { layout, saveState } from '../utils/graphSettings';
 	import NodeLinkCanvas from '../components/NodeLinkCanvas.svelte';
-	import EdgeSettingsPanel from '../components/graphSettings/EdgeSettingsPanel.svelte';
+	import EdgeSettingsPanel2 from '../components/graphSettings/EdgeSettingsPanel2.svelte';
+	import NodeSettingsPanel2 from '../components/graphSettings/NodeSettingsPanel2.svelte';
+	import { onMount } from 'svelte';
 
 	// todo delete
 	import { nodeSettings } from '../utils/graphSettings';
@@ -44,6 +46,11 @@
 
 	graphStore.set(graph);
 
+	// todo enable once we have custom scroll
+	// onMount(() => {
+	// 	document.body.style.overflow = 'hidden';
+	// });
+
 	function switchLayout() {
 		if ($layout.value == 'force-graph') $layout.value = 'tree';
 		else $layout.value = 'force-graph';
@@ -53,14 +60,14 @@
 </script>
 
 <div class="h-full w-full flex justify-center items-center">
-	<div class="h-full w-full flex flex-col mx-8">
+	<div class="h-full w-full flex flex-col mx-2">
 		<h1 class="h1 flex-none m-10 text-center">node-link vizualization demo</h1>
-		<div class="grow flex">
-			<div class="w-1/4"><GuidelinesPanel /></div>
-			<div class="w-2/4"><NodeLinkCanvas /></div>
-			<div class="w-1/4 text-sm">
-				<NodeSettingsPanel />
-				<EdgeSettingsPanel />
+		<div class="grow flex justify-between">
+			<div class="absolute inset-0 z-0"><NodeLinkCanvas /></div>
+			<div class="w-1/5 z-10"><GuidelinesPanel /></div>
+			<div class="settingsPanel w-1/4 z-10 text-sm">
+				<NodeSettingsPanel2 />
+				<EdgeSettingsPanel2 />
 			</div>
 		</div>
 		<div class="flex-none m-10">
@@ -78,3 +85,9 @@
 	</div>
 </div>
 <Toast />
+
+<style>
+	.settingsPanel {
+		width: 326px;
+	}
+</style>

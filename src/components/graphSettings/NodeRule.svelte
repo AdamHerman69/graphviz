@@ -4,6 +4,7 @@
 	import { nodePropertyGetters } from '../../utils/rules';
 	import { availableAttributes } from '../../utils/graph';
 	import type { NodeSettings } from '../../utils/graphSettings';
+	import RadialSelector from './RadialSelector.svelte';
 
 	export let rule: FRule;
 	let operator: string;
@@ -50,12 +51,12 @@
 						return leftGetter(graph, id) < rightGetter(graph, id);
 					};
 					break;
-				case '>=':
+				case '≥':
 					rule = (graph, id) => {
 						return leftGetter(graph, id) >= rightGetter(graph, id);
 					};
 					break;
-				case '<=':
+				case '≤':
 					rule = (graph, id) => {
 						return leftGetter(graph, id) <= rightGetter(graph, id);
 					};
@@ -69,8 +70,8 @@
 	}
 </script>
 
-<div class="card p-4 variant-ghost">
-	<select class="select w-1/3" bind:value={first}>
+<div class="flex justify-between">
+	<select class="w-1/3 bg-transparent" bind:value={first}>
 		<optgroup label="graph properties">
 			{#each nodePropertyGetters as [name, getter]}
 				<option>{name}</option>
@@ -88,17 +89,38 @@
 
 	<!-- Numerical Operator -->
 	{#if valueType === 'number'}
-		<select class="select w-1/4" bind:value={operator}>
+		<!-- <select class="bg-transparent w-1/4" bind:value={operator}>
 			<option value="=">=</option>
 			<option value=">">&gt</option>
 			<option value="<">&lt</option>
 			<option value=">=">≥</option>
 			<option value="<=">≤</option>
-		</select>
-
+		</select> -->
+		<RadialSelector bind:selected={operator} options={['=', '>', '<', '≥', '≤']} />
 		<input type="number" class="bg-transparent w-1/4" bind:value={second} />
 	{:else}
 		is
 		<input type="string" class="bg-transparent mx-1 w-1/2" bind:value={second} />
 	{/if}
 </div>
+
+<style>
+	select,
+	input {
+		flex: 1;
+		border-radius: 0.5rem;
+		padding: 0.25rem;
+		transition: box-shadow 0.2s ease-in-out;
+		text-align: center;
+	}
+
+	select:hover,
+	input:hover {
+		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+	}
+
+	select:focus,
+	input:focus {
+		outline: none;
+	}
+</style>

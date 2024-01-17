@@ -62,7 +62,7 @@
 		numSettings['attribute'] = attribute;
 	}
 
-	function bindAttributeHandle() {
+	function bindAttributeHandler() {
 		if (numSettings.attribute) {
 			numSettings['attribute'] = undefined;
 
@@ -77,7 +77,7 @@
 			return;
 		}
 		if (!selectedAttribute) selectedAttribute = availableAttributes[0];
-		//applyAttributeBinding(selectedAttribute, selectedRange);
+		applyAttributeBinding(selectedAttribute, selectedRange);
 
 		// todo refactor animation to a separate function
 
@@ -92,7 +92,7 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<div class="text-s">
+	<div class="text-m uppercase">
 		{name}
 		<!-- {numSettings.source} -->
 	</div>
@@ -107,7 +107,7 @@
 		<button
 			class="h-6"
 			bind:this={bindButton}
-			on:click={bindAttributeHandle}
+			on:click={bindAttributeHandler}
 			on:mouseenter={() => bindAnimationInstance.play()}
 			on:mouseleave={() => bindAnimationInstance.stop()}
 		/>
@@ -131,6 +131,5 @@
 		step={numSettings.increment || 1}
 		range={secondNumSettings !== undefined}
 		float
-		pips
 	/>
 {/if}

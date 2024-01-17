@@ -173,7 +173,6 @@ export const nodeSettings: Writable<NodeSettings[]> = writable([
 		labels: [
 			{ position: 'left', text: 'left', color: 'pink', size: 4 },
 			{ position: 'above', text: 'above', color: 'skyBlue', size: 5 },
-			{ position: 'left', text: 'left', color: 'skyBlue', size: 3 },
 			{ position: 'center', text: 'center', color: 'purple', size: 3 }
 		]
 	},

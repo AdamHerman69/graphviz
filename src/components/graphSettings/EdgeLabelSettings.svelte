@@ -6,6 +6,7 @@
 
 	import { edgePropertyGetters } from '../../utils/rules';
 	import { availableAttributes } from '../../utils/graph';
+	import { flip } from 'svelte/animate';
 	import { color } from 'd3';
 
 	export let edgeLabels: EdgeLabel[];
@@ -23,7 +24,10 @@
 </script>
 
 <div>
-	<span>Labels</span>
+	<div class="text-m uppercase">
+		Labels
+		<!-- {numSettings.source} -->
+	</div>
 	{#if relativePositions.length > 0}
 		<RangeSlider bind:values={relativePositions} min={0} max={1} step={0.01} float />
 	{/if}
