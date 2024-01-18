@@ -50,6 +50,8 @@
 	/** indicate if the slider is being dragged */
 	export let isDragging: boolean = false;
 
+	export let seeThrough: boolean = false;
+
 	const dispatch = createEventDispatcher<{
 		input: number;
 	}>();
@@ -161,8 +163,8 @@
 	on:touchmove|nonpassive|preventDefault={keyboardOnly ? undefined : touch}
 	on:touchend|nonpassive|preventDefault={keyboardOnly ? undefined : touch}
 >
-	<div class="track" />
-	<div class="thumb" />
+	<div class="track {seeThrough ? '' : 'trackShadow'}" />
+	<div class="thumb {seeThrough ? '' : 'thumbShadow'}" />
 </div>
 
 {#if name}
@@ -234,7 +236,6 @@
 		border: var(---track-border);
 		border-radius: calc(var(---track-height) / 2);
 		box-sizing: border-box;
-		box-shadow: inset 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
 	}
 
 	[aria-orientation='horizontal'] .track {
@@ -262,13 +263,20 @@
 		background: var(---thumb-background);
 		border: var(---thumb-border);
 		box-sizing: border-box;
-		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.7);
 
 		transform: translate(-50%, -50%);
 		--margin-left: (
 				2 * var(---track-height) - var(---thumb-size) - var(---margin-inline-thumb-smaller)
 			) / 2;
 		--left: calc(var(---position) * (100% - 2 * var(--margin-left)) + var(--margin-left));
+	}
+
+	.thumbShadow {
+		box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.7);
+	}
+
+	.trackShadow {
+		box-shadow: inset 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
 	}
 
 	[aria-orientation='horizontal']:not(.reverse) .thumb {

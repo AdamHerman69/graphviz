@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { colord } from 'colord';
 	import type { Components } from '$lib/type/types';
-	import { Slider } from 'svelte-awesome-slider';
+	import Slider from './Slider.svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher<{
@@ -102,6 +102,7 @@
 			keyboardOnly
 			ariaValueText={(value) => `${value}%`}
 			ariaLabel="saturation color"
+			seeThrough={true}
 		/>
 	</div>
 	<div class="v" style:--pos-x={pos.x}>
@@ -111,6 +112,7 @@
 			ariaValueText={(value) => `${value}%`}
 			direction="vertical"
 			ariaLabel="brightness color"
+			seeThrough={true}
 		/>
 	</div>
 </div>

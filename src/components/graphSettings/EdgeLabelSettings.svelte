@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { EdgeLabel } from '../../utils/graphSettings';
-	import RangeSlider from 'svelte-range-slider-pips';
-	import ColorPicker, { type RgbaColor } from 'svelte-awesome-color-picker';
+	import RangeSlider from '$lib/myRangeSlider/RangeSlider.svelte';
+	import type { RgbaColor } from 'colord';
+	import ColorPicker from '$lib/colorPicker/components/ColorPicker.svelte';
 	import { SlideToggle } from '@skeletonlabs/skeleton';
 
 	import { edgePropertyGetters } from '../../utils/rules';
