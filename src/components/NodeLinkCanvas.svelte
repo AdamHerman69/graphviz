@@ -33,6 +33,7 @@
 	import * as dagre from 'dagre';
 	import { edgePropertyGetters, nodePropertyGetters } from '../utils/rules';
 	import { greadability } from '$lib/greadability';
+	import NodeInfo from './NodeInfo.svelte';
 
 	let canvas: HTMLCanvasElement;
 
@@ -62,6 +63,21 @@
 	let tickCount = 0;
 	let nodeMoved = false;
 
+	let hoveredNodeKey: string | null = null;
+	let selectedNode: D3Node | null = null;
+	let selectedNodeX: number | undefined = undefined;
+	let selectedNodeY: number | undefined = undefined;
+
+	$: {
+		if (!selectedNode) {
+			selectedNodeX = undefined;
+			selectedNodeY = undefined;
+		}
+		updateSelectedNode(transform); // updates when panning and sim is stopped
+	}
+
+	let sticky: boolean = false;
+
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
 		recomputeGraphAttributes($graphStore, $availableAttributes);
@@ -84,6 +100,8 @@
 	// node settings
 	$: {
 		//saveState();
+		if (hoveredNodeKey || selectedNode) {
+		} // here just to make it reactive
 
 		//console.log('updating nodes settings', $nodeSettings);
 		for (const [key, style] of nodeStyles.entries()) {
@@ -186,6 +204,13 @@
 				}
 			}
 		});
+
+		if (hoveredNodeKey === id) {
+			nodeStyle.size = nodeStyle.size + 2;
+		} else if (selectedNode?.id === id) {
+			nodeStyle.strokeWidth = 5;
+			nodeStyle.strokeColor = 'rgba(115, 255, 100, 1)';
+		}
 
 		return nodeStyle;
 	}
@@ -328,6 +353,7 @@
 					readability = greadability(d3nodes, d3links);
 					tickCount = 0;
 				}
+				updateSelectedNode();
 			})
 			.on('end', () => {
 				readability = greadability(d3nodes, d3links);
@@ -382,7 +408,6 @@
 
 	function dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
 		nodeMoved = true;
-		console.log('dragged');
 		let draggedNode = dragEvent.subject;
 
 		let rect = canvas.getBoundingClientRect();
@@ -400,12 +425,15 @@
 			if (!nodeMoved) nodeClicked(draggedNode);
 		}
 
-		draggedNode.fx = null;
-		draggedNode.fy = null;
+		if (!sticky) {
+			draggedNode.fx = null;
+			draggedNode.fy = null;
+		}
 	}
 
 	function nodeClicked(node: D3Node) {
-		console.log('clicked: ', node);
+		if (selectedNode?.id === node.id) selectedNode = null;
+		else selectedNode = node;
 	}
 
 	async function exportSVG() {
@@ -440,8 +468,17 @@
 
 	function detectHover(event: MouseEvent) {
 		let hoveredNode = getD3Node(event);
+		hoveredNodeKey = hoveredNode ? hoveredNode.id : null;
+	}
 
-		// todo highlight hovered node
+	function updateSelectedNode(t: d3.ZoomTransform = transform) {
+		if (selectedNode) {
+			selectedNodeX = selectedNode.fx ? t.applyX(selectedNode.fx) : t.applyX(selectedNode.x!);
+			selectedNodeY = selectedNode.fy ? t.applyY(selectedNode.fy) : t.applyY(selectedNode.y!);
+		} else {
+			selectedNodeX = undefined;
+			selectedNodeY = undefined;
+		}
 	}
 </script>
 
@@ -459,6 +496,12 @@
 		<button type="button" on:click={exportSVG} class="btn variant-filled">export SVG</button>
 		<button type="button" on:click={undo} class="btn variant-filled"> undo</button>
 		<button type="button" on:click={redo} class="btn variant-filled"> redo</button>
+		<button
+			type="button"
+			on:click={() => (sticky = !sticky)}
+			class="btn {sticky ? 'variant-outline' : 'variant-filled'}">Sticky</button
+		>
+		<!-- <button type="button" on:click={} class="btn variant-filled">Unstick</button> -->
 	</div>
 
 	<div class="card shadow-2xl variant-glass p-4 m-2 rounded-3xl absolute bottom-20 left-80">
@@ -466,8 +509,19 @@
 		<div>Crossing Angle: {readability?.crossingAngle}</div>
 		<div>Angular ResolutionMin: {readability?.angularResolutionMin}</div>
 		<div>Angular Resolution Dev: {readability?.angularResolutionDev}</div>
+		<div>NodePosition: {selectedNodeX}, {selectedNodeY}</div>
 	</div>
+
+	{#if selectedNode}
+		<div class="nodeInfo" style="left: {selectedNodeX}px; top: {selectedNodeY}px;">
+			<NodeInfo nodeID={selectedNode.id} />
+		</div>
+	{/if}
 </div>
 
 <style>
+	.nodeInfo {
+		position: absolute;
+		transform: translate(-50%, 20px);
+	}
 </style>
