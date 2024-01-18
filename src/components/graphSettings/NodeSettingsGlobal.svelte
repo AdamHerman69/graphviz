@@ -7,7 +7,7 @@
 	import { nodeSettings } from '../../utils/graphSettings';
 </script>
 
-<div>
+<div class="mx-4 my-2">
 	<SettingsSlider
 		name="Size"
 		availableAttributes={$availableAttributes.node.range}
@@ -32,6 +32,7 @@
 		attributes={$availableAttributes.node.range}
 		propertyGetters={nodePropertyGetters}
 	/>
-
+</div>
+<div>
 	<NodeLabelSettings bind:nodeLabels={$nodeSettings[0].labels} />
 </div>

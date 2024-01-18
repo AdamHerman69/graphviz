@@ -39,7 +39,7 @@
 	// todo on destroy observer disconnect
 </script>
 
-<div class="card shadow-2xl variant-glass p-8 m-2 rounded-3xl">
+<div class="card shadow-2xl variant-glass p-4 m-2 rounded-3xl">
 	<NodeSettingsGlobal />
 </div>
 
@@ -51,5 +51,5 @@
 	{/if}
 {/each}
 <div>
-	<button class="btn btn-sm variant-ghost" on:click={newRule}>New Rule</button>
+	<button class="btn btn-sm variant-filled" on:click={newRule}>New Rule</button>
 </div>

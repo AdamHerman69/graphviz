@@ -121,7 +121,7 @@
 			<button
 				on:click={() => (singlePickerOpen = !singlePickerOpen)}
 				class="rounded-full w-6 h-6"
-				style="background-color: {colorSetting.value};"
+				style="background-color: {colorSetting.value}; box-shadow: inset 0px 0px 10px 0px rgba(0, 0, 0, 0.5);"
 			/>
 		{/if}
 		<button

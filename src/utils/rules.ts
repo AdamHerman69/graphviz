@@ -29,10 +29,16 @@ let degree: GraphPropertyGetter = {
 	type: 'number'
 };
 
+let id: GraphPropertyGetter = {
+	function: (graph, id) => id,
+	type: 'string'
+};
+
 export let nodePropertyGetters = new Map<string, GraphPropertyGetter>([
 	['degree', degree],
 	['inDegree', inDegree],
-	['outDegree', outDegree]
+	['outDegree', outDegree],
+	['id', id]
 ]);
 
 export function computePropertyRange(
