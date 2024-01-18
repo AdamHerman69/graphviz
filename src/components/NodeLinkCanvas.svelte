@@ -437,6 +437,12 @@
 		console.log('computing readability');
 		console.log(greadability(d3nodes, d3links));
 	}
+
+	function detectHover(event: MouseEvent) {
+		let hoveredNode = getD3Node(event);
+
+		// todo highlight hovered node
+	}
 </script>
 
 <div class="relative h-full w-full">
@@ -446,6 +452,7 @@
 		bind:this={canvas}
 		bind:clientWidth={width}
 		bind:clientHeight={height}
+		on:mousemove={detectHover}
 	/>
 
 	<div class="absolute top-20 right-2">
