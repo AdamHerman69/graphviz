@@ -125,13 +125,22 @@ export class PaperRenderer implements Renderer {
 		let transform = zoomEvent.transform as any;
 		const { x, y, k } = transform;
 
+		// Apply zoom first
+		this.paperScope.view.zoom = k;
+
 		const canvasCenter = new Paper.Point(
 			this.paperScope.view.bounds.width / 2,
 			this.paperScope.view.bounds.height / 2
 		);
-		const newCenter = new this.paperScope.Point(canvasCenter.x - x / k, canvasCenter.y - y / k);
+
+		// Adjust the calculation of the new center to account for the new zoom level
+		const newCenter = new this.paperScope.Point(
+			canvasCenter.x - x / this.paperScope.view.zoom,
+			canvasCenter.y - y / this.paperScope.view.zoom
+		);
+
+		// Apply pan
 		this.paperScope.view.center = newCenter;
-		this.paperScope.view.zoom = k;
 
 		return transform;
 	}

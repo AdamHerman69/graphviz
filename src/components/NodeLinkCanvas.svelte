@@ -58,7 +58,9 @@
 		angularResolutionMin: number;
 		angularResolutionDev: number;
 	};
+
 	let tickCount = 0;
+	let nodeMoved = false;
 
 	onMount(() => {
 		paperRenderer = new PaperRenderer(canvas, [], [], nodeStyles, edgeStyles);
@@ -361,32 +363,49 @@
 			transform.invertY(mouseEvent.y),
 			clickRadius
 		);
-		if (node && node.x && node.y) {
-			node.x = transform.applyX(node.x);
-			node.y = transform.applyY(node.y);
-		}
+		// if (node && node.x && node.y) {
+		// 	node.x = transform.applyX(node.x);
+		// 	node.y = transform.applyY(node.y);
+		// }
 		return node;
 	}
 
 	function dragStarted(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		nodeMoved = false;
+
 		if (!dragEvent.active) simulation.alphaTarget(0.3).restart();
 		let draggedNode = dragEvent.subject;
 
-		draggedNode.fx = transform.invertX(draggedNode.x!);
-		draggedNode.fy = transform.invertY(draggedNode.y!);
+		// draggedNode.fx = transform.invertX(dragEvent.x!);
+		// draggedNode.fy = transform.invertY(dragEvent.y!);
 	}
 
 	function dragged(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
+		nodeMoved = true;
+		console.log('dragged');
 		let draggedNode = dragEvent.subject;
-		draggedNode.fx = transform.invertX(dragEvent.x);
-		draggedNode.fy = transform.invertY(dragEvent.y);
+
+		let rect = canvas.getBoundingClientRect();
+		let x = dragEvent.sourceEvent.clientX - rect.left;
+		let y = dragEvent.sourceEvent.clientY - rect.top;
+
+		draggedNode.fx = transform.invertX(x);
+		draggedNode.fy = transform.invertY(y);
 	}
 
 	function dragEnded(dragEvent: d3.D3DragEvent<SVGCircleElement, any, D3Node>) {
-		if (!dragEvent.active) simulation.alphaTarget(0);
 		let draggedNode = dragEvent.subject;
+		if (!dragEvent.active) {
+			simulation.alphaTarget(0);
+			if (!nodeMoved) nodeClicked(draggedNode);
+		}
+
 		draggedNode.fx = null;
 		draggedNode.fy = null;
+	}
+
+	function nodeClicked(node: D3Node) {
+		console.log('clicked: ', node);
 	}
 
 	async function exportSVG() {
