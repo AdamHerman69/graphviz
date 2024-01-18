@@ -422,18 +422,13 @@
 		let draggedNode = dragEvent.subject;
 		if (!dragEvent.active) {
 			simulation.alphaTarget(0);
-			if (!nodeMoved) nodeClicked(draggedNode);
+			//if (!nodeMoved) nodeClicked(draggedNode);
 		}
 
 		if (!sticky) {
 			draggedNode.fx = null;
 			draggedNode.fy = null;
 		}
-	}
-
-	function nodeClicked(node: D3Node) {
-		if (selectedNode?.id === node.id) selectedNode = null;
-		else selectedNode = node;
 	}
 
 	async function exportSVG() {
@@ -471,6 +466,15 @@
 		hoveredNodeKey = hoveredNode ? hoveredNode.id : null;
 	}
 
+	function canvasClicked(event: MouseEvent) {
+		let clickedNode = getD3Node(event);
+		if (clickedNode && selectedNode?.id != clickedNode.id) {
+			selectedNode = clickedNode;
+		} else {
+			selectedNode = null;
+		}
+	}
+
 	function updateSelectedNode(t: d3.ZoomTransform = transform) {
 		if (selectedNode) {
 			selectedNodeX = selectedNode.fx ? t.applyX(selectedNode.fx) : t.applyX(selectedNode.x!);
@@ -490,6 +494,7 @@
 		bind:clientWidth={width}
 		bind:clientHeight={height}
 		on:mousemove={detectHover}
+		on:click={canvasClicked}
 	/>
 
 	<div class="absolute top-20 right-2">
